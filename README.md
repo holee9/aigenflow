@@ -1,204 +1,312 @@
-# Multi-AI Pipeline BizPlan
+# agent-compare
 
-4개 AI(ChatGPT, Claude, Gemini, Perplexity)를 교차 활용하여 사업계획서와 R&D 계획서를 자동 생성하는 MoAI-ADK 스킬입니다.
+> 4개의 AI 에이전트(ChatGPT, Claude, Gemini, Perplexity)를 활용한 자동화 사업 계획서 생성 CLI 파이프라인
 
-## 개요
+하나의 CLI 명령으로 5단계 파이프라인을 자동 실행하여, 각 AI의 강점을 교차 활용한 고품질 사업 계획서를 생성합니다. Proxima 게이트웨이(v3.0.0)를 통해 API 키 없이 브라우저 세션 기반으로 4개 AI를 통합 관리합니다.
 
-단일 AI의 한계를 넘어, 각 AI의 강점을 단계별로 조합하는 멀티에이전트 파이프라인입니다.
+---
 
-| AI | 역할 | 강점 |
-|:---:|---|---|
-| **ChatGPT** | 발상가 / 프레임워크 장인 | 창의적 발산, SWOT/PESTEL 분석, 편집 |
-| **Claude** | 설계자 / 집필자 | 논리적 수렴, 장문 일관성, 전문 문체 |
-| **Gemini** | 리서치 군단 | Deep Research, 100+ 소스, 표/그래프 |
-| **Perplexity** | 팩트 라이브러리 | 실시간 검색, 자동 인용, 팩트체크 |
+## AI 에이전트 배치
 
-## 파이프라인 구조
+4개 AI 에이전트 각각의 강점에 기반한 역할 분배입니다. 4개 AI의 교차검증을 통해 확정되었습니다 ([상세 근거](./final-summary.md)).
+
+| AI | 역할 | 담당 단계 | 핵심 강점 |
+|:---:|---|:---:|---|
+| **ChatGPT** | 발상가 / 프레임워크 장인 | 1-A, 3-A, 4(보조) | 창의적 브레인스토밍, o3 추론, Canvas 편집 |
+| **Claude** | 설계자 / 집필자 | 1-B, 3-B, **4(메인)**, 5 | 200K+ 컨텍스트, 논리적 일관성, 전문 문체 |
+| **Gemini** | 리서치 군단 / 협업 허브 | **2(메인)**, 4(보조), 5(보조) | Deep Research, 1M+ 컨텍스트, Workspace 통합 |
+| **Perplexity** | 팩트 라이브러리 | 2(보조), **5(메인)** | 실시간 웹 검색, 인용 정확도 90%+, 빠른 응답 |
+
+---
+
+## 파이프라인 동작 흐름
 
 ```
-[아이디어 입력]
-    │
-    ▼
-Phase 1: 컨셉 프레이밍
-    ChatGPT(발산) → Claude(수렴/검증)
-    │
-    ▼
-Phase 2: 심층 리서치 (병렬)
-    Gemini(범위) + Perplexity(정확도) → Claude(교차검증)
-    │
-    ▼
-Phase 3: 전략 설계
-    ChatGPT(SWOT/PESTEL) → Claude(서사 통합)
-    │
-    ▼
-Phase 4: 계획서 초안
-    Claude(본문 집필) + ChatGPT(요약) + Gemini(시각자료)
-    │
-    ▼
-Phase 5: 최종 검수
-    Perplexity(팩트체크) → Claude(오류 반영)
-    │
-    ▼
-[완성된 계획서]
+[사용자 입력: 사업 주제]
+       |
+       v
+ --- Phase 1: 개념 프레이밍 (순차) -------------------
+ |  1-A. ChatGPT  -> 아이디어 발산, BM 캔버스         |
+ |  1-B. Claude   -> 후보 압축, 논리/리스크 검증       |
+ -------------------------------------------------------
+       |  결과 요약 -> 다음 단계 컨텍스트로 전달
+       v
+ --- Phase 2: 심층 리서치 (병렬) ---------------------
+ |  Gemini DR     -> 100+ 소스, 범위 확장             |
+ |  Perplexity DR -> 인용 정확, 핵심 수치 검증    [동시]|
+ -------------------------------------------------------
+       |  연구 결과 병합 -> 다음 단계 컨텍스트로 전달
+       v
+ --- Phase 3: 전략/로드맵 설계 (순차) ----------------
+ |  3-A. ChatGPT  -> SWOT, PESTEL, 재무 시나리오      |
+ |  3-B. Claude   -> 모순 제거, 서사 통합, KPI 정렬    |
+ -------------------------------------------------------
+       |  전략 결과 -> 다음 단계 컨텍스트로 전달
+       v
+ --- Phase 4: 계획서 초안 작성 (순차+병렬) -----------
+ |  Claude (메인) -> 장문 계획서 본문 집필             |
+ |  ChatGPT(보조) -> 투자자 요약, 피치덱              |
+ |  Gemini (보조) -> 표, 그래프, 타임라인              |
+ -------------------------------------------------------
+       |  초안 전문 -> 다음 단계 검증 대상으로 전달
+       v
+ --- Phase 5: 팩트체크/최종 검수 (병렬) --------------
+ |  Perplexity    -> 주장/수치/출처 인용 감사          |
+ |  Claude        -> 오류 반영, 전체 재정렬       [동시]|
+ |  Gemini        -> Workspace 버전관리/공유           |
+ -------------------------------------------------------
+       |
+       v
+ [완성된 사업 계획서 -> output/{session-id}/final/business_plan.md]
 ```
 
-각 Phase 사이에 사용자 검토/수정이 가능합니다.
+### 핵심 메커니즘
 
-## 아키텍처
+| 메커니즘 | 설명 |
+|---------|------|
+| **Proxima 경유** | 모든 AI 호출은 `localhost:3210`의 Proxima를 통해 처리. API 키 불필요 (브라우저 세션 기반) |
+| **컨텍스트 체인** | 각 단계 결과가 요약되어 다음 단계 입력으로 누적 전달 (Phase 1 -> 2 -> 3 -> 4 -> 5) |
+| **자동 폴백** | AI 응답 실패 시 동일 AI 2회 재시도 후 폴백 AI로 전환 (ChatGPT <-> Claude, Gemini <-> Perplexity) |
+| **상태 저장/재개** | 매 단계 완료 시 상태를 JSON으로 저장. 실패 시 `resume` 명령으로 마지막 성공 지점부터 재개 |
+| **병렬 실행** | Phase 2, 5에서 asyncio.gather()를 통한 동시 AI 호출로 실행 시간 단축 |
 
-- **마스터 스킬**: `moai-pipeline-bizplan` - `/bizplan` 커맨드로 실행
-- **MCP 서버 3개**: 외부 AI를 MCP 프로토콜로 래핑
-  - `mcp-openai` - ChatGPT API
-  - `mcp-gemini` - Gemini API
-  - `mcp-perplexity` - Perplexity API
-- **상태 저장**: `.moai/pipeline/{session-id}/`에 Phase별 결과 저장
+---
 
-## 사용 방법
+## 언어 처리 흐름
 
-### 사전 준비
+사용자는 한국어 또는 영어로 주제를 입력할 수 있습니다. 파이프라인 내부에서는 안정성을 위해 **영어**로 처리하고, 최종 출력은 사용자가 지정한 언어로 변환합니다.
 
-1. API 키를 환경 변수로 설정:
+> Proxima DOM 스크래핑 시 한국어 인코딩 이슈가 확인되어, AI 프롬프트는 영어로 구성합니다.
+
+```
+[사용자 입력]                    [파이프라인 내부]                [최종 출력]
+
+ 한국어 입력                      영어로 처리                     한국어 출력
+ "AI SaaS 플랫폼"  ---변환(1)--> "AI SaaS Platform" ---변환(2)--> 한국어 계획서
+                                  Phase 1~5 전체 영어
+
+ 영어 입력                        영어로 처리                     영어 출력
+ "AI SaaS Platform" --그대로-->  "AI SaaS Platform" --그대로-->  영어 계획서
+```
+
+### 단계별 언어 상세
+
+| 구간 | 한국어 입력 시 | 영어 입력 시 | 이유 |
+|------|:---:|:---:|---|
+| 사용자 입력 | KO | EN | 사용자 편의 |
+| 프롬프트 생성 (Jinja2) | **EN** (자동 변환) | EN (그대로) | DOM 인코딩 이슈 회피 |
+| Phase 1~5 AI 처리 | **EN** | EN | AI 응답 안정성 |
+| 컨텍스트 체인 (단계 간 전달) | **EN** | EN | 일관성 유지 |
+| 최종 사업 계획서 | **KO** (변환 출력) | EN (그대로) | `--lang` 설정에 따름 |
+| CLI 메시지 | KO | KO | 사용성 요구사항 |
+
+### 언어 변환 포인트
+
+파이프라인에서 언어 변환이 일어나는 지점은 **2곳**입니다:
+
+```
+       변환점 (1)                          변환점 (2)
+          |                                   |
+KO 입력 --+-- EN 프롬프트 --- EN 처리 (AI) ---+-- KO 출력
+          |   Jinja2 템플릿    Phase 1~5      |   출력 템플릿
+     topic 번역                         계획서 번역
+```
+
+| 변환점 | 위치 | 방향 | 방식 |
+|--------|------|:---:|---|
+| **(1)** | 프롬프트 생성 시 | KO -> EN | Jinja2 템플릿 내 topic 변환 |
+| **(2)** | 최종 출력 시 | EN -> KO | 출력 템플릿의 번역 지시 |
+
+---
+
+## CLI 사용법
+
+### 기본 명령
 
 ```bash
-export OPENAI_API_KEY="sk-..."
-export GEMINI_API_KEY="..."
-export PERPLEXITY_API_KEY="pplx-..."
+# 사업 계획서 생성 (5단계 자동 실행)
+agent-compare run --topic "AI SaaS 플랫폼"
+
+# 템플릿 지정 (startup / rd / strategy)
+agent-compare run --topic "친환경 물류" --template startup
+
+# 출력 언어 지정
+agent-compare run --topic "Fintech App" --lang en
+
+# 특정 단계부터 재개
+agent-compare run --topic "AI SaaS" --from-phase 3
 ```
 
-2. MCP 서버 설치:
+### 유틸리티 명령
 
 ```bash
-cd mcp-servers/mcp-openai && npm install
-cd mcp-servers/mcp-gemini && npm install
-cd mcp-servers/mcp-perplexity && npm install
+# Proxima 및 AI 프로바이더 상태 확인
+agent-compare check
+
+# 중단된 파이프라인 재개
+agent-compare resume <session-id>
+
+# 실행 상태 조회
+agent-compare status <session-id>
+
+# 설정 조회/변경
+agent-compare config show
+agent-compare config set language en
 ```
 
-### 실행
+### CLI 옵션
 
-Claude Code에서:
+| 옵션 | 설명 | 기본값 |
+|------|------|--------|
+| `--topic` | 사업 주제 (필수, 10자 이상) | - |
+| `--template` | 프롬프트 템플릿 | `default` |
+| `--from-phase` | 재개 시작 단계 (1-5) | 1 |
+| `--lang` | 출력 언어 | `ko` |
+| `--output-dir` | 출력 디렉토리 | `output/` |
+
+---
+
+## 출력 결과물
 
 ```
-/bizplan "AI 기반 헬스케어 플랫폼 사업계획서"
+output/<session-id>/
+├── phase1/results.json          # Phase 1 개념 프레이밍 결과
+├── phase2/results.json          # Phase 2 심층 리서치 결과
+├── phase3/results.json          # Phase 3 전략/로드맵 결과
+├── phase4/results.json          # Phase 4 초안 작성 결과
+├── phase5/results.json          # Phase 5 최종 검증 결과
+├── final/
+│   └── business_plan.md         # 최종 사업 계획서
+├── pipeline_state.json          # 파이프라인 상태 (resume용)
+└── metadata.json                # 세션 메타데이터
 ```
 
-Phase별로 결과가 생성되며, 각 단계에서 검토/수정할 수 있습니다.
+---
 
-### 중단 후 재개
+## 기술 스택
 
-```
-/bizplan resume bizplan-20260215-143022
-```
+| 영역 | 기술 | 버전 |
+|------|------|------|
+| 언어 | Python | 3.13+ |
+| CLI | Typer + Rich | 0.12+ / 13.0+ |
+| 비동기 HTTP | aiohttp | 3.9+ |
+| 데이터 검증 | Pydantic | 2.9+ |
+| 프롬프트 템플릿 | Jinja2 | 3.1+ |
+| 로깅 | structlog | 24.0+ |
+| 테스트 | pytest + pytest-asyncio | 8.0+ / 0.23+ |
+| AI 게이트웨이 | Proxima | v3.0.0 |
+| 패키지 관리 | uv | latest |
 
-### API 키 없이 사용
+---
 
-API 키가 설정되지 않은 AI는 Claude가 대신 처리합니다. 모든 API 키 없이도 Claude 단독으로 전체 파이프라인 실행이 가능합니다 (교차검증 이점은 감소).
+## 시스템 요구사항
 
-## 출력물
+| 항목 | 요구사항 |
+|------|----------|
+| OS | Windows 10/11 (MINGW64 호환) |
+| Python | 3.13 이상 |
+| Proxima | v3.0.0 이상, `localhost:3210`에서 실행 중 |
+| 네트워크 | localhost 전용 (외부 네트워크 불필요) |
+| AI 세션 | ChatGPT, Claude, Gemini, Perplexity 브라우저 세션 유효 |
 
-| 파일 | 내용 |
-|------|------|
-| `phase1-concept.md` | 컨셉 프레이밍 (BM 캔버스, 후보 분석) |
-| `phase2-research.md` | 심층 리서치 (시장/기술/경쟁사/규제) |
-| `phase3-strategy.md` | 전략 설계 (SWOT, PESTEL, 재무, KPI) |
-| `phase4-draft.md` | 계획서 초안 (본문 + 요약 + 시각자료) |
-| `final-bizplan.md` | 팩트체크 완료된 최종 계획서 |
+---
 
 ## 프로젝트 구조
 
 ```
 agent-compare/
-├── proxima/                   # Proxima Multi-AI 게이트웨이 (서브모듈)
-├── docs/
-│   ├── plans/                 # 설계 문서
-│   └── guides/                # API 키 발급 가이드
-├── .claude/skills/moai-pipeline-bizplan/
-│   └── SKILL.md               # 마스터 스킬 정의
-├── final-summary.md           # 4개 AI 교차검증 최종안
-└── .moai/pipeline/            # 파이프라인 실행 상태
+├── src/                            # Python 코어 파이프라인
+│   ├── main.py                     # CLI 진입점 (Typer)
+│   ├── pipeline/                   # 5단계 파이프라인
+│   │   ├── orchestrator.py         # 상태 머신 + 이벤트
+│   │   ├── state.py                # PipelineState, PhaseResult
+│   │   └── phase1~5_*.py           # 각 단계 모듈
+│   ├── agents/                     # AI 에이전트 라우팅
+│   │   ├── base.py                 # AsyncAgent Protocol
+│   │   └── router.py              # (단계, 작업) -> AI 매핑
+│   ├── proxima/                    # Proxima Gateway 클라이언트
+│   │   ├── client.py              # AsyncProximaClient (aiohttp)
+│   │   └── models.py              # 요청/응답 모델
+│   ├── core/                       # 설정, 이벤트, 예외, 로깅
+│   ├── templates/                  # Jinja2 프롬프트 + 출력 템플릿
+│   └── output/                     # 포매팅 + 파일 내보내기
+├── tests/                          # 테스트 스위트
+├── proxima/                        # Proxima 게이트웨이 (서브모듈)
+├── .moai/
+│   ├── specs/SPEC-PIPELINE-001/    # SPEC 문서
+│   └── project/                    # 프로젝트 설계 문서
+└── final-summary.md                # 4개 AI 교차검증 최종안
 ```
 
-## 검증 기록 (2026-02-15)
+---
+
+## 핵심 운용 원칙
+
+| # | 원칙 | 근거 |
+|:---:|---|---|
+| 1 | **멀티에이전트 필수** | 단일 AI의 편향과 실패 모드를 상쇄 (4/4 AI 합의) |
+| 2 | **발산 =/= 구조화** | ChatGPT=발산/프레임워크, Claude=구조화/논리/서사 (역할 분리) |
+| 3 | **리서치 이중화** | 커버리지(Gemini) x 정밀도(Perplexity) 병렬로 재현성 확보 |
+| 4 | **검증 가능한 형식 강제** | 모든 주장에 인용/증거 포함, 미확인 항목 명시적 표시 |
+
+---
+
+## 검증 기록
+
+### 쿠키 임포트 파이프라인 및 3-AI 영어 테스트 (2026-02-15)
+
+초기 테스트에서 발견된 문제(한글 인코딩, 쿠키 인증, Gemini 캡처 실패)를 해결하기 위해 쿠키 임포트 파이프라인을 구축하고 영어 질문으로 재테스트했습니다.
+
+**해결된 문제**:
+- Chrome Cookie-Editor 익스텐션으로 쿠키 추출 -> Proxima에 자동 임포트
+- Electron 파티션 캐시 충돌 -> 캐시 디렉토리 정리로 해결
+- Gemini 활성화 시 크래시 -> 쿠키 임포트 및 파티션 초기화로 해결
+- 한글 응답 깨짐 -> 영어 질문으로 전환하여 우회
+
+**영어 비교 테스트** ("What are the top 3 advantages of TypeScript over JavaScript?"):
+
+| AI | 결과 | 응답 시간 | 응답 길이 | 특징 |
+|:---:|:----:|:--------:|:--------:|------|
+| Perplexity | 성공 | 8.9초 | 964자 | 질문 에코 포함 (DOM 스크래핑 이슈) |
+| ChatGPT | 성공 | 4.7초 | 611자 | 가장 빠름, 깔끔한 마크다운 |
+| Gemini | 성공 | 5.4초 | 1,116자 | 가장 상세한 응답, H3 포맷 |
 
 ### API 키 인증 검증
 
 | 서비스 | 인증 | 실제 호출 | 비고 |
 |--------|:----:|:--------:|------|
 | OpenAI | O | X | 키 유효하나 크레딧 없음 (`insufficient_quota`) |
-| Gemini | O | X | 키 유효하나 무료 일일 한도 소진 (`limit: 0`) |
+| Gemini | O | X | 키 유효하나 무료 일일 한도 소진 |
 | Perplexity | O | O | Pro 세션 토큰 유효 (만료: 2026-03-16) |
 
-### 웹 세션 기반 MCP 검증 (Proxima)
-
-[Proxima](https://github.com/Zen4-bit/Proxima)를 통해 웹 구독(ChatGPT Plus, Gemini, Perplexity Pro) 세션을 MCP로 래핑하여 테스트했습니다.
-
-**단순 테스트 (1+1)**:
-
-| AI | 결과 | 응답 시간 |
-|:---:|:----:|:--------:|
-| Perplexity | O 정상 | 9초 |
-| ChatGPT | O 정상 | 49초 |
-| Gemini | X 캡처 실패 | 24초 |
-
-**리서치 질문 교차검증 테스트** ("2026년 한국 AI 헬스케어 시장 규모와 주요 기업"):
-
-| AI | 결과 | 문제점 |
-|:---:|:----:|--------|
-| Perplexity | 부분 성공 | 질문 주제와 다소 다른 일반 AI 트렌드 응답 |
-| ChatGPT | 실패 | 기존 대화 맥락 오염으로 완전히 다른 주제 응답 |
-| Gemini | 실패 | 응답 캡처 불가 ("No response captured") |
-
-### 교차검증 유효성 분석
-
-**의미 있는 교차검증**:
-- 검색 AI(Perplexity/Gemini) vs 생성 AI(Claude/ChatGPT): 정보 소스가 근본적으로 다름
-- Gemini DR vs Perplexity: 검색 방법론 차이 (범위 vs 정확도)
-
-**의미 약한 교차검증**:
-- ChatGPT vs Claude: 유사한 학습 데이터, 비슷한 편향과 실패 모드
-- LLM이 다른 LLM의 논리를 검증하는 것: 효과 제한적
-
-### 연동 방식별 비교
+### 연동 방식 비교
 
 | 방식 | 비용 | 안정성 | 자동화 적합성 |
 |------|:----:|:------:|:------------:|
 | API 직접 호출 (유료) | 높음 | 높음 | 높음 |
-| 웹 세션 MCP (Proxima) | 무료 | 낮음 | 낮음 |
+| 웹 세션 MCP (Proxima) | 무료 | 중간 | 중간 |
 | Claude + WebSearch | 포함 | 높음 | 높음 |
 
-### 쿠키 임포트 파이프라인 구축 및 3-AI 영어 테스트 (2026-02-15)
+### 알려진 제한사항
 
-초기 테스트에서 발견된 문제(한글 인코딩, 쿠키 인증, Gemini 캡처 실패)를 해결하기 위해 쿠키 임포트 파이프라인을 구축하고 영어 질문으로 재테스트했습니다.
-
-**해결된 문제**:
-- Chrome Cookie-Editor 익스텐션으로 쿠키 추출 → `import-cookies.cjs`로 Proxima에 자동 임포트
-- Electron 파티션 캐시 충돌 → 캐시 디렉토리 정리로 해결
-- Gemini 활성화 시 크래시 → 쿠키 임포트 및 파티션 초기화로 해결
-- 한글 응답 깨짐 → 영어 질문으로 전환하여 우회
-
-**영어 비교 테스트** ("What are the top 3 advantages of TypeScript over JavaScript?"):
-
-| AI | 결과 | 응답 시간 | 응답 길이 | 특징 |
-|:---:|:----:|:--------:|:--------:|------|
-| Perplexity | O 성공 | 8.9초 | 964자 | 질문 에코 포함 (DOM 스크래핑 이슈) |
-| ChatGPT | O 성공 | 4.7초 | 611자 | 가장 빠름, 깔끔한 마크다운 |
-| Gemini | O 성공 | 5.4초 | 1,116자 | 가장 상세한 응답, H3 포맷 |
-
-**알려진 제한사항**:
 - Perplexity DOM 스크래핑 시 질문 텍스트 및 UI 요소가 응답에 포함됨
-- 짧은 응답(3자 이하)은 `text.length > 3` 필터에 의해 캡처 안됨
+- 한글 질문은 인코딩/DOM 스크래핑 이슈로 영어 사용 권장
 - 쿠키 만료 시 재임포트 필요
 
-### 현실적 결론 (업데이트)
+---
 
-1. **웹 세션 방식은 영어 질문에서 3개 AI 모두 동작 확인**: 쿠키 임포트 파이프라인 구축으로 안정성 개선
-2. **한글 질문은 여전히 불안정**: 인코딩/DOM 스크래핑 이슈로 영어 사용 권장
-3. **API 방식은 비용 필요**: OpenAI 최소 $5, Perplexity $5 크레딧 충전 필요
-4. **즉시 사용 가능한 조합**: Claude + WebSearch만으로 핵심 가치(생성 + 팩트체크) 구현 가능
-5. **Proxima 활용 가능**: 영어 기반 교차검증 파이프라인으로 3개 AI(Perplexity, ChatGPT, Gemini) 활용 가능
+## 프로젝트 상태
 
-## 교차검증 근거
+- [x] 4개 AI 교차검증 완료 (final-summary.md)
+- [x] Proxima 연동 검증 완료 (쿠키 임포트 파이프라인)
+- [x] 3-AI 영어 테스트 성공 (Perplexity, ChatGPT, Gemini)
+- [x] SPEC 문서 작성 완료 (SPEC-PIPELINE-001)
+- [ ] 코어 파이프라인 구현 (L0~L6)
+- [ ] CLI 인터페이스 구현 (L8)
+- [ ] 테스트 스위트 작성 (L9)
+- [ ] 사용자 가이드 문서화
 
-이 파이프라인 설계는 Claude, ChatGPT, Gemini, Perplexity 4개 AI에게 각각 최적의 워크플로우를 물어본 뒤 교차 대조하여 확정한 것입니다. 자세한 내용은 [`final-summary.md`](./final-summary.md)를 참조하세요.
+---
 
 ## 라이선스
 
