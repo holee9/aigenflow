@@ -1,8 +1,21 @@
 # agent-compare
 
-> 4개의 AI 에이전트(ChatGPT, Claude, Gemini, Perplexity)를 활용한 자동화 사업 계획서 생성 CLI 파이프라인
+> 4개의 AI 에이전트(ChatGPT, Claude, Gemini, Perplexity)를 활용한 사업계획서/R&D 제안서 자동 생성 CLI 파이프라인
 
-하나의 CLI 명령으로 5단계 파이프라인을 자동 실행하여, 각 AI의 강점을 교차 활용한 고품질 사업 계획서를 생성합니다. Proxima 게이트웨이(v3.0.0)를 통해 API 키 없이 브라우저 세션 기반으로 4개 AI를 통합 관리합니다.
+하나의 CLI 명령으로 5단계 파이프라인을 자동 실행하여, 각 AI의 강점을 교차 활용한 고품질 문서를 생성합니다. `--type` 옵션으로 사업계획서(`bizplan`)와 연구개발제안서(`rd`)를 모드 전환하여 생성할 수 있습니다.
+
+Proxima 게이트웨이(v3.0.0)를 통해 API 키 없이 브라우저 세션 기반으로 4개 AI를 통합 관리합니다.
+
+### 프로젝트 비전
+
+이 파이프라인의 출력물(사업계획서/R&D 제안서)은 이후 AI 에이전트들이 실제 프로젝트를 구현해 나가는 **입력 SPEC**으로 활용됩니다.
+
+```
+[agent-compare 파이프라인]              [AI 에이전트 구현]
+ 주제 입력 --> 5단계 AI 협업 -->  문서.md  -->  프로젝트 빌드
+              (ChatGPT/Claude/           (문서를 SPEC으로 삼아
+               Gemini/Perplexity)         AI가 실제 구현)
+```
 
 ---
 
@@ -57,8 +70,20 @@
  -------------------------------------------------------
        |
        v
- [완성된 사업 계획서 -> output/{session-id}/final/business_plan.md]
+ [완성된 문서 -> output/{session-id}/final/business_plan.md]
 ```
+
+### 모드별 Phase 차이 (`--type`)
+
+동일한 5단계 구조에서 `--type`에 따라 각 Phase의 작업 내용이 분기됩니다.
+
+| Phase | bizplan (사업계획서) | rd (연구개발제안서) |
+|:---:|---|---|
+| 1 | BM 캔버스, USP, 페르소나 | 기술 과제 정의, 연구 범위, 선행 연구 |
+| 2 | 시장/경쟁사/규제 조사 | 기술 문헌, 특허, 기술 동향 |
+| 3 | SWOT, PESTEL, 재무 시나리오 | 기술 타당성, 연구 방법론, TRL 평가 |
+| 4 | 사업 전략 서사, 투자 피치 | 연구 계획, 기대 성과, 활용 방안 |
+| 5 | 시장 데이터 팩트체크 | 기술 주장 검증, 논문 인용 확인 |
 
 ### 핵심 메커니즘
 
@@ -124,8 +149,11 @@ KO 입력 --+-- EN 프롬프트 --- EN 처리 (AI) ---+-- KO 출력
 ### 기본 명령
 
 ```bash
-# 사업 계획서 생성 (5단계 자동 실행)
+# 사업계획서 생성 (기본 모드)
 agent-compare run --topic "AI SaaS 플랫폼"
+
+# R&D 제안서 생성
+agent-compare run --type rd --topic "양자 컴퓨팅 응용 연구"
 
 # 템플릿 지정 (startup / rd / strategy)
 agent-compare run --topic "친환경 물류" --template startup
@@ -159,6 +187,7 @@ agent-compare config set language en
 | 옵션 | 설명 | 기본값 |
 |------|------|--------|
 | `--topic` | 사업 주제 (필수, 10자 이상) | - |
+| `--type` | 문서 유형 (`bizplan` / `rd`) | `bizplan` |
 | `--template` | 프롬프트 템플릿 | `default` |
 | `--from-phase` | 재개 시작 단계 (1-5) | 1 |
 | `--lang` | 출력 언어 | `ko` |

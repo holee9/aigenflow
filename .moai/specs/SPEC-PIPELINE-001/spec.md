@@ -19,7 +19,9 @@
 
 ### 1.1 목적
 
-Proxima 게이트웨이(v3.0.0)를 통해 4개의 AI 에이전트(Claude, ChatGPT, Gemini, Perplexity)를 활용하여 자동화된 사업 계획서를 생성하는 CLI 파이프라인 도구를 구축한다. 단일 CLI 명령으로 5단계 파이프라인(개념 프레이밍 - 심층 연구 - 전략 수립 - 초안 작성 - 최종 검증)을 순차적/병렬적으로 실행하며, 각 AI의 강점을 교차 활용하여 높은 품질의 결과물을 생산한다.
+Proxima 게이트웨이(v3.0.0)를 통해 4개의 AI 에이전트(Claude, ChatGPT, Gemini, Perplexity)를 활용하여 사업계획서 및 연구개발제안서를 자동 생성하는 CLI 파이프라인 도구를 구축한다. 단일 CLI 명령으로 5단계 파이프라인(개념 프레이밍 - 심층 연구 - 전략 수립 - 초안 작성 - 최종 검증)을 순차적/병렬적으로 실행하며, `--type` 옵션으로 사업계획서(bizplan)와 R&D 제안서(rd) 모드를 전환한다. 각 AI의 강점을 교차 활용하여 높은 품질의 결과물을 생산한다.
+
+**장기 비전**: 이 파이프라인의 출력물(사업계획서/R&D 제안서)은 이후 AI 에이전트들이 실제 프로젝트를 구현해 나가는 입력 SPEC으로 활용된다.
 
 ### 1.2 범위
 
@@ -30,7 +32,8 @@ Proxima 게이트웨이(v3.0.0)를 통해 4개의 AI 에이전트(Claude, ChatGP
 - 단계 간 컨텍스트 전달 메커니즘
 - 파이프라인 상태 관리 및 재개(Resume) 기능
 - Jinja2 기반 프롬프트 템플릿 시스템
-- 구조화된 출력 포매팅 (Markdown, 향후 DOCX/PDF)
+- 문서 유형 모드 분기 (`--type bizplan` / `--type rd`)
+- 구조화된 출력 포매팅 (Markdown)
 - 에이전트 헬스체크 및 폴백 라우팅
 
 **제외 범위 (Out-of-Scope)**:
@@ -224,6 +227,7 @@ CLI 명령 체계:
 ```
 agent-compare run [OPTIONS]
   --topic TEXT        사업 주제 (필수)
+  --type TEXT         문서 유형: bizplan / rd (기본: bizplan)
   --template TEXT     템플릿 이름 (기본: default)
   --from-phase INT    재개 시작 단계 (1-5)
   --lang TEXT         출력 언어 (기본: ko)
