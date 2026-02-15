@@ -299,11 +299,27 @@ agent-compare/
 - 4단계 세션 자동 복구 체인 설계 (리프레시 → 재로그인 → 폴백 → Claude 안전망)
 - 상세 설계: `docs/plans/2026-02-15-playwright-gateway-design.md`
 
+**Phase 3: Playwright PoC 4개 AI 전체 검증 (2026-02-15)**
+- 4개 AI 프로필 셋업 → 세션 유지 → 메시지 전송 → 응답 캡처 전과정 성공
+- 검증 결과:
+
+| AI | 계정 | 셋업 | 세션 | 전송 | 응답 | 입력 셀렉터 |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---|
+| Perplexity | Pro | ✅ | ✅ | ✅ | ✅ | `[role=textbox]` |
+| ChatGPT 5.2 | Pro | ✅ | ✅ | ✅ | ✅ | `#prompt-textarea` |
+| Gemini 3 | PRO | ✅ | ✅ | ✅ | ✅ | `.ql-editor` |
+| Claude | Opus 4.6 | ✅ | ✅ | ✅ | ✅ | `[contenteditable]` |
+
+- Cloudflare 대응: Playwright 번들 Chromium → PC 설치 Chrome (`channel="chrome"`) 전환으로 CAPTCHA 회피
+- Headed 모드 필수: headless 시 Cloudflare 차단 확인 → headed + 최소화 방식 채택
+- PoC 코드: `tests/poc_playwright.py`
+
 ### 알려진 제한사항
 
+- Cloudflare가 headless 브라우저 차단 → headed 모드(+최소화)로 운영 필요
 - AI 웹 인터페이스 DOM 스크래핑 시 한국어 인코딩 이슈 → AI 프롬프트는 영어 사용
 - AI 서비스 DOM 구조 변경 시 셀렉터 업데이트 필요 (외부 설정 파일로 분리)
-- Perplexity DOM 스크래핑 시 질문 텍스트가 응답에 포함되는 이슈
+- 응답 캡처 시 UI 메뉴 텍스트 혼입 → 셀렉터 정밀화 필요
 
 ---
 
@@ -313,6 +329,7 @@ agent-compare/
 - [x] Proxima 연동 검증 → 쿠키 만료 문제 확인 → Playwright 전환 결정
 - [x] SPEC 문서 작성 완료 (SPEC-PIPELINE-001, Playwright 기반으로 업데이트)
 - [x] Playwright Gateway 설계 문서 완료
+- [x] Playwright PoC 검증 완료 (4개 AI 프로필/세션/전송/응답 전과정 성공)
 - [ ] 코어 파이프라인 구현 (L0~L8)
 - [ ] CLI 인터페이스 구현 (L8)
 - [ ] 테스트 스위트 작성 (L9)
