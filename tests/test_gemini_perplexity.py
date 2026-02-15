@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from playwright.async_api import async_playwright
 
-PROFILE_DIR = Path.home() / ".agent-compare" / "profiles"
+PROFILE_DIR = Path.home() / ".aigenflow" / "profiles"
 BROWSER_CHANNEL = "chrome"
 
 PROMPT = """AI 기반 스마트폰 관리 시스템에 대한 창의적인 아이디어 2개를 제안해주세요.

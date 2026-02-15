@@ -25,12 +25,12 @@ class TestChatGPTProvider:
 
     def test_init(self):
         """Test provider initialization."""
-        provider = ChatGPTProvider(profile_dir="~/.agent-compare/profiles/chatgpt")
+        provider = ChatGPTProvider(profile_dir="~/.aigenflow/profiles/chatgpt")
         assert provider.base_url == "https://chat.openai.com"
 
     def test_send_message(self):
         """Test send_message method."""
-        provider = ChatGPTProvider(profile_dir="~/.agent-compare/profiles/chatgpt")
+        provider = ChatGPTProvider(profile_dir="~/.aigenflow/profiles/chatgpt")
 
         # TODO: Test actual message sending
         # response = await provider.send_message(request)
@@ -42,7 +42,7 @@ class TestClaudeProvider:
 
     def test_init(self):
         """Test provider initialization."""
-        provider = ClaudeProvider(profile_dir="~/.agent-compare/profiles/claude")
+        provider = ClaudeProvider(profile_dir="~/.aigenflow/profiles/claude")
         assert provider.base_url == "https://claude.ai"
 
 
@@ -51,7 +51,7 @@ class TestGeminiProvider:
 
     def test_init(self):
         """Test provider initialization."""
-        provider = GeminiProvider(profile_dir="~/.agent-compare/profiles/gemini")
+        provider = GeminiProvider(profile_dir="~/.aigenflow/profiles/gemini")
         assert provider.base_url == "https://gemini.google.com"
 
 
@@ -60,5 +60,5 @@ class TestPerplexityProvider:
 
     def test_init(self):
         """Test provider initialization."""
-        provider = PerplexityProvider(profile_dir="~/.agent-compare/profiles/perplexity")
+        provider = PerplexityProvider(profile_dir="~/.aigenflow/profiles/perplexity")
         assert provider.base_url == "https://perplexity.ai"

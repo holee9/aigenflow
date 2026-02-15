@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeout
 
-PROFILE_DIR = Path.home() / ".agent-compare" / "profiles"
+PROFILE_DIR = Path.home() / ".aigenflow" / "profiles"
 TIMEOUT_MS = 60_000
 
 # Use installed Chrome to avoid automation detection (CAPTCHA loops)

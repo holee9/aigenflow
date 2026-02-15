@@ -48,10 +48,10 @@ Playwright 영구 프로필 기반으로 4개의 AI 에이전트(Claude, ChatGPT
 
 | 사용자 유형 | 설명 | 주요 시나리오 |
 |------------|------|-------------|
-| 스타트업 창업자 | 신사업 계획 수립, 투자 유치 준비 | `agent-compare run --template startup --topic "AI SaaS"` |
-| 연구개발 팀 | R&D 제안서, 신기술 추진 계획 | `agent-compare run --template rd --topic "양자 컴퓨팅 응용"` |
-| 경영진/컨설턴트 | 사업 전략 검토, 신규 사업 진출 | `agent-compare run --template strategy --topic "동남아 진출"` |
-| 비즈니스 플래너 | 체계적 사업 계획서 자동 생성 | `agent-compare run --topic "친환경 물류 플랫폼"` |
+| 스타트업 창업자 | 신사업 계획 수립, 투자 유치 준비 | `aigenflow run --template startup --topic "AI SaaS"` |
+| 연구개발 팀 | R&D 제안서, 신기술 추진 계획 | `aigenflow run --template rd --topic "양자 컴퓨팅 응용"` |
+| 경영진/컨설턴트 | 사업 전략 검토, 신규 사업 진출 | `aigenflow run --template strategy --topic "동남아 진출"` |
+| 비즈니스 플래너 | 체계적 사업 계획서 자동 생성 | `aigenflow run --topic "친환경 물류 플랫폼"` |
 
 ---
 
@@ -69,7 +69,7 @@ Playwright 영구 프로필 기반으로 4개의 AI 에이전트(Claude, ChatGPT
 
 - **접근 방식**: Playwright persistent browser context로 AI 웹 인터페이스 직접 제어
 - **지원 AI 프로바이더**: ChatGPT, Claude, Gemini, Perplexity
-- **프로필 저장**: `~/.agent-compare/profiles/{provider}/` (디스크 영속)
+- **프로필 저장**: `~/.aigenflow/profiles/{provider}/` (디스크 영속)
 - **세션 관리**: 4단계 자동 복구 체인 (리프레시 → 재로그인 → 지정 폴백 → Claude 최종 안전망)
 - **알려진 제한**: AI 서비스 DOM 구조 변경 시 셀렉터 업데이트 필요 (외부 설정 파일로 분리)
 
@@ -90,7 +90,7 @@ Playwright 영구 프로필 기반으로 4개의 AI 에이전트(Claude, ChatGPT
 
 | ID | 가정 | 신뢰도 | 근거 | 위험(오류 시) | 검증 방법 |
 |----|------|--------|------|-------------|---------|
-| A-1 | Playwright 영구 프로필로 AI 서비스 세션이 수주~수개월 유지된다 | Medium | 브라우저 프로필 전체 보존 방식 | 세션 만료 시 4단계 복구 체인 실행 | `agent-compare check` 헬스체크 |
+| A-1 | Playwright 영구 프로필로 AI 서비스 세션이 수주~수개월 유지된다 | Medium | 브라우저 프로필 전체 보존 방식 | 세션 만료 시 4단계 복구 체인 실행 | `aigenflow check` 헬스체크 |
 | A-2 | 4개 AI 프로바이더의 웹 인터페이스 DOM 구조가 안정적이다 | Medium | 셀렉터를 외부 설정으로 분리하여 대응 | DOM 변경 시 셀렉터 업데이트 필요 | 셀렉터 검증 자동 테스트 |
 | A-3 | Playwright가 AI 서비스 웹사이트와 호환된다 (봇 감지 우회) | Medium | Playwright는 실제 브라우저 엔진 사용 | 봇 감지 시 수동 재로그인 필요 | 주기적 헬스체크 |
 | A-4 | 단일 파이프라인 실행이 2시간 이내에 완료된다 | Medium | AI 응답 속도에 의존 | 사용자 경험 저하 | 타임아웃 및 단계별 재개 |
@@ -112,7 +112,7 @@ Playwright 영구 프로필 기반으로 4개의 AI 에이전트(Claude, ChatGPT
 
 #### US-1: 파이프라인 실행
 
-**WHEN** 사용자가 `agent-compare run --topic "주제"` 명령을 실행하면 **THEN** 시스템은 5단계 파이프라인을 순차적으로 실행하고, 각 단계의 결과를 다음 단계에 컨텍스트로 전달하며, 최종 사업 계획서를 생성하여 출력 디렉토리에 저장해야 한다.
+**WHEN** 사용자가 `aigenflow run --topic "주제"` 명령을 실행하면 **THEN** 시스템은 5단계 파이프라인을 순차적으로 실행하고, 각 단계의 결과를 다음 단계에 컨텍스트로 전달하며, 최종 사업 계획서를 생성하여 출력 디렉토리에 저장해야 한다.
 
 **인수 조건**:
 - 5개 단계 모두 순차적으로 실행 완료
@@ -122,7 +122,7 @@ Playwright 영구 프로필 기반으로 4개의 AI 에이전트(Claude, ChatGPT
 
 #### US-2: 단계별 제어
 
-**WHEN** 사용자가 `agent-compare run --from-phase 3` 명령을 실행하면 **THEN** 시스템은 이전 단계의 저장된 상태를 로드하고, 지정된 단계부터 파이프라인을 재개해야 한다.
+**WHEN** 사용자가 `aigenflow run --from-phase 3` 명령을 실행하면 **THEN** 시스템은 이전 단계의 저장된 상태를 로드하고, 지정된 단계부터 파이프라인을 재개해야 한다.
 
 **인수 조건**:
 - 이전 상태 파일(JSON)에서 PhaseResult 복원
@@ -131,17 +131,17 @@ Playwright 영구 프로필 기반으로 4개의 AI 에이전트(Claude, ChatGPT
 
 #### US-3: AI 에이전트 헬스체크
 
-**WHEN** 사용자가 `agent-compare check` 명령을 실행하면 **THEN** 시스템은 Playwright 브라우저 상태와 4개 AI 프로바이더의 세션 유효성을 확인하고 결과를 표시해야 한다.
+**WHEN** 사용자가 `aigenflow check` 명령을 실행하면 **THEN** 시스템은 Playwright 브라우저 상태와 4개 AI 프로바이더의 세션 유효성을 확인하고 결과를 표시해야 한다.
 
 **인수 조건**:
 - Playwright 브라우저 설치 상태 확인
 - 각 AI 프로바이더별 세션 상태 표시 (Available / Expired / Not Setup)
-- 세션 만료 시 `agent-compare relogin` 안내
+- 세션 만료 시 `aigenflow relogin` 안내
 - 전체 준비 상태 요약 출력
 
 #### US-4: 설정 관리
 
-**WHEN** 사용자가 `agent-compare config show` 또는 `agent-compare config set <key> <value>` 명령을 실행하면 **THEN** 시스템은 현재 설정을 표시하거나 지정된 설정을 업데이트해야 한다.
+**WHEN** 사용자가 `aigenflow config show` 또는 `aigenflow config set <key> <value>` 명령을 실행하면 **THEN** 시스템은 현재 설정을 표시하거나 지정된 설정을 업데이트해야 한다.
 
 **인수 조건**:
 - AI-to-Phase 매핑 설정 조회/변경
@@ -192,10 +192,10 @@ Playwright 영구 프로필 기반으로 4개의 AI 에이전트(Claude, ChatGPT
 상세 요구사항:
 - **BaseProvider 추상 클래스**: send_message(), check_session(), login_flow(), detect_response()
 - **서비스별 Provider**: ChatGPTProvider, ClaudeProvider, GeminiProvider, PerplexityProvider
-- **영구 프로필**: `~/.agent-compare/profiles/{provider}/` 에 브라우저 프로필 저장
+- **영구 프로필**: `~/.aigenflow/profiles/{provider}/` 에 브라우저 프로필 저장
 - **헤드리스 모드**: 일반 실행 시 headless, 로그인 시 headed (브라우저 창 표시)
 - **타임아웃**: 요청당 120초 기본값, 설정 가능
-- **DOM 셀렉터 외부화**: `~/.agent-compare/selectors.yaml`로 분리 (코드 수정 없이 업데이트)
+- **DOM 셀렉터 외부화**: `~/.aigenflow/selectors.yaml`로 분리 (코드 수정 없이 업데이트)
 - **4단계 세션 복구 체인**: 리프레시 → 재로그인(파이프라인 일시정지, 2분 타임아웃) → 지정 폴백 → Claude 최종 안전망
 - **에러 핸들링**: 세션 만료, DOM 변경, 봇 감지, 네트워크 실패 각각 처리
 
@@ -226,7 +226,7 @@ Playwright 영구 프로필 기반으로 4개의 AI 에이전트(Claude, ChatGPT
 
 CLI 명령 체계:
 ```
-agent-compare run [OPTIONS]
+aigenflow run [OPTIONS]
   --topic TEXT        사업 주제 (필수)
   --type TEXT         문서 유형: bizplan / rd (기본: bizplan)
   --template TEXT     템플릿 이름 (기본: default)
@@ -234,23 +234,23 @@ agent-compare run [OPTIONS]
   --lang TEXT         출력 언어 (기본: ko)
   --output-dir PATH   출력 디렉토리
 
-agent-compare check
+aigenflow check
   Playwright 브라우저 및 AI 세션 헬스체크
 
-agent-compare setup
+aigenflow setup
   최초 설정: 브라우저 창 열림 → 각 AI 로그인 → 프로필 저장
 
-agent-compare relogin [PROVIDER]
+aigenflow relogin [PROVIDER]
   만료된 세션 재로그인 (provider 미지정 시 전체)
 
-agent-compare status [SESSION_ID]
+aigenflow status [SESSION_ID]
   파이프라인 실행 상태 조회
 
-agent-compare resume SESSION_ID
+aigenflow resume SESSION_ID
   중단된 파이프라인 재개
 
-agent-compare config show
-agent-compare config set KEY VALUE
+aigenflow config show
+aigenflow config set KEY VALUE
   설정 조회/변경
 ```
 
@@ -306,7 +306,7 @@ agent-compare config set KEY VALUE
 #### NFR-5: 보안
 
 - API 키 불필요: 구독형 웹 세션 기반 인증 (Playwright 영구 프로필)
-- 프로필 보안: `~/.agent-compare/profiles/` 로컬 저장, VCS 제외
+- 프로필 보안: `~/.aigenflow/profiles/` 로컬 저장, VCS 제외
 - 입력 검증: Pydantic 모델로 모든 사용자 입력 및 AI 응답 검증
 - 민감 데이터: 사업 계획서 내용은 로컬에만 저장
 

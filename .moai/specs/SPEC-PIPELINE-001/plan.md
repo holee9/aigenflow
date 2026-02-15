@@ -110,7 +110,7 @@ AI 에이전트를 서브클래스로 구현하지 않고, 설정 모듈로 경�
 - Jinja2 Environment: FileSystemLoader + 자동 이스케이프
 - 템플릿 변수: `topic`, `language`, `phase_context`, `previous_results`
 - 기본 템플릿 세트: 3개 (startup, rd, strategy)
-- 사용자 커스텀 디렉토리 지원: `~/.agent-compare/templates/`
+- 사용자 커스텀 디렉토리 지원: `~/.aigenflow/templates/`
 
 ### Layer 5: Pipeline Phases (5단계 모듈)
 

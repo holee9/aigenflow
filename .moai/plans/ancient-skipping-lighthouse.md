@@ -2,7 +2,7 @@
 
 ## Context
 
-agent-compare 프로젝트 루트에 README.md가 존재하지 않음. SPEC-PIPELINE-001이 작성 완료되어 프로젝트의 목적, 파이프라인 동작 방식, 언어 처리 흐름이 명확히 정의되어 있음. 사용자가 파이프라인 동작 방식과 언어 처리 플로우를 README에 반영해달라고 요청함.
+aigenflow 프로젝트 루트에 README.md가 존재하지 않음. SPEC-PIPELINE-001이 작성 완료되어 프로젝트의 목적, 파이프라인 동작 방식, 언어 처리 흐름이 명확히 정의되어 있음. 사용자가 파이프라인 동작 방식과 언어 처리 플로우를 README에 반영해달라고 요청함.
 
 ## Approach
 
@@ -10,7 +10,7 @@ agent-compare 프로젝트 루트에 README.md가 존재하지 않음. SPEC-PIPE
 
 ## README 구성
 
-1. **프로젝트 소개** - agent-compare 개요, 핵심 가치
+1. **프로젝트 소개** - aigenflow 개요, 핵심 가치
 2. **AI 에이전트 배치표** - 4개 AI별 역할 및 단계별 투입 (final-summary.md 기반)
 3. **파이프라인 동작 흐름** - 5단계 시각적 플로우 다이어그램 (ASCII art)
 4. **언어 처리 흐름** - 입력→프롬프트→AI→출력 언어 변환 플로우

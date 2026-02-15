@@ -7,7 +7,7 @@ import hashlib
 from pathlib import Path
 from playwright.async_api import async_playwright
 
-PROFILE_DIR = Path.home() / ".agent-compare" / "profiles"
+PROFILE_DIR = Path.home() / ".aigenflow" / "profiles"
 BROWSER_CHANNEL = "chrome"
 
 PROMPT = """What are 2 healthy breakfast ideas? Keep it brief.

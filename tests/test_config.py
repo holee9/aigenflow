@@ -13,9 +13,9 @@ def test_settings_loading():
     """Test that settings can be loaded."""
     settings = AgentCompareSettings()
 
-    assert settings.app_name == "agent-compare"
+    assert settings.app_name == "aigenflow"
     assert settings.output_dir == Path("output")
-    assert settings.profiles_dir == Path("~/.agent-compare/profiles").expanduser()
+    assert settings.profiles_dir == Path("~/.aigenflow/profiles").expanduser()
 
 
 def test_profile_directory_creation():

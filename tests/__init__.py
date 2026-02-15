@@ -1,3 +1,3 @@
 """
-Test suite for agent-compare pipeline.
+Test suite for aigenflow pipeline.
 """

@@ -2,7 +2,7 @@
 
 ## Context
 
-`agent-compare` 프로젝트 폴더를 GitHub **Public** repository로 등록합니다.
+`aigenflow` 프로젝트 폴더를 GitHub **Public** repository로 등록합니다.
 현재 git 미초기화 상태이며, `.gitignore`는 적절히 구성되어 있고 민감 파일 없음이 확인되었습니다.
 
 ## 실행 단계
@@ -34,7 +34,7 @@ git commit -m "Initial commit"
 ### Step 4: GitHub Public Repo 생성 + Push
 
 ```bash
-gh repo create agent-compare --public --source=. --push
+gh repo create aigenflow --public --source=. --push
 ```
 
 ## 검증

@@ -8,7 +8,7 @@ import shutil
 from pathlib import Path
 from playwright.async_api import async_playwright
 
-PROFILE_DIR = Path.home() / ".agent-compare" / "profiles"
+PROFILE_DIR = Path.home() / ".aigenflow" / "profiles"
 CLAUDE_PROFILE = PROFILE_DIR / "claude"
 CLAUDE_BACKUP = PROFILE_DIR / "claude.backup"
 

@@ -6,7 +6,7 @@ from enum import Enum
 
 
 class AigenFlowException(Exception):
-    """Base exception for all agent-compare errors."""
+    """Base exception for all aigenflow errors."""
 
     def __init__(self, message: str, details: dict | None = None) -> None:
         self.message = message

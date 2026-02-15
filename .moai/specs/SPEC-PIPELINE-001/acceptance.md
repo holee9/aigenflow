@@ -19,7 +19,7 @@
 Given Proxima 게이트웨이가 localhost:3210에서 실행 중이고
   And 4개 AI 프로바이더 세션이 모두 유효하고
   And 기본 설정이 정상 로드되어 있을 때
-When 사용자가 "agent-compare run --topic 'AI SaaS Platform'" 명령을 실행하면
+When 사용자가 "aigenflow run --topic 'AI SaaS Platform'" 명령을 실행하면
 Then 시스템은 5단계 파이프라인을 순차적으로 실행하고
   And 각 단계 시작/완료 이벤트를 발행하고
   And 각 단계 결과를 PhaseResult로 축적하고
@@ -57,7 +57,7 @@ Then InvalidStateTransition 예외가 발생하고
 
 ```gherkin
 Given 이전 실행에서 Phase 2까지 완료된 상태 파일이 존재할 때
-When 사용자가 "agent-compare run --topic 'AI SaaS' --from-phase 3" 명령을 실행하면
+When 사용자가 "aigenflow run --topic 'AI SaaS' --from-phase 3" 명령을 실행하면
 Then 시스템은 pipeline_state.json에서 Phase 1-2 결과를 로드하고
   And Phase 3부터 파이프라인을 재개하고
   And Phase 1-2 결과를 Phase 3의 입력 컨텍스트에 포함한다
@@ -67,7 +67,7 @@ Then 시스템은 pipeline_state.json에서 Phase 1-2 결과를 로드하고
 
 ```gherkin
 Given 이전 실행 상태 파일이 존재하지 않을 때
-When 사용자가 "agent-compare run --from-phase 3" 명령을 실행하면
+When 사용자가 "aigenflow run --from-phase 3" 명령을 실행하면
 Then 시스템은 "이전 단계의 실행 결과를 찾을 수 없습니다" 에러 메시지를 출력하고
   And 사용자에게 Phase 1부터 실행하도록 안내한다
 ```
@@ -77,7 +77,7 @@ Then 시스템은 "이전 단계의 실행 결과를 찾을 수 없습니다" �
 ```gherkin
 Given 파이프라인이 Phase 3에서 실패하여 FAILED 상태이고
   And 해당 세션의 상태 파일이 저장되어 있을 때
-When 사용자가 "agent-compare resume {session_id}" 명령을 실행하면
+When 사용자가 "aigenflow resume {session_id}" 명령을 실행하면
 Then 시스템은 해당 세션의 마지막 성공 상태를 복원하고
   And 실패한 Phase 3부터 재실행한다
 ```
@@ -91,7 +91,7 @@ Then 시스템은 해당 세션의 마지막 성공 상태를 복원하고
 ```gherkin
 Given Proxima 게이트웨이가 정상 실행 중이고
   And 4개 AI 프로바이더 세션이 모두 유효할 때
-When 사용자가 "agent-compare check" 명령을 실행하면
+When 사용자가 "aigenflow check" 명령을 실행하면
 Then 시스템은 다음을 표시한다:
   | 항목 | 상태 |
   | Proxima Gateway | Connected (localhost:3210) |
@@ -107,7 +107,7 @@ Then 시스템은 다음을 표시한다:
 ```gherkin
 Given Proxima 게이트웨이가 실행 중이나
   And Gemini 세션이 만료되었을 때
-When 사용자가 "agent-compare check" 명령을 실행하면
+When 사용자가 "aigenflow check" 명령을 실행하면
 Then 시스템은 Gemini를 "Unavailable - 세션 만료"로 표시하고
   And 폴백 에이전트(Perplexity)가 사용 가능함을 안내하고
   And 준비 상태를 "Partial - 일부 기능 제한"으로 표시한다
@@ -117,7 +117,7 @@ Then 시스템은 Gemini를 "Unavailable - 세션 만료"로 표시하고
 
 ```gherkin
 Given Proxima 게이트웨이가 실행되지 않고 있을 때
-When 사용자가 "agent-compare check" 명령을 실행하면
+When 사용자가 "aigenflow check" 명령을 실행하면
 Then 시스템은 "Proxima Gateway에 연결할 수 없습니다"를 표시하고
   And Proxima 시작 방법을 안내한다
 ```
@@ -130,7 +130,7 @@ Then 시스템은 "Proxima Gateway에 연결할 수 없습니다"를 표시하�
 
 ```gherkin
 Given 기본 설정이 로드되어 있을 때
-When 사용자가 "agent-compare config show" 명령을 실행하면
+When 사용자가 "aigenflow config show" 명령을 실행하면
 Then 시스템은 현재 설정을 테이블 형식으로 표시한다:
   And AI-to-Phase 매핑이 표시되고
   And 출력 형식, 언어, 템플릿 설정이 표시되고
@@ -141,7 +141,7 @@ Then 시스템은 현재 설정을 테이블 형식으로 표시한다:
 
 ```gherkin
 Given 현재 기본 언어가 "ko"일 때
-When 사용자가 "agent-compare config set language en" 명령을 실행하면
+When 사용자가 "aigenflow config set language en" 명령을 실행하면
 Then 시스템은 언어 설정을 "en"으로 변경하고
   And 설정 파일에 영속 저장하고
   And "설정이 변경되었습니다: language = en" 메시지를 출력한다
@@ -151,7 +151,7 @@ Then 시스템은 언어 설정을 "en"으로 변경하고
 
 ```gherkin
 Given 사용자가 존재하지 않는 설정 키를 변경하려 할 때
-When 사용자가 "agent-compare config set nonexistent value" 명령을 실행하면
+When 사용자가 "aigenflow config set nonexistent value" 명령을 실행하면
 Then 시스템은 "알 수 없는 설정 키: nonexistent" 에러를 표시하고
   And 사용 가능한 설정 키 목록을 안내한다
 ```
@@ -192,7 +192,7 @@ Then Phase 1과 Phase 2의 결과는 output 디렉토리에 보존되어 있고
 
 ```gherkin
 Given 기본 프롬프트 템플릿이 templates/prompts/ 에 존재할 때
-When 사용자가 "agent-compare run --template startup --topic 'AI SaaS'" 명령을 실행하면
+When 사용자가 "aigenflow run --template startup --topic 'AI SaaS'" 명령을 실행하면
 Then 시스템은 startup 템플릿의 Jinja2 파일을 로드하고
   And topic, language, phase_context 변수를 주입하여 프롬프트를 생성한다
 ```
@@ -200,8 +200,8 @@ Then 시스템은 startup 템플릿의 Jinja2 파일을 로드하고
 ### AC-6.2: 사용자 커스텀 템플릿
 
 ```gherkin
-Given 사용자가 ~/.agent-compare/templates/custom/ 디렉토리에 커스텀 템플릿을 생성했을 때
-When 사용자가 "agent-compare run --template custom --topic 'Fintech'" 명령을 실행하면
+Given 사용자가 ~/.aigenflow/templates/custom/ 디렉토리에 커스텀 템플릿을 생성했을 때
+When 사용자가 "aigenflow run --template custom --topic 'Fintech'" 명령을 실행하면
 Then 시스템은 사용자 커스텀 템플릿을 우선 로드한다
 ```
 
@@ -258,7 +258,7 @@ Then 첫 번째 재시도는 1초 후에
 Given Phase 3 실행 중 모든 재시도와 폴백이 실패했을 때
 Then 시스템은 파이프라인 상태를 FAILED로 전환하고
   And Phase 1-2 성공 결과를 pipeline_state.json에 저장하고
-  And "Phase 3 실패. 'agent-compare resume {session_id}'로 재개하세요" 메시지를 출력한다
+  And "Phase 3 실패. 'aigenflow resume {session_id}'로 재개하세요" 메시지를 출력한다
 ```
 
 ---
@@ -332,7 +332,7 @@ Then 오케스트레이터가 자동으로 Phase 6을 인식하고 실행한다
 
 ```gherkin
 Given Proxima 게이트웨이가 실행되지 않고 있을 때
-When 사용자가 "agent-compare run" 명령을 실행하면
+When 사용자가 "aigenflow run" 명령을 실행하면
 Then 시스템은 "Proxima Gateway에 연결할 수 없습니다. Proxima를 먼저 실행해주세요." 에러를 출력하고
   And 파이프라인을 시작하지 않는다
 ```
@@ -351,7 +351,7 @@ Then 시스템은 동일 프로바이더에 재시도하고
 
 ```gherkin
 Given 사용자가 빈 문자열로 topic을 지정했을 때
-When "agent-compare run --topic ''" 명령을 실행하면
+When "aigenflow run --topic ''" 명령을 실행하면
 Then 시스템은 "주제를 10자 이상 입력해주세요" 에러를 표시하고
   And 파이프라인을 시작하지 않는다
 ```

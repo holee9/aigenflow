@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from src.core.models import AgentType
+from aigenflow.core.models import AgentType
 
 
 class GatewayRequest(BaseModel):

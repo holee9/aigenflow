@@ -175,7 +175,7 @@ KO 입력 --+-- EN 프롬프트 --- EN 처리 (AI) ---+-- KO 출력
 ```bash
 # 1. 리포지토리 클론
 git clone <repository-url>
-cd agent-compare
+cd aigenflow
 
 # 2. Python 가상환경 생성 (권장)
 python -m venv .venv
