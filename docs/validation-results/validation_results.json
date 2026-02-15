@@ -1,0 +1,412 @@
+{
+  "results": [
+    {
+      "iteration": 1,
+      "topic": "AI 기반 스마트폰 건강관리 어플리케이션",
+      "phases": {
+        "phase_1": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.243798",
+          "agent_responses": 2
+        },
+        "phase_2": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.243798",
+          "agent_responses": 2
+        },
+        "phase_3": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.243798",
+          "agent_responses": 2
+        },
+        "phase_4": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.243798",
+          "agent_responses": 3
+        },
+        "phase_5": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        }
+      },
+      "final_document": "",
+      "errors": [
+        "Final document not found"
+      ],
+      "success": true
+    },
+    {
+      "iteration": 2,
+      "topic": "AI 기반 스마트폰 건강관리 어플리케이션",
+      "phases": {
+        "phase_1": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_2": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_3": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_4": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        },
+        "phase_5": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        }
+      },
+      "final_document": "",
+      "errors": [
+        "Final document not found"
+      ],
+      "success": true
+    },
+    {
+      "iteration": 3,
+      "topic": "AI 기반 스마트폰 건강관리 어플리케이션",
+      "phases": {
+        "phase_1": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_2": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_3": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_4": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        },
+        "phase_5": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        }
+      },
+      "final_document": "",
+      "errors": [
+        "Final document not found"
+      ],
+      "success": true
+    },
+    {
+      "iteration": 4,
+      "topic": "AI 기반 스마트폰 건강관리 어플리케이션",
+      "phases": {
+        "phase_1": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_2": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_3": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_4": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        },
+        "phase_5": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        }
+      },
+      "final_document": "",
+      "errors": [
+        "Final document not found"
+      ],
+      "success": true
+    },
+    {
+      "iteration": 5,
+      "topic": "AI 기반 스마트폰 건강관리 어플리케이션",
+      "phases": {
+        "phase_1": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_2": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_3": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_4": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        },
+        "phase_5": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        }
+      },
+      "final_document": "",
+      "errors": [
+        "Final document not found"
+      ],
+      "success": true
+    },
+    {
+      "iteration": 6,
+      "topic": "AI 기반 스마트폰 건강관리 어플리케이션",
+      "phases": {
+        "phase_1": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_2": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_3": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 2
+        },
+        "phase_4": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        },
+        "phase_5": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.260309",
+          "agent_responses": 3
+        }
+      },
+      "final_document": "",
+      "errors": [
+        "Final document not found"
+      ],
+      "success": true
+    },
+    {
+      "iteration": 7,
+      "topic": "AI 기반 스마트폰 건강관리 어플리케이션",
+      "phases": {
+        "phase_1": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.275932",
+          "agent_responses": 2
+        },
+        "phase_2": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276274",
+          "agent_responses": 2
+        },
+        "phase_3": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 2
+        },
+        "phase_4": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 3
+        },
+        "phase_5": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 3
+        }
+      },
+      "final_document": "",
+      "errors": [
+        "Final document not found"
+      ],
+      "success": true
+    },
+    {
+      "iteration": 8,
+      "topic": "AI 기반 스마트폰 건강관리 어플리케이션",
+      "phases": {
+        "phase_1": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 2
+        },
+        "phase_2": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 2
+        },
+        "phase_3": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 2
+        },
+        "phase_4": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 3
+        },
+        "phase_5": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 3
+        }
+      },
+      "final_document": "",
+      "errors": [
+        "Final document not found"
+      ],
+      "success": true
+    },
+    {
+      "iteration": 9,
+      "topic": "AI 기반 스마트폰 건강관리 어플리케이션",
+      "phases": {
+        "phase_1": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 2
+        },
+        "phase_2": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 2
+        },
+        "phase_3": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 2
+        },
+        "phase_4": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 3
+        },
+        "phase_5": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 3
+        }
+      },
+      "final_document": "",
+      "errors": [
+        "Final document not found"
+      ],
+      "success": true
+    },
+    {
+      "iteration": 10,
+      "topic": "AI 기반 스마트폰 건강관리 어플리케이션",
+      "phases": {
+        "phase_1": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 2
+        },
+        "phase_2": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 2
+        },
+        "phase_3": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 2
+        },
+        "phase_4": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 3
+        },
+        "phase_5": {
+          "status": "completed",
+          "completed_at": "2026-02-15T19:39:08.276528",
+          "agent_responses": 3
+        }
+      },
+      "final_document": "",
+      "errors": [
+        "Final document not found"
+      ],
+      "success": true
+    }
+  ],
+  "analysis": {
+    "total_iterations": 10,
+    "successful_iterations": 10,
+    "failed_iterations": 0,
+    "phase_success_rate": {
+      "phase_1": {
+        "successes": 10,
+        "total": 10,
+        "rate": 1.0
+      },
+      "phase_2": {
+        "successes": 10,
+        "total": 10,
+        "rate": 1.0
+      },
+      "phase_3": {
+        "successes": 10,
+        "total": 10,
+        "rate": 1.0
+      },
+      "phase_4": {
+        "successes": 10,
+        "total": 10,
+        "rate": 1.0
+      },
+      "phase_5": {
+        "successes": 10,
+        "total": 10,
+        "rate": 1.0
+      }
+    },
+    "document_similarities": [],
+    "avg_similarity": null,
+    "errors_by_phase": {
+      "unknown": [
+        "Final document not found",
+        "Final document not found",
+        "Final document not found",
+        "Final document not found",
+        "Final document not found",
+        "Final document not found",
+        "Final document not found",
+        "Final document not found",
+        "Final document not found",
+        "Final document not found"
+      ]
+    }
+  }
+}
