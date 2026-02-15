@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class AgentType(str, Enum):
@@ -87,6 +87,17 @@ class PipelineConfig(BaseModel):
     from_phase: int | None = None
     max_retries: int = 2
     timeout_seconds: int = 120
+
+    @field_validator("topic")
+    @classmethod
+    def validate_topic(cls, v: str) -> str:
+        """Validate topic is not empty and meets minimum length."""
+        if not v or not v.strip():
+            raise ValueError("topic cannot be empty")
+        stripped = v.strip()
+        if len(stripped) < 10:
+            raise ValueError("topic must be at least 10 characters")
+        return stripped
 
 
 class PipelineSession(BaseModel):

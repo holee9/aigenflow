@@ -29,11 +29,16 @@ class PipelineOrchestrator:
     Implements state transitions: IDLE -> PHASE_1 -> ... -> COMPLETED/FAILED
     """
 
-    def __init__(self, settings: Any, template_manager: TemplateManager, session_manager: SessionManager) -> None:
+    def __init__(
+        self,
+        settings: Any = None,
+        template_manager: TemplateManager | None = None,
+        session_manager: SessionManager | None = None,
+    ) -> None:
         """Initialize orchestrator with dependencies."""
         self.settings = settings
-        self.template_manager = template_manager
-        self.session_manager = session_manager
+        self.template_manager = template_manager or TemplateManager()
+        self.session_manager = session_manager or SessionManager()
         self.agent_router = AgentRouter(settings)
         self.current_session: PipelineSession | None = None
 

@@ -23,8 +23,10 @@ class MarkdownFormatter(BaseModel):
         return content or ""
 
 
-class FileExporter(BaseModel):
+class FileExporter:
     """Exports content to files."""
+
+    output_dir: Path
 
     def __init__(self, output_dir: Path) -> None:
         """Initialize exporter with output directory."""

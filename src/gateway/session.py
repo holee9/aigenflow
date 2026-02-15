@@ -34,7 +34,7 @@ class SessionManager:
     4. Claude verify - Final verification with Claude
     """
 
-    def __init__(self, settings: Any) -> None:
+    def __init__(self, settings: Any | None = None) -> None:
         """Initialize session manager with settings."""
         self.settings = settings
         self.providers: dict[str, BaseProvider] = {}
@@ -43,6 +43,10 @@ class SessionManager:
     def register_provider(self, name: str, provider: BaseProvider) -> None:
         """Register a provider with session manager."""
         self.providers[name] = provider
+
+    def register(self, name: str, provider: BaseProvider) -> None:
+        """Register a provider with session manager (alias for register_provider)."""
+        self.register_provider(name, provider)
 
     async def check_all_sessions(self) -> dict[str, bool]:
         """

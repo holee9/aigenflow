@@ -6,6 +6,7 @@ import pytest
 
 from src.pipeline.orchestrator import PipelineOrchestrator
 from src.pipeline.state import PipelineState
+from src.core.models import PipelineConfig
 
 
 class TestPipelineState:
@@ -30,7 +31,13 @@ class TestPipelineOrchestrator:
     def test_create_session(self):
         """Test session creation."""
         orchestrator = PipelineOrchestrator(settings=None)
-        session = orchestrator.create_session(topic="Test topic")
+
+        config = PipelineConfig(
+            topic="Test topic",
+            doc_type="bizplan",
+            template="startup",
+        )
+        session = orchestrator.create_session(config=config)
 
         assert session is not None
         assert session.config.topic == "Test topic"
@@ -38,7 +45,13 @@ class TestPipelineOrchestrator:
     def test_state_transitions(self):
         """Test state transitions."""
         orchestrator = PipelineOrchestrator(settings=None)
-        session = orchestrator.create_session(topic="Test topic")
+
+        config = PipelineConfig(
+            topic="Test topic",
+            doc_type="bizplan",
+            template="startup",
+        )
+        session = orchestrator.create_session(config=config)
 
         # Start pipeline
         assert session.state == PipelineState.IDLE

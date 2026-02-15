@@ -24,7 +24,8 @@ class TestSessionManager:
         manager.register("chatgpt", provider)
         assert "chatgpt" in manager.providers
 
-    def test_get_valid_session(self):
+    @pytest.mark.anyio
+    async def test_get_valid_session(self):
         """Test get_valid_session returns valid provider."""
         manager = SessionManager()
         provider = ChatGPTProvider(profile_dir="dummy")
@@ -33,10 +34,11 @@ class TestSessionManager:
         # Mock valid session
         manager.providers["chatgpt"].is_logged_in = True
 
-        valid = manager.get_valid_session()
+        valid = await manager.get_valid_session()
         assert valid == manager.providers["chatgpt"]
 
-    def test_check_all_sessions(self):
+    @pytest.mark.anyio
+    async def test_check_all_sessions(self):
         """Test check_all_sessions returns status dict."""
         manager = SessionManager()
         manager.register("chatgpt", ChatGPTProvider(profile_dir="dummy"))
@@ -44,15 +46,16 @@ class TestSessionManager:
 
         manager.providers["chatgpt"].is_logged_in = True
 
-        results = manager.check_all_sessions()
+        results = await manager.check_all_sessions()
         assert "chatgpt" in results
         assert "claude" in results
 
-    def test_login_all_expired(self):
+    @pytest.mark.anyio
+    async def test_login_all_expired(self):
         """Test login_all_expired method."""
         manager = SessionManager()
         manager.register("chatgpt", ChatGPTProvider(profile_dir="dummy"))
         manager.providers["chatgpt"].is_logged_in = False
 
         # Should run login flow
-        manager.login_all_expired()
+        await manager.login_all_expired()
