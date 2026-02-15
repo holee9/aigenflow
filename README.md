@@ -295,10 +295,11 @@ AigenFlow/
 - AI 모델별 역할 분배 검증 완료
 - [상세 내용: 템플릿 통합 테스트 평가서](./docs/template-integration-test-report.md)
 
-**재현성 평가 완료 (2026-02-15)**
+**일관성 평가 완료 (2026-02-15)**
 - 12개 템플릿 10회 반복 렌더링 테스트
-- 100% 재현성 달성 (모든 템플릿 결정론적 동작 확인)
-- [상세 내용: 템플릿 재현성 평가 보고서](./docs/template-reproducibility-report.md)
+- 100% 프롬프트 생성 일관성 달성 (Jinja2 결정론적 특성)
+- [상세 내용: 템플릿 일관성 평가 보고서](./docs/template-reproducibility-report.md)
+- [분석 결과: 평가 의미 및 한계 해설](./docs/template-consistency-analysis.md)
 
 ### 아키텍처 진화 기록
 
