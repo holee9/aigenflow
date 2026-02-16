@@ -1,229 +1,251 @@
 """
-Logging profile configuration for AigenFlow pipeline.
+Logging profiles for different environments.
 
-Provides environment-specific logging profiles with different log levels,
-output targets, and formatting options.
+Provides environment-specific logging configurations with structlog,
+supporting development, testing, and production profiles with file rotation.
 """
 
-from dataclasses import dataclass
-from enum import Enum
+import logging
+import sys
+from enum import StrEnum
 from pathlib import Path
+from typing import Any
+
+import structlog
+from structlog.types import Processor
 
 
-class LogLevel(Enum):
-    """Standard logging levels."""
-
-    DEBUG = "DEBUG"
-    INFO = "INFO"
-    WARNING = "WARNING"
-    ERROR = "ERROR"
-    CRITICAL = "CRITICAL"
-
-    def __str__(self) -> str:
-        return self.value
-
-    @classmethod
-    def from_string(cls, value: str) -> "LogLevel":
-        """Create LogLevel from string, case-insensitive."""
-        try:
-            return cls[value.upper()]
-        except KeyError:
-            valid = ", ".join(level.name for level in cls)
-            raise ValueError(
-                f"Invalid log level: {value!r}. Valid levels: {valid}"
-            ) from None
-
-
-class LogEnvironment(Enum):
-    """Logging environment presets."""
+class LogEnvironment(StrEnum):
+    """Logging environment types."""
 
     DEVELOPMENT = "development"
     TESTING = "testing"
     PRODUCTION = "production"
 
-    def __str__(self) -> str:
-        return self.value
 
-    @classmethod
-    def from_string(cls, value: str) -> "LogEnvironment":
-        """Create LogEnvironment from string, case-insensitive."""
-        try:
-            return cls[value.upper()]
-        except KeyError:
-            valid = ", ".join(env.name for env in cls)
-            raise ValueError(
-                f"Invalid environment: {value!r}. Valid environments: {valid}"
-            ) from None
+# Log level mapping
+LOG_LEVEL_MAP: dict[str, int] = {
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warning": logging.WARNING,
+    "error": logging.ERROR,
+    "critical": logging.CRITICAL,
+}
 
 
-@dataclass(frozen=True)
-class LoggingProfile:
+def parse_log_level(level_str: str) -> int:
     """
-    Logging configuration profile.
+    Parse log level string to logging constant.
 
-    Attributes:
-        name: Profile name for identification
-        log_level: Minimum log level to record
-        output_targets: List of output destinations ("console", "file")
-        use_json: Whether to use JSON format (vs pretty console format)
-        log_file_path: Path for file logging (when "file" in output_targets)
-        max_file_size_mb: Maximum file size before rotation (MB)
-        backup_count: Number of backup files to keep
+    Args:
+        level_str: Log level string (debug, info, warning, error)
+
+    Returns:
+        Logging level constant (e.g., logging.DEBUG)
+
+    Raises:
+        ValueError: If log level string is invalid
     """
-
-    name: str
-    log_level: LogLevel
-    output_targets: tuple[str, ...]
-    use_json: bool
-    log_file_path: Path
-    max_file_size_mb: int
-    backup_count: int
-
-    def should_log_to_console(self) -> bool:
-        """Check if console logging is enabled."""
-        return "console" in self.output_targets
-
-    def should_log_to_file(self) -> bool:
-        """Check if file logging is enabled."""
-        return "file" in self.output_targets
-
-
-def _get_default_log_file() -> Path:
-    """Get default log file path from settings."""
-    from core.config import get_settings
-
-    settings = get_settings()
-    log_dir = settings.output_dir / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    return log_dir / "aigenflow.log"
-
-
-def _create_profile_for_environment(environment: LogEnvironment) -> LoggingProfile:
-    """Create a logging profile for the specified environment."""
-    log_file = _get_default_log_file()
-
-    if environment == LogEnvironment.DEVELOPMENT:
-        return LoggingProfile(
-            name="development",
-            log_level=LogLevel.DEBUG,
-            output_targets=("console", "file"),
-            use_json=True,
-            log_file_path=log_file,
-            max_file_size_mb=10,
-            backup_count=5,
+    normalized = level_str.lower().strip()
+    if normalized not in LOG_LEVEL_MAP:
+        valid_levels = ", ".join(LOG_LEVEL_MAP.keys())
+        raise ValueError(
+            f"Invalid log level: '{level_str}'. Valid levels: {valid_levels}"
         )
-    elif environment == LogEnvironment.TESTING:
-        return LoggingProfile(
-            name="testing",
-            log_level=LogLevel.INFO,
-            output_targets=("file",),
-            use_json=True,
-            log_file_path=log_file,
-            max_file_size_mb=10,
-            backup_count=5,
+    return LOG_LEVEL_MAP[normalized]
+
+
+def _redact_secrets(_: Any, __: str, event_dict: dict[str, Any]) -> dict[str, Any]:
+    """Redact sensitive information from logs."""
+    sensitive_keywords = (
+        "key", "token", "secret", "password", "passwd",
+        "cookie", "auth", "authorization", "session",
+    )
+
+    def redact_value(value: Any, key_hint: str | None = None) -> Any:
+        if isinstance(value, dict):
+            return {k: redact_value(v, k) for k, v in value.items()}
+        if isinstance(value, list):
+            return [redact_value(item, key_hint) for item in value]
+        if isinstance(value, tuple):
+            return tuple(redact_value(item, key_hint) for item in value)
+        if isinstance(value, str) and key_hint:
+            if any(keyword in key_hint.lower() for keyword in sensitive_keywords):
+                if len(value) <= 8:
+                    return "***"
+                return f"{value[:4]}...{value[-4:]}"
+        return value
+
+    return {k: redact_value(v, k) for k, v in event_dict.items()}
+
+
+def _add_file_handler(
+    logger: Any,
+    log_file: Path,
+    level: int,
+    json_output: bool = False,
+) -> None:
+    """
+    Add file handler with rotation to logger.
+
+    Args:
+        logger: Structlog logger instance
+        log_file: Path to log file
+        level: Logging level
+        json_output: Whether to output JSON logs
+    """
+    import logging.handlers
+
+    # Ensure log directory exists
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Create rotating file handler (max 10MB, keep 5 files)
+    file_handler = logging.handlers.RotatingFileHandler(
+        filename=log_file,
+        maxBytes=10 * 1024 * 1024,  # 10MB
+        backupCount=5,
+        encoding="utf-8",
+    )
+    file_handler.setLevel(level)
+
+    # Set formatter
+    if json_output:
+        formatter = logging.Formatter("%(message)s")
+    else:
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
-    else:  # PRODUCTION
-        return LoggingProfile(
-            name="production",
-            log_level=LogLevel.WARNING,
-            output_targets=("file",),
-            use_json=True,
-            log_file_path=log_file,
-            max_file_size_mb=10,
-            backup_count=5,
-        )
+    file_handler.setFormatter(formatter)
+
+    # Add handler to underlying stdlib logger
+    stdlib_logger = logging.getLogger(logger.name)
+    stdlib_logger.addHandler(file_handler)
+    stdlib_logger.setLevel(level)
 
 
 def get_logging_profile(
-    environment: LogEnvironment | None = None,
-) -> LoggingProfile:
+    environment: LogEnvironment = LogEnvironment.PRODUCTION,
+    log_dir: Path | None = None,
+) -> dict[str, Any]:
     """
-    Get logging profile for the specified environment.
+    Get logging configuration profile for the specified environment.
 
     Args:
-        environment: Environment to get profile for. If None, detects
-            from AC_DEBUG environment variable or defaults to production.
+        environment: Log environment (development, testing, production)
+        log_dir: Directory for log files (defaults to ./logs)
 
     Returns:
-        LoggingProfile configuration for the environment.
-
-    Examples:
-        >>> profile = get_logging_profile(LogEnvironment.DEVELOPMENT)
-        >>> profile.log_level
-        <LogLevel.DEBUG: 'DEBUG'>
-
-        >>> # Auto-detect from environment
-        >>> profile = get_logging_profile()
+        Dictionary containing logging configuration
     """
-    if environment is None:
-        # Auto-detect from settings
-        from core.config import get_settings
+    if log_dir is None:
+        log_dir = Path("logs")
 
-        settings = get_settings()
-        environment = (
-            LogEnvironment.DEVELOPMENT
-            if settings.debug
-            else LogEnvironment.PRODUCTION
+    profiles = {
+        LogEnvironment.DEVELOPMENT: {
+            "level": logging.DEBUG,
+            "console_enabled": True,
+            "file_enabled": True,
+            "json_output": False,
+            "log_file": log_dir / "development.log",
+        },
+        LogEnvironment.TESTING: {
+            "level": logging.INFO,
+            "console_enabled": False,
+            "file_enabled": True,
+            "json_output": False,
+            "log_file": log_dir / "testing.log",
+        },
+        LogEnvironment.PRODUCTION: {
+            "level": logging.WARNING,
+            "console_enabled": False,
+            "file_enabled": True,
+            "json_output": True,
+            "log_file": log_dir / "production.log",
+        },
+    }
+
+    return profiles.get(environment, profiles[LogEnvironment.PRODUCTION])
+
+
+def configure_logging(
+    environment: LogEnvironment = LogEnvironment.PRODUCTION,
+    log_level: str | int | None = None,
+    log_dir: Path | None = None,
+    json_output: bool | None = None,
+) -> structlog.stdlib.BoundLogger:
+    """
+    Configure logging for the specified environment.
+
+    Args:
+        environment: Log environment (development, testing, production)
+        log_level: Override log level (string or int)
+        log_dir: Directory for log files
+        json_output: Override JSON output setting
+
+    Returns:
+        Configured structlog logger instance
+    """
+    profile = get_logging_profile(environment, log_dir)
+
+    # Allow override of log level
+    if log_level is not None:
+        if isinstance(log_level, str):
+            level = parse_log_level(log_level)
+        else:
+            level = log_level
+    else:
+        level = profile["level"]
+
+    # Determine JSON output
+    use_json = json_output if json_output is not None else profile["json_output"]
+
+    # Build processors
+    processors: list[Processor] = [
+        structlog.stdlib.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        _redact_secrets,
+    ]
+
+    # Add output processor
+    if use_json:
+        processors.append(structlog.processors.JSONRenderer())
+    else:
+        processors.append(structlog.dev.ConsoleRenderer(colors=True))
+
+    # Configure structlog
+    structlog.configure(
+        processors=processors,
+        context_class=dict,
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        cache_logger_on_first_use=True,
+        wrapper_class=structlog.stdlib.BoundLogger,
+    )
+
+    # Get logger
+    logger = structlog.get_logger("aigenflow")
+
+    # Reset any existing handlers
+    stdlib_logger = logging.getLogger("aigenflow")
+    stdlib_logger.handlers.clear()
+    stdlib_logger.propagate = False
+    stdlib_logger.setLevel(level)
+
+    # Add console handler if enabled
+    if profile["console_enabled"]:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(level)
+        stdlib_logger.addHandler(console_handler)
+
+    # Add file handler if enabled
+    if profile["file_enabled"]:
+        _add_file_handler(
+            logger,
+            profile["log_file"],
+            level,
+            use_json,
         )
 
-    return _create_profile_for_environment(environment)
-
-
-def create_custom_profile(
-    log_level: str | LogLevel,
-    *,
-    use_json: bool = True,
-    log_file: Path | None = None,
-    output_to_console: bool = True,
-    output_to_file: bool = True,
-    max_file_size_mb: int = 10,
-    backup_count: int = 5,
-) -> LoggingProfile:
-    """
-    Create a custom logging profile with specified parameters.
-
-    Args:
-        log_level: Minimum log level (string or LogLevel enum)
-        use_json: Whether to use JSON format
-        log_file: Custom log file path (defaults to logs/aigenflow.log)
-        output_to_console: Enable console logging
-        output_to_file: Enable file logging
-        max_file_size_mb: Maximum file size before rotation (MB)
-        backup_count: Number of backup files to keep
-
-    Returns:
-        Custom LoggingProfile configuration
-
-    Examples:
-        >>> # Custom profile for verbose debugging
-        >>> profile = create_custom_profile(
-        ...     "DEBUG",
-        ...     use_json=False,
-        ...     output_to_file=False,
-        ... )
-
-        >>> # Production-like custom profile
-        >>> profile = create_custom_profile(
-        ...     LogLevel.ERROR,
-        ...     log_file=Path("var/critical.log"),
-        ...     max_file_size_mb=50,
-        ... )
-    """
-    if isinstance(log_level, str):
-        log_level = LogLevel.from_string(log_level)
-
-    targets = []
-    if output_to_console:
-        targets.append("console")
-    if output_to_file:
-        targets.append("file")
-
-    return LoggingProfile(
-        name="custom",
-        log_level=log_level,
-        output_targets=tuple(targets),
-        use_json=use_json,
-        log_file_path=log_file or _get_default_log_file(),
-        max_file_size_mb=max_file_size_mb,
-        backup_count=backup_count,
-    )
+    return logger

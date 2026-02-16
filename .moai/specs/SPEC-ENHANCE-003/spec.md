@@ -7,12 +7,12 @@
 | **SPEC ID** | SPEC-ENHANCE-003 |
 | **제목** | AigenFlow 시스템 개선 및 확장 |
 | **작성일** | 2026-02-16 |
-| **상태** | In Progress |
-| **버전** | 1.2.0 |
+| **상태** | Completed |
+| **버전** | 1.3.0 |
 | **우선순위** | Medium |
 | **관련 문서** | SPEC-STATUS-002, SPEC-PIPELINE-001 |
 | **라이프사이클** | spec-anchored |
-| **완료율** | 89% (16/18 tasks) |
+| **완료율** | 100% (18/18 tasks) |
 
 ---
 
