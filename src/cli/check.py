@@ -123,10 +123,38 @@ async def _check_sessions(settings: Any, verbose: bool = False) -> dict[str, boo
     from gateway.gemini_provider import GeminiProvider
     from gateway.perplexity_provider import PerplexityProvider
 
-    session_manager.register("chatgpt", ChatGPTProvider(settings))
-    session_manager.register("claude", ClaudeProvider(settings))
-    session_manager.register("gemini", GeminiProvider(settings))
-    session_manager.register("perplexity", PerplexityProvider(settings))
+    # Get profiles directory and headless setting from settings
+    profiles_dir = settings.profiles_dir
+    headless = settings.gateway_headless
+
+    session_manager.register(
+        "chatgpt",
+        ChatGPTProvider(
+            profile_dir=profiles_dir / "chatgpt",
+            headless=headless,
+        )
+    )
+    session_manager.register(
+        "claude",
+        ClaudeProvider(
+            profile_dir=profiles_dir / "claude",
+            headless=headless,
+        )
+    )
+    session_manager.register(
+        "gemini",
+        GeminiProvider(
+            profile_dir=profiles_dir / "gemini",
+            headless=headless,
+        )
+    )
+    session_manager.register(
+        "perplexity",
+        PerplexityProvider(
+            profile_dir=profiles_dir / "perplexity",
+            headless=headless,
+        )
+    )
 
     # Load sessions and check status
     session_manager.load_all_sessions()

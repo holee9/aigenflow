@@ -70,6 +70,7 @@ class BaseProvider(ABC):
         self.headless = headless
         self._selector_loader = selector_loader
         self._selector_config: SelectorConfig | None = None
+        self._browser_manager = None
 
     @property
     def selector_loader(self) -> SelectorLoader | None:
@@ -146,6 +147,25 @@ class BaseProvider(ABC):
             self._selector_config,
             self.provider_name,
         )
+
+    async def get_browser_manager(self):
+        """
+        Get or create browser manager for this provider.
+
+        Returns:
+            BrowserManager instance
+
+        Note:
+            This is a factory method that creates BrowserManager on first access.
+            Subclasses can override to provide custom configuration.
+        """
+        if self._browser_manager is None:
+            # Import here to avoid circular dependency
+            from gateway.browser_manager import BrowserManager
+
+            self._browser_manager = BrowserManager(headless=self.headless)
+
+        return self._browser_manager
 
     def get_base_url(self) -> str | None:
         """

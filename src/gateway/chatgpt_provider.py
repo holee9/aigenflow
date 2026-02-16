@@ -4,10 +4,13 @@ ChatGPT provider implementation.
 Uses Playwright to interact with chat.openai.com.
 """
 
+import asyncio
 from pathlib import Path
+from typing import Any
 
 from core.models import AgentType
 from gateway.base import BaseProvider, GatewayRequest, GatewayResponse
+from gateway.cookie_storage import CookieStorage, SessionMetadata
 from gateway.selector_loader import SelectorLoader
 
 
@@ -20,6 +23,11 @@ class ChatGPTProvider(BaseProvider):
 
     agent_type: AgentType = AgentType.CHATGPT
     provider_name: str = "chatgpt"
+    base_url: str = "https://chat.openai.com"
+
+    # Authentication detection selectors
+    AUTH_SELECTOR = 'textarea[data-testid="chat-input"]'
+    LOGIN_TIMEOUT = 300  # 5 minutes
 
     def __init__(
         self,
@@ -29,6 +37,7 @@ class ChatGPTProvider(BaseProvider):
     ) -> None:
         super().__init__(profile_dir, headless, selector_loader)
         self.base_url = "https://chat.openai.com"
+        self._storage = CookieStorage(profile_dir)
 
     async def send_message(self, request: GatewayRequest) -> GatewayResponse:
         """
@@ -54,28 +63,133 @@ class ChatGPTProvider(BaseProvider):
         )
 
     async def check_session(self) -> bool:
-        """Check if ChatGPT session is valid."""
-        # For testing: check if is_logged_in attribute exists and is True
-        if hasattr(self, "is_logged_in"):
-            return self.is_logged_in
-        # TODO: Implement session validation
-        return False  # Placeholder
+        """
+        Check if ChatGPT session is valid.
+
+        Returns:
+            True if session is valid, False otherwise
+        """
+        try:
+            # Load cookies from storage
+            cookies = self._storage.load_cookies()
+
+            # Get browser manager
+            browser_manager = await self.get_browser_manager()
+
+            # Create context and inject cookies
+            await browser_manager.create_context()
+            await browser_manager.inject_cookies(cookies)
+
+            # Get page and navigate to ChatGPT
+            page = await browser_manager.get_page()
+            await page.goto(
+                self.base_url,
+                wait_until="networkidle",
+                timeout=30000,
+            )
+
+            # Check for authentication element
+            try:
+                await page.wait_for_selector(
+                    self.AUTH_SELECTOR,
+                    timeout=10000,
+                )
+                is_valid = True
+            except Exception:
+                is_valid = False
+
+            # Close browser
+            await browser_manager.close()
+
+            # Update metadata
+            if is_valid:
+                self._storage.mark_validated()
+            else:
+                self._storage.mark_invalid()
+
+            return is_valid
+
+        except FileNotFoundError:
+            # No session file exists
+            return False
+        except Exception:
+            # Any error means session is invalid
+            return False
 
     async def login_flow(self) -> None:
-        """Execute ChatGPT login flow."""
-        # TODO: Implement 4-step auto-recovery chain
-        # 1. Refresh (if expired)
-        # 2. Re-login (if needed)
-        # 3. Cookie export
-        # 4. Claude final verification
-        pass
+        """
+        Execute ChatGPT login flow.
+
+        Process:
+        1. Check if session exists and is valid
+        2. If not, launch browser in headed mode
+        3. Wait for user to complete login
+        4. Detect successful login via DOM element
+        5. Extract and save cookies
+        """
+        # First check if existing session is valid
+        if await self.check_session():
+            return
+
+        # Get browser manager
+        browser_manager = await self.get_browser_manager()
+
+        # Force headed mode for login
+        browser_manager.headless = False
+
+        # Start browser and create context
+        await browser_manager.start_browser()
+        await browser_manager.create_context()
+
+        # Get page and navigate to ChatGPT
+        page = await browser_manager.get_page()
+        await page.goto(self.base_url, wait_until="networkidle")
+
+        # Wait for user to complete login
+        # Detect successful login by waiting for auth element
+        try:
+            await page.wait_for_selector(
+                self.AUTH_SELECTOR,
+                timeout=self.LOGIN_TIMEOUT * 1000,
+            )
+
+            # Extract cookies
+            cookies = await browser_manager.extract_cookies()
+
+            # Save encrypted cookies with metadata
+            metadata = SessionMetadata(
+                provider_name=self.provider_name,
+                cookie_count=len(cookies),
+                login_method="manual",
+            )
+            self._storage.save_cookies(cookies, metadata)
+
+        except Exception as exc:
+            raise RuntimeError(f"Login flow failed: {exc}") from exc
+
+        finally:
+            # Close browser
+            await browser_manager.close()
 
     def save_session(self) -> None:
-        """Save ChatGPT session state."""
-        # TODO: Save cookies/session state to disk
+        """
+        Save ChatGPT session state to disk.
+
+        Note: This is a synchronous wrapper for async cookie extraction.
+        In practice, cookies are saved during login_flow.
+        """
+        # Cookies are saved during login_flow
+        # This method exists for API compatibility
         pass
 
     def load_session(self) -> bool:
-        """Load ChatGPT session state."""
-        # TODO: Load cookies/session state from disk
-        return False
+        """
+        Load ChatGPT session state from disk.
+
+        Returns:
+            True if session was loaded successfully, False otherwise
+
+        Note: This is a synchronous wrapper. Session validation
+        happens in check_session() which is async.
+        """
+        return self._storage.session_exists()

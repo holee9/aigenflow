@@ -8,6 +8,7 @@ from pathlib import Path
 
 from core.models import AgentType
 from gateway.base import BaseProvider, GatewayRequest, GatewayResponse
+from gateway.cookie_storage import CookieStorage, SessionMetadata
 from gateway.selector_loader import SelectorLoader
 
 
@@ -20,6 +21,11 @@ class GeminiProvider(BaseProvider):
 
     agent_type: AgentType = AgentType.GEMINI
     provider_name: str = "gemini"
+    base_url: str = "https://gemini.google.com"
+
+    # Authentication detection selectors
+    AUTH_SELECTOR = 'textarea[aria-label="Enter a prompt here"]'
+    LOGIN_TIMEOUT = 300  # 5 minutes
 
     def __init__(
         self,
@@ -29,26 +35,129 @@ class GeminiProvider(BaseProvider):
     ) -> None:
         super().__init__(profile_dir, headless, selector_loader)
         self.base_url = "https://gemini.google.com"
+        self._storage = CookieStorage(profile_dir)
 
     async def send_message(self, request: GatewayRequest) -> GatewayResponse:
         """Send message to Gemini."""
+        # TODO: Implement Playwright interaction
         return GatewayResponse(
             content=f"Gemini response to: {request.task_name}",
             success=True,
         )
 
     async def check_session(self) -> bool:
-        """Check if Gemini session is valid."""
-        return False
+        """
+        Check if Gemini session is valid.
+
+        Returns:
+            True if session is valid, False otherwise
+        """
+        try:
+            # Load cookies from storage
+            cookies = self._storage.load_cookies()
+
+            # Get browser manager
+            browser_manager = await self.get_browser_manager()
+
+            # Create context and inject cookies
+            await browser_manager.create_context()
+            await browser_manager.inject_cookies(cookies)
+
+            # Get page and navigate to Gemini
+            page = await browser_manager.get_page()
+            await page.goto(
+                self.base_url,
+                wait_until="networkidle",
+                timeout=30000,
+            )
+
+            # Check for authentication element
+            try:
+                await page.wait_for_selector(
+                    self.AUTH_SELECTOR,
+                    timeout=10000,
+                )
+                is_valid = True
+            except Exception:
+                is_valid = False
+
+            # Close browser
+            await browser_manager.close()
+
+            # Update metadata
+            if is_valid:
+                self._storage.mark_validated()
+            else:
+                self._storage.mark_invalid()
+
+            return is_valid
+
+        except FileNotFoundError:
+            # No session file exists
+            return False
+        except Exception:
+            # Any error means session is invalid
+            return False
 
     async def login_flow(self) -> None:
-        """Execute Gemini login flow."""
-        pass
+        """
+        Execute Gemini login flow.
+
+        Process:
+        1. Check if session exists and is valid
+        2. If not, launch browser in headed mode
+        3. Wait for user to complete login
+        4. Detect successful login via DOM element
+        5. Extract and save cookies
+        """
+        # First check if existing session is valid
+        if await self.check_session():
+            return
+
+        # Get browser manager
+        browser_manager = await self.get_browser_manager()
+
+        # Force headed mode for login
+        browser_manager.headless = False
+
+        # Start browser and create context
+        await browser_manager.start_browser()
+        await browser_manager.create_context()
+
+        # Get page and navigate to Gemini
+        page = await browser_manager.get_page()
+        await page.goto(self.base_url, wait_until="networkidle")
+
+        # Wait for user to complete login
+        try:
+            await page.wait_for_selector(
+                self.AUTH_SELECTOR,
+                timeout=self.LOGIN_TIMEOUT * 1000,
+            )
+
+            # Extract cookies
+            cookies = await browser_manager.extract_cookies()
+
+            # Save encrypted cookies with metadata
+            metadata = SessionMetadata(
+                provider_name=self.provider_name,
+                cookie_count=len(cookies),
+                login_method="manual",
+            )
+            self._storage.save_cookies(cookies, metadata)
+
+        except Exception as exc:
+            raise RuntimeError(f"Login flow failed: {exc}") from exc
+
+        finally:
+            # Close browser
+            await browser_manager.close()
 
     def save_session(self) -> None:
-        """Save Gemini session state."""
+        """Save Gemini session state to disk."""
+        # Cookies are saved during login_flow
         pass
 
     def load_session(self) -> bool:
-        """Load Gemini session state."""
-        return False
+        """Load Gemini session state from disk."""
+        return self._storage.session_exists()

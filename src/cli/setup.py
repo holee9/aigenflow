@@ -87,7 +87,7 @@ def setup(
 
     # Override headless setting if --headed flag is provided
     if headed:
-        settings.playwright_headless = False
+        settings.gateway_headless = False
 
     # Import asyncio here to avoid issues with tests
     import asyncio
@@ -102,22 +102,57 @@ def setup(
         from gateway.gemini_provider import GeminiProvider
         from gateway.perplexity_provider import PerplexityProvider
 
+        # Get profiles directory and headless setting from settings
+        profiles_dir = settings.profiles_dir
+        headless = settings.gateway_headless
+
         if provider.lower() == "all":
-            session_manager.register("chatgpt", ChatGPTProvider(settings))
-            session_manager.register("claude", ClaudeProvider(settings))
-            session_manager.register("gemini", GeminiProvider(settings))
-            session_manager.register("perplexity", PerplexityProvider(settings))
+            session_manager.register(
+                "chatgpt",
+                ChatGPTProvider(
+                    profile_dir=profiles_dir / "chatgpt",
+                    headless=headless,
+                )
+            )
+            session_manager.register(
+                "claude",
+                ClaudeProvider(
+                    profile_dir=profiles_dir / "claude",
+                    headless=headless,
+                )
+            )
+            session_manager.register(
+                "gemini",
+                GeminiProvider(
+                    profile_dir=profiles_dir / "gemini",
+                    headless=headless,
+                )
+            )
+            session_manager.register(
+                "perplexity",
+                PerplexityProvider(
+                    profile_dir=profiles_dir / "perplexity",
+                    headless=headless,
+                )
+            )
             console.print("[bold]Step 2: Launching browser and logging into all providers...[/bold]\n")
         else:
             provider_map = {
-                "chatgpt": ChatGPTProvider,
-                "claude": ClaudeProvider,
-                "gemini": GeminiProvider,
-                "perplexity": PerplexityProvider,
+                "chatgpt": (ChatGPTProvider, "chatgpt"),
+                "claude": (ClaudeProvider, "claude"),
+                "gemini": (GeminiProvider, "gemini"),
+                "perplexity": (PerplexityProvider, "perplexity"),
             }
-            provider_class = provider_map.get(provider.lower())
-            if provider_class:
-                session_manager.register(provider.lower(), provider_class(settings))
+            provider_info = provider_map.get(provider.lower())
+            if provider_info:
+                provider_class, provider_name = provider_info
+                session_manager.register(
+                    provider_name,
+                    provider_class(
+                        profile_dir=profiles_dir / provider_name,
+                        headless=headless,
+                    )
+                )
                 console.print(f"[bold]Step 2: Launching browser and logging into {provider.capitalize()}...[/bold]\n")
 
         # Run login flow
