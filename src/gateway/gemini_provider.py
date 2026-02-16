@@ -6,9 +6,9 @@ Uses Playwright to interact with gemini.google.com.
 
 from pathlib import Path
 
-from src.core.models import AgentType
-from src.gateway.base import BaseProvider, GatewayRequest, GatewayResponse
-from src.gateway.selector_loader import SelectorLoader
+from core.models import AgentType
+from gateway.base import BaseProvider, GatewayRequest, GatewayResponse
+from gateway.selector_loader import SelectorLoader
 
 
 class GeminiProvider(BaseProvider):

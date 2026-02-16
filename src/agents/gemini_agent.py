@@ -4,9 +4,9 @@ Gemini agent implementation.
 
 from pathlib import Path
 
-from src.agents.base import AgentRequest, AgentResponse, AsyncAgent
-from src.gateway.gemini_provider import GeminiProvider
-from src.gateway.models import GatewayRequest
+from agents.base import AgentRequest, AgentResponse, AsyncAgent
+from gateway.gemini_provider import GeminiProvider
+from gateway.models import GatewayRequest
 
 
 class GeminiAgent(AsyncAgent):

@@ -9,31 +9,29 @@ __version__ = "0.1.0"
 __author__ = "drake"
 __license__ = "Apache-2.0"
 
-# Lazy import - only import app when actually needed
-# This avoids import errors during package initialization
-def _get_app():
-    """Lazy load the app function."""
-    import sys
-    from pathlib import Path
+from importlib import import_module
 
-    # Find src directory relative to this file
-    here = Path(__file__).parent
-    src_dir = here.parent
+__all__ = [
+    "main",
+    "agents",
+    "cli",
+    "config",
+    "core",
+    "gateway",
+    "pipeline",
+    "output",
+    "templates",
+    "cache",
+    "context",
+    "monitoring",
+    "resilience",
+    "batch",
+    "ui",
+]
 
-    # Add to path if not already there
-    src_str = str(src_dir)
-    if src_str not in sys.path:
-        sys.path.insert(0, src_str)
 
-    from src.main import app
-    return app
-
-# Make app available as a property-like access
-class _AppLazy:
-    """Lazy loader for app to avoid import errors."""
-    def __call__(self):
-        return _get_app()
-
-app = _AppLazy()
-
-__all__ = ["app", "__version__"]
+def __getattr__(name: str):
+    """Lazy-load top-level submodules to avoid eager import chains."""
+    if name in __all__:
+        return import_module(f"aigenflow.{name}")
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

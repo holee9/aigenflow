@@ -13,8 +13,8 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from src.agents.base import AgentRequest
-from src.core.models import AgentType
+from agents.base import AgentRequest
+from core.models import AgentType
 
 
 @dataclass

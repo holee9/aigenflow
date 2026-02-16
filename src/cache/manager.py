@@ -13,9 +13,9 @@ Reference: SPEC-ENHANCE-004 US-1, US-5
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 
-from src.cache.key_generator import CacheKeyGenerator
-from src.cache.storage import CacheStats, CacheStorage
-from src.gateway.models import GatewayResponse
+from cache.key_generator import CacheKeyGenerator
+from cache.storage import CacheStats, CacheStorage
+from gateway.models import GatewayResponse
 
 
 class CacheManager:

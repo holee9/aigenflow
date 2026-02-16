@@ -9,8 +9,8 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from src.core.logger import get_logger, redact_secrets
-from src.gateway.base import BaseProvider
+from core.logger import get_logger, redact_secrets
+from gateway.base import BaseProvider
 
 logger = get_logger(__name__)
 

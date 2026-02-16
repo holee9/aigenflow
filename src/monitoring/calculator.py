@@ -8,7 +8,7 @@ Provides cost calculation functionality:
 """
 
 
-from src.core.models import AgentType
+from core.models import AgentType
 
 
 class PricingConfig:

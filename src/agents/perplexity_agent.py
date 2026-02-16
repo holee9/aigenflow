@@ -4,9 +4,9 @@ Perplexity agent implementation.
 
 from pathlib import Path
 
-from src.agents.base import AgentRequest, AgentResponse, AsyncAgent
-from src.gateway.models import GatewayRequest
-from src.gateway.perplexity_provider import PerplexityProvider
+from agents.base import AgentRequest, AgentResponse, AsyncAgent
+from gateway.models import GatewayRequest
+from gateway.perplexity_provider import PerplexityProvider
 
 
 class PerplexityAgent(AsyncAgent):

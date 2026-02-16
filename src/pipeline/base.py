@@ -7,7 +7,7 @@ Defines the interface that all pipeline phases must implement.
 from abc import ABC, abstractmethod
 from typing import Any
 
-from src.core.models import PhaseResult, PipelineConfig, PipelineSession
+from core.models import PhaseResult, PipelineConfig, PipelineSession
 
 
 class BasePhase(ABC):

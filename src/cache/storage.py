@@ -16,7 +16,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from src.gateway.models import GatewayResponse
+from gateway.models import GatewayResponse
 
 
 class CacheEntry(BaseModel):

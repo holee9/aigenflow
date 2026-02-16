@@ -18,8 +18,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from src.cache import CacheManager
-from src.monitoring.stats import Period, StatsCollector
+from cache import CacheManager
+from monitoring.stats import Period, StatsCollector
 
 app = typer.Typer(help="Show usage statistics and costs")
 console = Console()

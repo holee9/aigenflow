@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from enum import StrEnum
 from typing import Any
 
-from src.core.logger import get_logger
+from core.logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -11,7 +11,7 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, Field, field_validator
 
-from src.core.exceptions import ConfigurationException, ErrorCode
+from core.exceptions import ConfigurationException, ErrorCode
 
 
 class SelectorValidationError(ConfigurationException):

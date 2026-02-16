@@ -12,9 +12,9 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from src.agents.router import AgentRouter, PhaseTask
-from src.core.logger import get_logger
-from src.core.models import AgentType, DocumentType, PhaseResult
+from agents.router import AgentRouter, PhaseTask
+from core.logger import get_logger
+from core.models import AgentType, DocumentType, PhaseResult
 
 logger = get_logger(__name__)
 
@@ -204,7 +204,7 @@ Provide a concise summary that captures the essential information."""
         Raises:
             Exception: If summarization fails after retries
         """
-        from src.context.tokenizer import TokenCounter
+        from context.tokenizer import TokenCounter
 
         # Count original tokens
         token_counter = TokenCounter()
@@ -398,7 +398,7 @@ Provide a concise summary that captures the essential information."""
         Returns:
             True if summarization is recommended
         """
-        from src.context.tokenizer import TokenCounter
+        from context.tokenizer import TokenCounter
 
         # Filter results from phases before current phase
         previous_results = [r for r in session_results if r.phase_number < current_phase]

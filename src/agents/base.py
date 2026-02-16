@@ -6,8 +6,8 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
 
-from src.core.models import AgentType
-from src.gateway.models import GatewayResponse
+from core.models import AgentType
+from gateway.models import GatewayResponse
 
 
 class AgentRequest(BaseModel):

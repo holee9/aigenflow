@@ -10,8 +10,8 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from src.core.models import AgentType
-from src.gateway.selector_loader import SelectorConfig, SelectorLoader
+from core.models import AgentType
+from gateway.selector_loader import SelectorConfig, SelectorLoader
 
 
 class GatewayRequest(BaseModel):

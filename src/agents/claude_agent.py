@@ -4,9 +4,9 @@ Claude agent implementation.
 
 from pathlib import Path
 
-from src.agents.base import AgentRequest, AgentResponse, AsyncAgent
-from src.gateway.claude_provider import ClaudeProvider
-from src.gateway.models import GatewayRequest
+from agents.base import AgentRequest, AgentResponse, AsyncAgent
+from gateway.claude_provider import ClaudeProvider
+from gateway.models import GatewayRequest
 
 
 class ClaudeAgent(AsyncAgent):

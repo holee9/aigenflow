@@ -12,10 +12,10 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.agents.base import AgentResponse
-from src.agents.router import AgentRouter
-from src.context.summarizer import ContextSummary, SummaryConfig, SummaryResult
-from src.core.models import AgentType, PhaseResult, PhaseStatus
+from agents.base import AgentResponse
+from agents.router import AgentRouter
+from context.summarizer import ContextSummary, SummaryConfig, SummaryResult
+from core.models import AgentType, PhaseResult, PhaseStatus
 
 
 @pytest.fixture

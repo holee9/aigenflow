@@ -9,10 +9,10 @@ Enhanced with batch processing following SPEC-ENHANCE-004 Phase 2.
 
 from datetime import datetime
 
-from src.agents.base import AgentRequest
-from src.agents.router import AgentRouter, PhaseTask
-from src.batch.processor import BatchProcessor
-from src.core.models import (
+from agents.base import AgentRequest
+from agents.router import AgentRouter, PhaseTask
+from batch.processor import BatchProcessor
+from core.models import (
     AgentResponse,
     AgentType,
     PhaseResult,
@@ -21,8 +21,8 @@ from src.core.models import (
     PipelineSession,
     create_phase_result,
 )
-from src.pipeline.base import BasePhase
-from src.templates.manager import TemplateManager
+from pipeline.base import BasePhase
+from templates.manager import TemplateManager
 
 
 class Phase2Research(BasePhase):

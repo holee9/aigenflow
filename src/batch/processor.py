@@ -10,9 +10,9 @@ Provides batch execution functionality:
 
 from typing import Any
 
-from src.agents.base import AgentRequest, AgentResponse
-from src.batch.queue import BatchQueue, BatchRequest
-from src.core.models import AgentType
+from agents.base import AgentRequest, AgentResponse
+from batch.queue import BatchQueue, BatchRequest
+from core.models import AgentType
 
 
 class BatchProcessor:

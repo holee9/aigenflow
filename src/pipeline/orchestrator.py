@@ -3,11 +3,11 @@
 from datetime import datetime
 from typing import Any
 
-from src.agents.router import AgentRouter, PhaseTask
-from src.context.summarizer import ContextSummary, SummaryConfig
-from src.context.tokenizer import TokenCounter
-from src.core.logger import get_logger
-from src.core.models import (
+from agents.router import AgentRouter, PhaseTask
+from context.summarizer import ContextSummary, SummaryConfig
+from context.tokenizer import TokenCounter
+from core.logger import get_logger
+from core.models import (
     PhaseResult,
     PhaseStatus,
     PipelineConfig,
@@ -15,15 +15,15 @@ from src.core.models import (
     PipelineState,
     create_phase_result,
 )
-from src.gateway.session import SessionManager
-from src.output.formatter import FileExporter
-from src.pipeline.base import BasePhase
-from src.pipeline.phase1_framing import Phase1Framing
-from src.pipeline.phase2_research import Phase2Research
-from src.pipeline.phase3_strategy import Phase3Strategy
-from src.pipeline.phase4_writing import Phase4Writing
-from src.pipeline.phase5_review import Phase5Review
-from src.templates.manager import TemplateManager
+from gateway.session import SessionManager
+from output.formatter import FileExporter
+from pipeline.base import BasePhase
+from pipeline.phase1_framing import Phase1Framing
+from pipeline.phase2_research import Phase2Research
+from pipeline.phase3_strategy import Phase3Strategy
+from pipeline.phase4_writing import Phase4Writing
+from pipeline.phase5_review import Phase5Review
+from templates.manager import TemplateManager
 
 logger = get_logger(__name__)
 
@@ -90,9 +90,9 @@ class PipelineOrchestrator:
         if self.enable_ui:
             from rich.console import Console
 
-            from src.ui.logger import LogStream
-            from src.ui.progress import PipelineProgress
-            from src.ui.summary import PhaseSummary
+            from ui.logger import LogStream
+            from ui.progress import PipelineProgress
+            from ui.summary import PhaseSummary
 
             console = Console()
             self.ui_progress = PipelineProgress(console)
@@ -205,7 +205,7 @@ class PipelineOrchestrator:
                         self.ui_logger.warning(f"Context summarization failed: {summary_result.error}")
             else:
                 # Log token usage even if not summarizing
-                from src.context.tokenizer import TokenCounter
+                from context.tokenizer import TokenCounter
 
                 context = self.context_summary._extract_context_from_results(session.results)
                 token_result = TokenCounter().count(context, model_name=provider)

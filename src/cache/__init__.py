@@ -8,9 +8,9 @@ This module provides:
 - US-5: Cache management (list, clear, stats)
 """
 
-from src.cache.key_generator import CacheKeyGenerator
-from src.cache.manager import CacheManager
-from src.cache.storage import CacheEntry, CacheStats, CacheStorage
+from cache.key_generator import CacheKeyGenerator
+from cache.manager import CacheManager
+from cache.storage import CacheEntry, CacheStats, CacheStorage
 
 __all__ = [
     "CacheKeyGenerator",

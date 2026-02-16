@@ -4,9 +4,9 @@ ChatGPT agent implementation.
 
 from pathlib import Path
 
-from src.agents.base import AgentRequest, AgentResponse, AsyncAgent
-from src.gateway.chatgpt_provider import ChatGPTProvider
-from src.gateway.models import GatewayRequest
+from agents.base import AgentRequest, AgentResponse, AsyncAgent
+from gateway.chatgpt_provider import ChatGPTProvider
+from gateway.models import GatewayRequest
 
 
 class ChatGPTAgent(AsyncAgent):

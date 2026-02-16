@@ -12,7 +12,7 @@ Provides beautiful tables for phase completion with:
 from rich.console import Console
 from rich.table import Table
 
-from src.core.models import PhaseResult, PhaseStatus, PipelineSession
+from core.models import PhaseResult, PhaseStatus, PipelineSession
 
 
 class PhaseSummary:

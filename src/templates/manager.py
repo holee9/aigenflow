@@ -8,7 +8,7 @@ from typing import Any
 from jinja2 import Environment, FileSystemLoader, Template
 from pydantic import BaseModel, ConfigDict
 
-from src.core.logger import get_logger
+from core.logger import get_logger
 
 logger = get_logger(__name__)
 

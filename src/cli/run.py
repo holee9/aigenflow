@@ -15,8 +15,8 @@ from rich.panel import Panel
 from core import get_settings
 from core.models import DocumentType, PipelineConfig, TemplateType
 from gateway.session import SessionManager
-from src.pipeline.orchestrator import PipelineOrchestrator
-from src.templates.manager import TemplateManager
+from pipeline.orchestrator import PipelineOrchestrator
+from templates.manager import TemplateManager
 
 console = Console()
 

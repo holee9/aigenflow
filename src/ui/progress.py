@@ -22,7 +22,7 @@ from rich.progress import (
 )
 from rich.table import Table
 
-from src.core.models import PipelineSession
+from core.models import PipelineSession
 
 
 class PipelineProgress:

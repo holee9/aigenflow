@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import StrEnum
 
-from src.monitoring.tracker import TokenTracker, TokenUsage
+from monitoring.tracker import TokenTracker, TokenUsage
 
 
 class Period(StrEnum):

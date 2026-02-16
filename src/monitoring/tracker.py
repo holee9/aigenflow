@@ -11,8 +11,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from src.core.models import AgentType
-from src.monitoring.calculator import CostCalculator
+from core.models import AgentType
+from monitoring.calculator import CostCalculator
 
 
 @dataclass

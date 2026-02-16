@@ -4,27 +4,20 @@ Main CLI entry point for AigenFlow.
 Provides unified CLI interface for all commands.
 """
 
-import sys
-from pathlib import Path
+import typer
+from rich.console import Console
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-import typer  # noqa: E402
-from rich.console import Console  # noqa: E402
-
-# Import CLI command apps  # noqa: E402
-from src.cli.cache import app as cache_app  # noqa: E402
-from src.cli.check import app as check_app  # noqa: E402
-from src.cli.config import app as config_app  # noqa: E402
-from src.cli.relogin import app as relogin_app  # noqa: E402
-from src.cli.resume import app as resume_app  # noqa: E402
-from src.cli.run import app as run_app  # noqa: E402
-from src.cli.setup import app as setup_app  # noqa: E402
-from src.cli.stats import app as stats_app  # noqa: E402
-from src.cli.status import app as status_app  # noqa: E402
-from src.config import LogEnvironment, configure_logging  # noqa: E402
+# Import CLI command apps
+from cli.cache import app as cache_app
+from cli.check import app as check_app
+from cli.config import app as config_app
+from cli.relogin import app as relogin_app
+from cli.resume import app as resume_app
+from cli.run import app as run_app
+from cli.setup import app as setup_app
+from cli.stats import app as stats_app
+from cli.status import app as status_app
+from config import LogEnvironment, configure_logging
 
 console = Console()
 

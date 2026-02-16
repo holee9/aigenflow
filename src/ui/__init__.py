@@ -9,8 +9,8 @@ This module provides beautiful terminal UI components using Rich:
 
 __version__ = "1.0.0"
 
-from src.ui.logger import LogStream
-from src.ui.progress import PipelineProgress
-from src.ui.summary import PhaseSummary
+from ui.logger import LogStream
+from ui.progress import PipelineProgress
+from ui.summary import PhaseSummary
 
 __all__ = ["PipelineProgress", "LogStream", "PhaseSummary"]

@@ -15,7 +15,7 @@ import hashlib
 import json
 from typing import Any
 
-from src.core.models import AgentType
+from core.models import AgentType
 
 
 class CacheKeyGenerator:

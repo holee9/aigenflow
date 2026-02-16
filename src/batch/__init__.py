@@ -7,8 +7,8 @@ This module provides:
 - Integration with Phase 2 parallel processing (Gemini + Perplexity)
 """
 
-from src.batch.processor import BatchProcessor
-from src.batch.queue import BatchQueue, BatchRequest
+from batch.processor import BatchProcessor
+from batch.queue import BatchQueue, BatchRequest
 
 __all__ = [
     "BatchProcessor",

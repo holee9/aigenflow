@@ -120,7 +120,7 @@ def setup_logging(
         >>> logger = setup_logging(log_file=Path("app.log"))
 
         >>> # With profile
-        >>> from aigenflow.config.logging_profiles import LogEnvironment
+        >>> from config.logging_profiles import LogEnvironment
         >>> profile = get_logging_profile(LogEnvironment.DEVELOPMENT)
         >>> logger = setup_logging(profile=profile)
     """

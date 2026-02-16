@@ -12,10 +12,10 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from src.core.exceptions import GatewayException
-from src.core.logger import get_logger
-from src.core.models import AgentType
-from src.gateway.base import BaseProvider, GatewayRequest, GatewayResponse
+from core.exceptions import GatewayException
+from core.logger import get_logger
+from core.models import AgentType
+from gateway.base import BaseProvider, GatewayRequest, GatewayResponse
 
 logger = get_logger(__name__)
 
