@@ -8,16 +8,16 @@ import typer
 from rich.console import Console
 
 # Import CLI command apps and individual commands
-from cli.cache import app as cache_app
-from cli.check import check_cmd
-from cli.config import app as config_app
-from cli.relogin import relogin as relogin_command
-from cli.resume import app as resume_app
-from cli.run import run as run_command
-from cli.setup import setup as setup_command
-from cli.stats import app as stats_app
-from cli.status import status as status_command
-from config import LogEnvironment, configure_logging
+from aigenflow.cli.cache import app as cache_app
+from aigenflow.cli.check import check_cmd
+from aigenflow.cli.config import app as config_app
+from aigenflow.cli.relogin import relogin as relogin_command
+from aigenflow.cli.resume import app as resume_app
+from aigenflow.cli.run import run as run_command
+from aigenflow.cli.setup import setup as setup_command
+from aigenflow.cli.stats import app as stats_app
+from aigenflow.cli.status import status as status_command
+from aigenflow.config import LogEnvironment, configure_logging
 
 console = Console()
 
