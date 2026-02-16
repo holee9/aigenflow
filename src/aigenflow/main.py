@@ -9,9 +9,9 @@ from rich.console import Console
 
 # Import CLI command apps and individual commands
 from cli.cache import app as cache_app
-from cli.check import app as check_app
+from cli.check import check_cmd
 from cli.config import app as config_app
-from cli.relogin import app as relogin_app, relogin as relogin_command
+from cli.relogin import relogin as relogin_command
 from cli.resume import app as resume_app
 from cli.run import run as run_command
 from cli.setup import setup as setup_command
@@ -104,7 +104,7 @@ def main(
 
 # Register all CLI commands as subcommands
 app.add_typer(cache_app, name="cache", help="Manage AI response cache")
-app.add_typer(check_app, name="check", help="Check Playwright browser and AI provider sessions")
+app.command()(check_cmd)  # Register check directly
 app.command()(setup_command)  # Register setup directly
 app.command()(relogin_command)  # Register relogin directly
 app.command()(run_command)  # Register run directly
