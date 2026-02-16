@@ -15,13 +15,15 @@ import typer
 from rich.console import Console
 
 # Import CLI command apps
-from cli.check import app as check_app
-from cli.config import app as config_app
-from cli.relogin import app as relogin_app
-from cli.resume import app as resume_app
-from cli.setup import app as setup_app
-from cli.status import app as status_app
-from config import LogEnvironment, configure_logging
+from src.cli.cache import app as cache_app
+from src.cli.check import app as check_app
+from src.cli.config import app as config_app
+from src.cli.relogin import app as relogin_app
+from src.cli.resume import app as resume_app
+from src.cli.setup import app as setup_app
+from src.cli.status import app as status_app
+from src.cli.stats import app as stats_app
+from src.config import LogEnvironment, configure_logging
 
 console = Console()
 
@@ -98,12 +100,14 @@ def main(
 
 
 # Register all CLI commands as subcommands
+app.add_typer(cache_app, name="cache", help="Manage AI response cache")
 app.add_typer(check_app, name="check", help="Check Playwright browser and AI provider sessions")
 app.add_typer(setup_app, name="setup", help="Interactive setup wizard for first-time configuration")
 app.add_typer(relogin_app, name="relogin", help="Re-authenticate with AI providers")
 app.add_typer(status_app, name="status", help="Display pipeline execution status")
 app.add_typer(resume_app, name="resume", help="Resume interrupted pipeline execution")
 app.add_typer(config_app, name="config", help="Manage configuration settings")
+app.add_typer(stats_app, name="stats", help="Show token usage and cost statistics")
 
 
 if __name__ == "__main__":

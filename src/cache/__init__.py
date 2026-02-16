@@ -1,0 +1,21 @@
+"""
+Cache module for AI response caching following SPEC-ENHANCE-004.
+
+This module provides:
+- FR-1: Cache key generation with SHA-256
+- FR-2: File system cache storage
+- US-1: Cached response reuse
+- US-5: Cache management (list, clear, stats)
+"""
+
+from src.cache.key_generator import CacheKeyGenerator
+from src.cache.manager import CacheManager
+from src.cache.storage import CacheEntry, CacheStats, CacheStorage
+
+__all__ = [
+    "CacheKeyGenerator",
+    "CacheManager",
+    "CacheStorage",
+    "CacheEntry",
+    "CacheStats",
+]

@@ -3,11 +3,15 @@ Phase 2: Research
 
 Deep research and fact-checking phase.
 Tasks: DEEP_SEARCH_GEMINI, FACT_CHECK_PERPLEXITY
+
+Enhanced with batch processing following SPEC-ENHANCE-004 Phase 2.
 """
 
 from datetime import datetime
 
+from src.agents.base import AgentRequest
 from src.agents.router import AgentRouter, PhaseTask
+from src.batch.processor import BatchProcessor
 from src.core.models import (
     AgentResponse,
     AgentType,
@@ -33,6 +37,8 @@ class Phase2Research(BasePhase):
         self,
         template_manager: TemplateManager,
         agent_router: AgentRouter,
+        enable_batching: bool = False,
+        batch_size: int = 5,
     ) -> None:
         """
         Initialize Phase 2 with dependencies.
@@ -40,9 +46,21 @@ class Phase2Research(BasePhase):
         Args:
             template_manager: Template manager for prompt rendering
             agent_router: Agent router for task execution
+            enable_batching: Enable batch processing for Phase 2 tasks
+            batch_size: Maximum batch size (default: 5 per SPEC-ENHANCE-004)
         """
         self.template_manager = template_manager
         self.agent_router = agent_router
+        self.enable_batching = enable_batching
+
+        # Initialize batch processor if enabled
+        if enable_batching:
+            self.batch_processor = BatchProcessor(
+                router=agent_router,
+                max_batch_size=batch_size,
+            )
+        else:
+            self.batch_processor = None
 
     def get_phase_number(self) -> int:
         """Return phase number 2."""
@@ -68,6 +86,8 @@ class Phase2Research(BasePhase):
         """
         Execute Phase 2: Research.
 
+        Uses batch processing if enabled for parallel Gemini + Perplexity execution.
+
         Args:
             session: Current pipeline session
             config: Pipeline configuration
@@ -85,8 +105,37 @@ class Phase2Research(BasePhase):
             result.completed_at = datetime.now()
             return result
 
+        # Choose execution method based on batching configuration
+        if self.enable_batching and self.batch_processor:
+            responses = await self._execute_with_batching(session, phase_number, tasks)
+        else:
+            responses = await self._execute_sequential(session, phase_number, tasks)
+
+        failed = any(not response.success for response in responses)
+
+        result.ai_responses = responses
+        result.status = PhaseStatus.FAILED if failed else PhaseStatus.COMPLETED
+        result.completed_at = datetime.now()
+        return result
+
+    async def _execute_sequential(
+        self,
+        session: PipelineSession,
+        phase_number: int,
+        tasks: list[PhaseTask],
+    ) -> list[AgentResponse]:
+        """
+        Execute Phase 2 tasks sequentially (original behavior).
+
+        Args:
+            session: Current pipeline session
+            phase_number: Phase number
+            tasks: List of tasks to execute
+
+        Returns:
+            List of agent responses
+        """
         responses: list[AgentResponse] = []
-        failed = False
 
         for task in tasks:
             prompt = self.template_manager.render_prompt(
@@ -115,10 +164,7 @@ class Phase2Research(BasePhase):
                     error=response.error,
                 )
                 responses.append(normalized_response)
-                if not normalized_response.success:
-                    failed = True
             except Exception as exc:  # pragma: no cover - covered through error path assertions
-                failed = True
                 responses.append(
                     AgentResponse(
                         agent_name=AgentType.GEMINI,
@@ -129,10 +175,93 @@ class Phase2Research(BasePhase):
                     )
                 )
 
-        result.ai_responses = responses
-        result.status = PhaseStatus.FAILED if failed else PhaseStatus.COMPLETED
-        result.completed_at = datetime.now()
-        return result
+        return responses
+
+    async def _execute_with_batching(
+        self,
+        session: PipelineSession,
+        phase_number: int,
+        tasks: list[PhaseTask],
+    ) -> list[AgentResponse]:
+        """
+        Execute Phase 2 tasks with batch processing.
+
+        Enqueues Gemini and Perplexity requests for parallel batch execution.
+
+        Args:
+            session: Current pipeline session
+            phase_number: Phase number
+            tasks: List of tasks to execute
+
+        Returns:
+            List of agent responses
+        """
+        # Clear any previous batch state
+        if self.batch_processor:
+            self.batch_processor.queue.clear()
+
+        # Enqueue all tasks
+        for task in tasks:
+            prompt = self.template_manager.render_prompt(
+                template_name=self._build_template_name(phase_number, task),
+                context={
+                    "topic": session.config.topic,
+                    "doc_type": session.config.doc_type.value,
+                    "language": session.config.language,
+                },
+            )
+
+            # Determine agent type from task
+            agent_type = self._get_agent_type_for_task(task)
+
+            # Create request
+            request = AgentRequest(
+                task_name=task.value,
+                prompt=prompt,
+                timeout=session.config.timeout_seconds,
+            )
+
+            # Enqueue for batch processing
+            await self.batch_processor.enqueue(
+                agent_type=agent_type,
+                request=request,
+            )
+
+        # Process batch
+        responses = await self.batch_processor.process_batch()
+
+        # Normalize responses
+        normalized_responses: list[AgentResponse] = []
+        for response in responses:
+            normalized_response = AgentResponse(
+                agent_name=AgentType(response.agent_name),
+                task_name=response.task_name,
+                content=response.content,
+                tokens_used=response.tokens_used,
+                response_time=response.response_time,
+                success=response.success,
+                error=response.error,
+            )
+            normalized_responses.append(normalized_response)
+
+        return normalized_responses
+
+    def _get_agent_type_for_task(self, task: PhaseTask) -> AgentType:
+        """
+        Get agent type for a given task.
+
+        Args:
+            task: PhaseTask enum value
+
+        Returns:
+            Corresponding AgentType
+        """
+        # Map tasks to agent types based on SPEC-PIPELINE-001
+        task_to_agent = {
+            PhaseTask.DEEP_SEARCH_GEMINI: AgentType.GEMINI,
+            PhaseTask.FACT_CHECK_PERPLEXITY: AgentType.PERPLEXITY,
+        }
+        return task_to_agent.get(task, AgentType.GEMINI)
 
     def validate_result(self, result: PhaseResult) -> bool:
         """

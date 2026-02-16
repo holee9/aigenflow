@@ -1,0 +1,31 @@
+{
+  "phase_number": 1,
+  "phase_name": "Phase 1: Framing",
+  "status": "completed",
+  "ai_responses": [
+    {
+      "agent_name": "chatgpt",
+      "task_name": "brainstorm_chatgpt",
+      "content": "Success response",
+      "tokens_used": 100,
+      "response_time": 1.0,
+      "success": true,
+      "error": null,
+      "timestamp": "2026-02-16T01:48:15.272315"
+    },
+    {
+      "agent_name": "claude",
+      "task_name": "validate_claude",
+      "content": "Success response",
+      "tokens_used": 100,
+      "response_time": 1.0,
+      "success": true,
+      "error": null,
+      "timestamp": "2026-02-16T01:48:15.272765"
+    }
+  ],
+  "summary": "",
+  "artifacts": {},
+  "started_at": "2026-02-16T01:48:15.270931",
+  "completed_at": "2026-02-16T01:48:15.272765"
+}
