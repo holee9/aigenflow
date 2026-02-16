@@ -4,6 +4,8 @@ from datetime import datetime
 from typing import Any
 
 from src.agents.router import AgentRouter, PhaseTask
+from src.context.summarizer import ContextSummary, SummaryConfig
+from src.context.tokenizer import TokenCounter
 from src.core.models import (
     AgentResponse,
     AgentType,
@@ -14,6 +16,7 @@ from src.core.models import (
     PipelineState,
     create_phase_result,
 )
+from src.core.logger import get_logger
 from src.gateway.session import SessionManager
 from src.output.formatter import FileExporter
 from src.pipeline.base import BasePhase
@@ -23,6 +26,8 @@ from src.pipeline.phase3_strategy import Phase3Strategy
 from src.pipeline.phase4_writing import Phase4Writing
 from src.pipeline.phase5_review import Phase5Review
 from src.templates.manager import TemplateManager
+
+logger = get_logger(__name__)
 
 TOTAL_PHASES = 5
 
@@ -40,6 +45,8 @@ class PipelineOrchestrator:
         template_manager: TemplateManager | None = None,
         session_manager: SessionManager | None = None,
         enable_ui: bool = False,
+        enable_summarization: bool = True,
+        summarization_threshold: float = 0.8,
     ) -> None:
         """
         Initialize orchestrator with dependencies.
@@ -49,6 +56,8 @@ class PipelineOrchestrator:
             template_manager: Template manager for prompt rendering
             session_manager: Session manager for browser sessions
             enable_ui: Enable Rich UI components (progress, logging, summary)
+            enable_summarization: Enable context summarization (default True)
+            summarization_threshold: Token threshold for triggering summarization (default 0.8 = 80%)
         """
         self.settings = settings
         self.template_manager = template_manager or TemplateManager()
@@ -56,6 +65,19 @@ class PipelineOrchestrator:
         self.agent_router = AgentRouter(settings)
         self.current_session: PipelineSession | None = None
         self.enable_ui = enable_ui
+        self.enable_summarization = enable_summarization
+        self.summarization_threshold = summarization_threshold
+
+        # Initialize context optimization components
+        self.token_counter = TokenCounter()
+        if self.enable_summarization:
+            summary_config = SummaryConfig(enabled=True)
+            self.context_summary = ContextSummary(
+                agent_router=self.agent_router,
+                config=summary_config,
+            )
+        else:
+            self.context_summary = None
 
         # Initialize phase classes
         self._phases: dict[int, BasePhase] = {
@@ -119,6 +141,89 @@ class PipelineOrchestrator:
             return
         exporter.save_json("pipeline_state", session.model_dump(mode="json"))
 
+    async def _check_and_summarize_context(
+        self,
+        session: PipelineSession,
+        phase_number: int,
+    ) -> None:
+        """
+        Check token usage and trigger summarization if threshold exceeded.
+
+        Args:
+            session: Current pipeline session
+            phase_number: Phase about to execute
+        """
+        try:
+            # Determine provider for token limit check
+            # Use the first agent's type from the previous phase if available
+            provider = "claude"  # Default
+            if session.results:
+                last_result = session.results[-1]
+                if last_result.ai_responses:
+                    provider = last_result.ai_responses[0].agent_name.value
+
+            # Check if summarization is needed
+            should_summarize = self.context_summary.should_summarize_before_phase(
+                session_results=session.results,
+                current_phase=phase_number,
+                provider=provider,
+                threshold=self.summarization_threshold,
+            )
+
+            if should_summarize:
+                logger.info(
+                    f"Token usage threshold ({self.summarization_threshold:.0%}) exceeded before Phase {phase_number}, "
+                    "triggering context summarization"
+                )
+
+                # Perform summarization
+                summary_result = await self.context_summary.summarize_phase_context(
+                    session_results=session.results,
+                    current_phase=phase_number,
+                )
+
+                if summary_result.success:
+                    logger.info(
+                        f"Context summarized: {summary_result.tokens_original} -> "
+                        f"{summary_result.tokens_summary} tokens "
+                        f"({summary_result.reduction_ratio:.1%} reduction)"
+                    )
+
+                    # Store summary in session artifacts
+                    if not hasattr(session, "artifacts"):
+                        session.artifacts = {}
+                    session.artifacts[f"context_summary_phase_{phase_number}"] = summary_result.get_summary_dict()
+
+                    # Update UI logger if enabled
+                    if self.ui_logger:
+                        self.ui_logger.info(
+                            f"Context summarized before Phase {phase_number}: "
+                            f"{summary_result.tokens_original} -> {summary_result.tokens_summary} tokens "
+                            f"({summary_result.reduction_ratio:.1%} reduction)"
+                        )
+                else:
+                    logger.warning(f"Context summarization failed: {summary_result.error}")
+                    if self.ui_logger:
+                        self.ui_logger.warning(f"Context summarization failed: {summary_result.error}")
+            else:
+                # Log token usage even if not summarizing
+                from src.context.tokenizer import TokenCounter
+
+                context = self.context_summary._extract_context_from_results(session.results)
+                token_result = TokenCounter().count(context, model_name=provider)
+                percentage_used = token_result.get_percentage_used(provider)
+
+                logger.debug(
+                    f"Token usage before Phase {phase_number}: {token_result.total_tokens} tokens "
+                    f"({percentage_used:.1f}% of {provider} limit)"
+                )
+
+        except Exception as exc:
+            # Don't fail the pipeline if context optimization fails
+            logger.error(f"Error during context optimization check: {exc}")
+            if self.ui_logger:
+                self.ui_logger.error(f"Context optimization check failed: {exc}")
+
     @staticmethod
     def _finalize_session_state(session: PipelineSession) -> None:
         if session.state == PipelineState.FAILED:
@@ -139,6 +244,10 @@ class PipelineOrchestrator:
         Returns:
             PhaseResult with execution results
         """
+        # Check token usage and trigger summarization if needed
+        if self.enable_summarization and self.context_summary and phase_number > 1:
+            await self._check_and_summarize_context(session, phase_number)
+
         # Get the appropriate phase class
         phase = self._phases.get(phase_number)
 
@@ -203,6 +312,11 @@ class PipelineOrchestrator:
         output_dir.mkdir(parents=True, exist_ok=True)
         exporter = FileExporter(output_dir)
 
+        # Initialize context optimization tracking
+        if self.enable_summarization and self.context_summary:
+            logger.info("Context optimization enabled for pipeline execution")
+            session.artifacts = {"context_summaries": {}}
+
         # Start UI progress if enabled
         if self.ui_progress:
             self.ui_progress.start(total_phases=TOTAL_PHASES)
@@ -226,6 +340,16 @@ class PipelineOrchestrator:
                     break
 
             self._finalize_session_state(session)
+
+            # Save context summaries to artifacts
+            if self.enable_summarization and self.context_summary:
+                all_summaries = self.context_summary.get_all_summaries()
+                if all_summaries and hasattr(session, "artifacts"):
+                    session.artifacts["context_summaries"] = {
+                        str(phase): summary.get_summary_dict()
+                        for phase, summary in all_summaries.items()
+                    }
+                    logger.info(f"Saved {len(all_summaries)} context summaries to session artifacts")
 
             # Stop UI progress and show summary if enabled
             if self.ui_progress:

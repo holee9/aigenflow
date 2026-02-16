@@ -29,6 +29,8 @@ dependencies = [
     "jinja2>=3.1.0",
     "rich>=13.0.0",
     "structlog>=24.0.0",
+    "python-docx>=1.1.0",
+    "reportlab>=4.2.0",
 ]
 
 [dependency-groups]
@@ -57,3 +59,9 @@ disallow_untyped_defs = true
 [tool.pytest.ini_options]
 addopts = "-v --tb=short"
 asyncio_mode = "auto"
+markers = [
+    "e2e: End-to-end tests that may require external resources",
+    "integration: Integration tests that span multiple components",
+    "unit: Unit tests for individual functions and classes",
+    "slow: Tests that take longer than 1 second to run",
+]
