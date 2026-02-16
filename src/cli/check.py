@@ -135,7 +135,6 @@ async def _check_sessions(settings: Any, verbose: bool = False) -> dict[str, boo
     return session_status
 
 
-@app.command()
 def check_cmd(
     selectors: bool = typer.Option(False, "--selectors", help="Check DOM selector configuration"),
     selector_file: Path = typer.Option(
