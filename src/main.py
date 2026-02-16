@@ -11,19 +11,20 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-import typer
-from rich.console import Console
+import typer  # noqa: E402
+from rich.console import Console  # noqa: E402
 
-# Import CLI command apps
-from src.cli.cache import app as cache_app
-from src.cli.check import app as check_app
-from src.cli.config import app as config_app
-from src.cli.relogin import app as relogin_app
-from src.cli.resume import app as resume_app
-from src.cli.setup import app as setup_app
-from src.cli.stats import app as stats_app
-from src.cli.status import app as status_app
-from src.config import LogEnvironment, configure_logging
+# Import CLI command apps  # noqa: E402
+from src.cli.cache import app as cache_app  # noqa: E402
+from src.cli.check import app as check_app  # noqa: E402
+from src.cli.config import app as config_app  # noqa: E402
+from src.cli.relogin import app as relogin_app  # noqa: E402
+from src.cli.resume import app as resume_app  # noqa: E402
+from src.cli.run import app as run_app  # noqa: E402
+from src.cli.setup import app as setup_app  # noqa: E402
+from src.cli.stats import app as stats_app  # noqa: E402
+from src.cli.status import app as status_app  # noqa: E402
+from src.config import LogEnvironment, configure_logging  # noqa: E402
 
 console = Console()
 
@@ -44,13 +45,22 @@ def _preserve_run_command():
     console.print("[dim]Usage:[/dim]")
     console.print("[dim]  aigenflow run --topic \"Your topic here\"[/dim]")
     console.print("")
-    console.print("[bold cyan]Options:[/bold cyan]")
+    console.print("[bold cyan]Available Commands:[/bold cyan]")
     console.print("  run        Execute pipeline and generate document")
-    console.print("  check       Check AI provider sessions")
-    console.print("              --topic    Document topic (required)")
-    console.print("              --type      Document type: bizplan or rd (default: bizplan)")
-    console.print("              --template  Template name (default, startup, strategy)")
-    console.print("              --lang      Output language (ko or en)")
+    console.print("  setup       Interactive setup wizard for first-time configuration")
+    console.print("  check       Check Playwright browser and AI provider sessions")
+    console.print("  status      Display pipeline execution status")
+    console.print("  resume      Resume interrupted pipeline execution")
+    console.print("  config      Manage configuration settings")
+    console.print("  cache       Manage AI response cache")
+    console.print("  stats       Show token usage and cost statistics")
+    console.print("")
+    console.print("[bold cyan]Run Command Options:[/bold cyan]")
+    console.print("  --topic     Document topic (required, min 10 characters)")
+    console.print("  --type      Document type: bizplan or rd (default: bizplan)")
+    console.print("  --language  Output language: ko or en (default: ko)")
+    console.print("  --template  Template name (default: default)")
+    console.print("  --output    Output directory override (default: output/)")
     console.print("")
 
 
@@ -104,6 +114,7 @@ app.add_typer(cache_app, name="cache", help="Manage AI response cache")
 app.add_typer(check_app, name="check", help="Check Playwright browser and AI provider sessions")
 app.add_typer(setup_app, name="setup", help="Interactive setup wizard for first-time configuration")
 app.add_typer(relogin_app, name="relogin", help="Re-authenticate with AI providers")
+app.add_typer(run_app, name="run", help="Execute pipeline and generate document")
 app.add_typer(status_app, name="status", help="Display pipeline execution status")
 app.add_typer(resume_app, name="resume", help="Resume interrupted pipeline execution")
 app.add_typer(config_app, name="config", help="Manage configuration settings")

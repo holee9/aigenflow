@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "aigenflow"
 version = "0.1.0"
@@ -6,21 +10,8 @@ authors = [
     {name = "drake", email = "drake@example.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 license = {text = "Apache-2.0"}
-
-[project.urls]
-Homepage = "https://github.com/holee9/aigenflow"
-Repository = "https://github.com/holee9/aigenflow.git"
-Issues = "https://github.com/holee9/aigenflow/issues"
-
-[project.scripts]
-dev = "aigenflow run --help"
-test = "pytest tests/"
-test-cov = "pytest tests/ --cov=src --cov-report=term-missing"
-lint = "ruff check src/"
-format = "ruff format src/"
-
 dependencies = [
     "playwright>=1.49.0",
     "typer>=0.12.0",
@@ -33,6 +24,17 @@ dependencies = [
     "reportlab>=4.2.0",
 ]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/aigenflow"]
+
+[project.urls]
+Homepage = "https://github.com/holee9/aigenflow"
+Repository = "https://github.com/holee9/aigenflow.git"
+Issues = "https://github.com/holee9/aigenflow/issues"
+
+[project.scripts]
+aigenflow = "aigenflow.cli:main"
+
 [dependency-groups]
 dev = [
     "pytest>=8.0.0",
@@ -44,14 +46,14 @@ dev = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py313"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
 ignore = ["E501"]
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

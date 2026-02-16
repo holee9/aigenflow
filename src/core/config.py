@@ -31,6 +31,8 @@ class AigenFlowSettings(BaseSettings):
 
     enable_parallel_phases: bool = True
     enable_event_tracking: bool = True
+    enable_summarization: bool = True
+    summarization_threshold: float = 0.8
 
     # API/session secrets from environment variables
     openai_api_key: str | None = Field(
@@ -51,11 +53,13 @@ class AigenFlowSettings(BaseSettings):
     )
 
     @field_validator("output_dir", "profiles_dir", "templates_dir")
+    @classmethod
     def create_directories(cls, v: Path) -> Path:
         v.mkdir(parents=True, exist_ok=True)
         return v
 
     @field_validator("log_level")
+    @classmethod
     def normalize_log_level(cls, v: str) -> str:
         return v.upper()
 
