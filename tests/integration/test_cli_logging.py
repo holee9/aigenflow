@@ -99,8 +99,8 @@ class TestLogOutputDestinations:
     def test_dev_profile_outputs_to_console_and_file(self, temp_log_dir: Path) -> None:
         """Test that dev profile outputs to both console and file."""
         profile = get_logging_profile(LogEnvironment.DEVELOPMENT, temp_log_dir)
-        assert profile["console_enabled"] is True
-        assert profile["file_enabled"] is True
+        assert profile.should_log_to_console() is True
+        assert profile.should_log_to_file() is True
 
         # Test actual logging
         logger = configure_logging(
@@ -117,14 +117,14 @@ class TestLogOutputDestinations:
     def test_test_profile_outputs_to_file_only(self, temp_log_dir: Path) -> None:
         """Test that test profile outputs to file only."""
         profile = get_logging_profile(LogEnvironment.TESTING, temp_log_dir)
-        assert profile["console_enabled"] is False
-        assert profile["file_enabled"] is True
+        assert profile.should_log_to_console() is False
+        assert profile.should_log_to_file() is True
 
     def test_prod_profile_outputs_to_file_only(self, temp_log_dir: Path) -> None:
         """Test that prod profile outputs to file only."""
         profile = get_logging_profile(LogEnvironment.PRODUCTION, temp_log_dir)
-        assert profile["console_enabled"] is False
-        assert profile["file_enabled"] is True
+        assert profile.should_log_to_console() is False
+        assert profile.should_log_to_file() is True
 
 
 class TestLogFormatConsistency:
@@ -133,12 +133,12 @@ class TestLogFormatConsistency:
     def test_dev_profile_uses_pretty_format(self, temp_log_dir: Path) -> None:
         """Test that dev profile uses pretty (non-JSON) format."""
         profile = get_logging_profile(LogEnvironment.DEVELOPMENT, temp_log_dir)
-        assert profile.get("json_output", False) is False
+        assert profile.use_json is False
 
     def test_prod_profile_uses_json_format(self, temp_log_dir: Path) -> None:
         """Test that prod profile uses JSON format."""
         profile = get_logging_profile(LogEnvironment.PRODUCTION, temp_log_dir)
-        assert profile.get("json_output", True) is True
+        assert profile.use_json is True
 
     def test_json_log_format_has_required_fields(self, temp_log_dir: Path) -> None:
         """Test that JSON logs include timestamp, level, and message."""

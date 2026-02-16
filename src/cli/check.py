@@ -24,7 +24,6 @@ def _check_browser_installation() -> bool:
     """Check if Playwright browser is installed."""
     try:
         # Try to import playwright to verify it's installed
-        from playwright.sync_api import sync_playwright
 
         # Just check if we can import and access the API
         # Don't actually launch browser in tests

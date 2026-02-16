@@ -29,29 +29,29 @@ class TestLoggingProfiles:
     def test_dev_profile_has_debug_level(self, temp_log_dir: Path) -> None:
         """Test that dev profile uses DEBUG log level."""
         profile = get_logging_profile(LogEnvironment.DEVELOPMENT, temp_log_dir)
-        assert profile["level"] == logging.DEBUG
-        assert profile["console_enabled"] is True
-        assert profile["file_enabled"] is True
+        assert profile.log_level == logging.DEBUG
+        assert profile.should_log_to_console() is True
+        assert profile.should_log_to_file() is True
 
     def test_test_profile_has_info_level(self, temp_log_dir: Path) -> None:
         """Test that test profile uses INFO log level."""
         profile = get_logging_profile(LogEnvironment.TESTING, temp_log_dir)
-        assert profile["level"] == logging.INFO
-        assert profile["console_enabled"] is False  # File only
-        assert profile["file_enabled"] is True
+        assert profile.log_level == logging.INFO
+        assert profile.should_log_to_console() is False  # File only
+        assert profile.should_log_to_file() is True
 
     def test_prod_profile_has_warning_level(self, temp_log_dir: Path) -> None:
         """Test that prod profile uses WARNING log level."""
         profile = get_logging_profile(LogEnvironment.PRODUCTION, temp_log_dir)
-        assert profile["level"] == logging.WARNING
-        assert profile["console_enabled"] is False  # File only
-        assert profile["file_enabled"] is True
+        assert profile.log_level == logging.WARNING
+        assert profile.should_log_to_console() is False  # File only
+        assert profile.should_log_to_file() is True
 
     def test_default_profile_is_prod(self, temp_log_dir: Path) -> None:
         """Test that default profile is production."""
         profile = get_logging_profile(log_dir=temp_log_dir)
-        assert profile["level"] == logging.WARNING
-        assert profile["console_enabled"] is False
+        assert profile.log_level == logging.WARNING
+        assert profile.should_log_to_console() is False
 
     def test_log_file_path_correct_for_each_profile(self, temp_log_dir: Path) -> None:
         """Test that log file paths are correct for each profile."""
@@ -59,14 +59,14 @@ class TestLoggingProfiles:
         test_profile = get_logging_profile(LogEnvironment.TESTING, temp_log_dir)
         prod_profile = get_logging_profile(LogEnvironment.PRODUCTION, temp_log_dir)
 
-        assert dev_profile["log_file"] == temp_log_dir / "development.log"
-        assert test_profile["log_file"] == temp_log_dir / "testing.log"
-        assert prod_profile["log_file"] == temp_log_dir / "production.log"
+        assert dev_profile.log_file_path == temp_log_dir / "development.log"
+        assert test_profile.log_file_path == temp_log_dir / "testing.log"
+        assert prod_profile.log_file_path == temp_log_dir / "production.log"
 
     def test_default_log_dir_is_logs(self) -> None:
         """Test that default log directory is ./logs."""
         profile = get_logging_profile(LogEnvironment.DEVELOPMENT)
-        assert profile["log_file"] == Path("logs/development.log")
+        assert profile.log_file_path == Path("logs/development.log")
 
 
 class TestLogRotationConfiguration:
@@ -114,12 +114,12 @@ class TestStructlogIntegration:
     def test_json_renderer_for_prod_profile(self, temp_log_dir: Path) -> None:
         """Test that production profile uses JSON renderer."""
         profile = get_logging_profile(LogEnvironment.PRODUCTION, temp_log_dir)
-        assert profile["json_output"] is True
+        assert profile.use_json is True
 
     def test_console_renderer_for_dev_profile(self, temp_log_dir: Path) -> None:
         """Test that dev profile uses console renderer."""
         profile = get_logging_profile(LogEnvironment.DEVELOPMENT, temp_log_dir)
-        assert profile["json_output"] is False
+        assert profile.use_json is False
 
 
 class TestLogLevelNormalization:
@@ -316,17 +316,17 @@ class TestProfileJsonOutputSettings:
     def test_dev_profile_does_not_use_json(self, temp_log_dir: Path) -> None:
         """Test that dev profile does not use JSON output."""
         profile = get_logging_profile(LogEnvironment.DEVELOPMENT, temp_log_dir)
-        assert profile["json_output"] is False
+        assert profile.use_json is False
 
     def test_test_profile_does_not_use_json(self, temp_log_dir: Path) -> None:
         """Test that test profile does not use JSON output."""
         profile = get_logging_profile(LogEnvironment.TESTING, temp_log_dir)
-        assert profile["json_output"] is False
+        assert profile.use_json is False
 
     def test_prod_profile_uses_json(self, temp_log_dir: Path) -> None:
         """Test that prod profile uses JSON output."""
         profile = get_logging_profile(LogEnvironment.PRODUCTION, temp_log_dir)
-        assert profile["json_output"] is True
+        assert profile.use_json is True
 
 
 # Module-level exports for test discovery

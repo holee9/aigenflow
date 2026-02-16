@@ -21,8 +21,8 @@ from src.cli.config import app as config_app
 from src.cli.relogin import app as relogin_app
 from src.cli.resume import app as resume_app
 from src.cli.setup import app as setup_app
-from src.cli.status import app as status_app
 from src.cli.stats import app as stats_app
+from src.cli.status import app as status_app
 from src.config import LogEnvironment, configure_logging
 
 console = Console()

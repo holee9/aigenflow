@@ -8,7 +8,6 @@ Provides beautiful tables for phase completion with:
 - Status indicators
 """
 
-from typing import List, Optional
 
 from rich.console import Console
 from rich.table import Table
@@ -23,7 +22,7 @@ class PhaseSummary:
     Displays phase execution results in a formatted table.
     """
 
-    def __init__(self, console: Optional[Console] = None) -> None:
+    def __init__(self, console: Console | None = None) -> None:
         """
         Initialize PhaseSummary.
 

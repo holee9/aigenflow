@@ -9,9 +9,9 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from src.agents.base import AgentRequest, AgentResponse, AsyncAgent
 from src.core.exceptions import AgentException
 from src.core.models import AgentType, DocumentType
-from src.agents.base import AsyncAgent, AgentRequest, AgentResponse
 
 
 class PhaseTask(str, Enum):

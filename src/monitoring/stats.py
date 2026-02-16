@@ -153,12 +153,12 @@ class StatsCollector:
             f"Usage Statistics ({summary.period.value})",
             f"{'='*50}",
             f"Period: {summary.start_date.strftime('%Y-%m-%d')} to {summary.end_date.strftime('%Y-%m-%d')}",
-            f"",
+            "",
             f"Total Tokens: {summary.total_tokens:,}",
             f"Total Cost: ${summary.total_cost:.4f}",
             f"Total Requests: {summary.request_count}",
-            f"",
-            f"By Provider:",
+            "",
+            "By Provider:",
         ]
 
         for provider, tokens in sorted(summary.by_provider.items()):

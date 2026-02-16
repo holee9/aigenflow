@@ -5,7 +5,7 @@ Defines the interface that all pipeline phases must implement.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, List
+from typing import Any
 
 from src.core.models import PhaseResult, PipelineConfig, PipelineSession
 
@@ -19,7 +19,7 @@ class BasePhase(ABC):
     """
 
     @abstractmethod
-    def get_tasks(self, session: PipelineSession) -> List[Any]:
+    def get_tasks(self, session: PipelineSession) -> list[Any]:
         """
         Get the list of tasks for this phase.
 

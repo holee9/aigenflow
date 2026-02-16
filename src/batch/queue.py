@@ -8,12 +8,10 @@ Provides request queuing and batching functionality:
 - Queue management (clear, size)
 """
 
-from datetime import datetime
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 from uuid import uuid4
-
-from pydantic import BaseModel
 
 from src.agents.base import AgentRequest
 from src.core.models import AgentType

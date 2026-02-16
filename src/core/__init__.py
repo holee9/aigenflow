@@ -7,8 +7,8 @@ from .events import (
     AgentCalledEvent,
     AgentRespondedEvent,
     BaseEvent,
-    EventHandler,
     EventBus,
+    EventHandler,
     EventType,
     PhaseCompletedEvent,
     PhaseStartedEvent,
@@ -19,8 +19,8 @@ from .events import (
     get_event_bus,
 )
 from .exceptions import (
-    AigenFlowException,
     AgentException,
+    AigenFlowException,
     ConfigurationException,
     ErrorCode,
     GatewayException,

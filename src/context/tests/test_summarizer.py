@@ -8,15 +8,14 @@ Tests ContextSummary functionality including:
 - Token reduction verification
 """
 
-from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.agents.base import AgentRequest, AgentResponse
-from src.agents.router import AgentRouter, PhaseTask
+from src.agents.base import AgentResponse
+from src.agents.router import AgentRouter
 from src.context.summarizer import ContextSummary, SummaryConfig, SummaryResult
-from src.core.models import AgentType, DocumentType, PhaseResult, PhaseStatus
+from src.core.models import AgentType, PhaseResult, PhaseStatus
 
 
 @pytest.fixture

@@ -5,12 +5,11 @@ Manages configuration settings.
 """
 
 import sys
-from typing import Any
 
 import typer
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
+from rich.table import Table
 
 from core import get_settings
 
@@ -77,7 +76,7 @@ def config(
             value = int(value)
 
         # TODO: Implement actual config setting
-        console.print(f"[yellow]Config set functionality is under development[/yellow]")
+        console.print("[yellow]Config set functionality is under development[/yellow]")
         console.print(f"[yellow]Would set: {key} = {value}[/yellow]")
         console.print("\n[yellow]To permanently set configuration, edit .env file[/yellow]")
 

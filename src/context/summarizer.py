@@ -12,7 +12,6 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from src.agents.base import AgentRequest, AgentResponse
 from src.agents.router import AgentRouter, PhaseTask
 from src.core.logger import get_logger
 from src.core.models import AgentType, DocumentType, PhaseResult

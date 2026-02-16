@@ -6,9 +6,8 @@ from typing import Any
 from src.agents.router import AgentRouter, PhaseTask
 from src.context.summarizer import ContextSummary, SummaryConfig
 from src.context.tokenizer import TokenCounter
+from src.core.logger import get_logger
 from src.core.models import (
-    AgentResponse,
-    AgentType,
     PhaseResult,
     PhaseStatus,
     PipelineConfig,
@@ -16,7 +15,6 @@ from src.core.models import (
     PipelineState,
     create_phase_result,
 )
-from src.core.logger import get_logger
 from src.gateway.session import SessionManager
 from src.output.formatter import FileExporter
 from src.pipeline.base import BasePhase

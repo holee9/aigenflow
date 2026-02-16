@@ -8,8 +8,6 @@ Provides real-time progress tracking for pipeline execution with:
 - Time elapsed/remaining
 """
 
-from datetime import datetime
-from typing import Optional
 
 from rich.console import Console
 from rich.progress import (
@@ -35,7 +33,7 @@ class PipelineProgress:
     agent information, and timing details.
     """
 
-    def __init__(self, console: Optional[Console] = None) -> None:
+    def __init__(self, console: Console | None = None) -> None:
         """
         Initialize PipelineProgress.
 
@@ -52,7 +50,7 @@ class PipelineProgress:
             TimeRemainingColumn(),
             console=self.console,
         )
-        self.task_id: Optional[TaskID] = None
+        self.task_id: TaskID | None = None
         self.current_phase = 0
         self.total_phases = 5
 

@@ -5,7 +5,6 @@ Re-authenticate with AI providers.
 """
 
 import sys
-from typing import Any
 
 import typer
 from rich.console import Console

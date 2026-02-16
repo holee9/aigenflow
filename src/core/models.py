@@ -101,6 +101,7 @@ class PipelineSession(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
     current_phase: int = 0
+    artifacts: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("config", mode="before")
     @classmethod

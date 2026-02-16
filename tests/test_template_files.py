@@ -95,7 +95,7 @@ def test_all_templates_loadable():
     failed = 0
 
     for phase, task, name in test_cases:
-        template_name = orch._build_template_name(phase, task)
+        template_name = f"phase_{phase}/{task.value.lower()}"
         try:
             result = tm.render_prompt(template_name, base_context)
             if len(result) > 50:  # Template rendered successfully

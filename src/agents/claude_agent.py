@@ -4,11 +4,9 @@ Claude agent implementation.
 
 from pathlib import Path
 
-from pydantic import Field
-
-from src.agents.base import AsyncAgent, AgentRequest, AgentResponse, AgentType
+from src.agents.base import AgentRequest, AgentResponse, AsyncAgent
 from src.gateway.claude_provider import ClaudeProvider
-from src.gateway.models import GatewayRequest, GatewayResponse
+from src.gateway.models import GatewayRequest
 
 
 class ClaudeAgent(AsyncAgent):

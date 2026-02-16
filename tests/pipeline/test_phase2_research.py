@@ -206,3 +206,59 @@ class TestPhase2Research:
             Phase2Research._build_template_name(2, PhaseTask.FACT_CHECK_PERPLEXITY)
             == "phase_2/fact_check_perplexity"
         )
+
+
+class TestPhase2ResearchBatchProcessing:
+    """Tests for Phase2Research batch processing functionality."""
+
+    def test_init_with_batching_enabled(self):
+        """Test Phase2Research initialization with batching enabled."""
+        from src.templates.manager import TemplateManager
+
+        template_manager = TemplateManager()
+        agent_router = AgentRouter(settings=None)
+
+        phase = Phase2Research(
+            template_manager=template_manager,
+            agent_router=agent_router,
+            enable_batching=True,
+            batch_size=5,
+        )
+
+        assert phase is not None
+        assert phase.enable_batching is True
+        assert phase.batch_processor is not None
+
+    def test_init_with_batching_disabled(self):
+        """Test Phase2Research initialization with batching disabled."""
+        from src.templates.manager import TemplateManager
+
+        template_manager = TemplateManager()
+        agent_router = AgentRouter(settings=None)
+
+        phase = Phase2Research(
+            template_manager=template_manager,
+            agent_router=agent_router,
+            enable_batching=False,
+        )
+
+        assert phase is not None
+        assert phase.enable_batching is False
+        assert phase.batch_processor is None
+
+    def test_get_agent_type_for_task(self):
+        """Test _get_agent_type_for_task returns correct mappings."""
+        from src.templates.manager import TemplateManager
+
+        template_manager = TemplateManager()
+        agent_router = AgentRouter(settings=None)
+        phase = Phase2Research(
+            template_manager=template_manager,
+            agent_router=agent_router,
+        )
+
+        gemini_agent = phase._get_agent_type_for_task(PhaseTask.DEEP_SEARCH_GEMINI)
+        assert gemini_agent == AgentType.GEMINI
+
+        perplexity_agent = phase._get_agent_type_for_task(PhaseTask.FACT_CHECK_PERPLEXITY)
+        assert perplexity_agent == AgentType.PERPLEXITY

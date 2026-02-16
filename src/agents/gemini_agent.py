@@ -4,11 +4,9 @@ Gemini agent implementation.
 
 from pathlib import Path
 
-from pydantic import Field
-
-from src.agents.base import AsyncAgent, AgentRequest, AgentResponse, AgentType
+from src.agents.base import AgentRequest, AgentResponse, AsyncAgent
 from src.gateway.gemini_provider import GeminiProvider
-from src.gateway.models import GatewayRequest, GatewayResponse
+from src.gateway.models import GatewayRequest
 
 
 class GeminiAgent(AsyncAgent):

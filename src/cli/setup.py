@@ -5,7 +5,6 @@ Interactive wizard for first-time configuration and browser setup.
 """
 
 import sys
-from typing import Any
 
 import typer
 from rich.console import Console
@@ -20,7 +19,6 @@ console = Console()
 def _check_browser_installation() -> bool:
     """Check if Playwright browser is installed."""
     try:
-        from playwright.sync_api import sync_playwright
         return True
     except Exception as exc:
         console.print(f"[red]✗ Browser check failed: {exc}[/red]")

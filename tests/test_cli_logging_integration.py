@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 class TestCLILoggingOptions:
     """Test CLI logging options."""
 
-    @patch("main.setup_logging")
+    @patch("core.logger.setup_logging")
     @patch("main._preserve_run_command")
     def test_log_level_option_debug(self, mock_preserve, mock_setup):
         """CLI --log-level debug configures logging correctly."""
@@ -37,7 +37,7 @@ class TestCLILoggingOptions:
         assert profile is not None
         assert profile.log_level.value == "DEBUG"
 
-    @patch("main.setup_logging")
+    @patch("core.logger.setup_logging")
     @patch("main._preserve_run_command")
     def test_log_file_option(self, mock_preserve, mock_setup):
         """CLI --log-file option configures custom log file."""
@@ -62,7 +62,7 @@ class TestCLILoggingOptions:
         assert profile is not None
         assert profile.log_file_path == custom_log
 
-    @patch("main.setup_logging")
+    @patch("core.logger.setup_logging")
     @patch("main._preserve_run_command")
     def test_invalid_log_level(self, mock_preserve, mock_setup):
         """Invalid log level shows error and exits."""
@@ -78,7 +78,7 @@ class TestCLILoggingOptions:
                 log_file=None,
             )
 
-    @patch("main.setup_logging")
+    @patch("core.logger.setup_logging")
     @patch("main._preserve_run_command")
     def test_default_logging_config(self, mock_preserve, mock_setup):
         """Without options, uses default logging configuration."""

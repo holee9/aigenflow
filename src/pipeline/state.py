@@ -4,10 +4,6 @@ Pipeline state management modules.
 
 from enum import Enum
 
-from pydantic import Field
-
-from src.core.models import PhaseResult
-
 
 class PipelineState(str, Enum):
     """Overall pipeline state machine."""

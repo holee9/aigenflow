@@ -9,7 +9,6 @@ Provides token usage tracking functionality:
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
 from typing import Any
 
 from src.core.models import AgentType

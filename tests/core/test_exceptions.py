@@ -5,7 +5,7 @@ Tests for core exceptions.
 import pytest
 
 from core.exceptions import (
-    AgentCompareException,
+    AigenFlowException,
     AgentException,
     ConfigurationException,
     ErrorCode,
@@ -15,13 +15,13 @@ from core.exceptions import (
 )
 
 
-class TestAgentCompareException:
+class TestAigenFlowException:
     def test_create_basic_exception(self):
-        exc = AgentCompareException("Test error message")
+        exc = AigenFlowException("Test error message")
         assert str(exc) == "Test error message"
 
     def test_create_exception_with_details(self):
-        exc = AgentCompareException(message="Test error", details={"code": "T001"})
+        exc = AigenFlowException(message="Test error", details={"code": "T001"})
         assert exc.message == "Test error"
         assert exc.details["code"] == "T001"
 

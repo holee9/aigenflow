@@ -8,7 +8,6 @@ Provides batch execution functionality:
 - Statistics tracking
 """
 
-from collections.abc import Awaitable, Callable
 from typing import Any
 
 from src.agents.base import AgentRequest, AgentResponse

@@ -9,7 +9,6 @@ Provides real-time log streaming with:
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from rich.console import Console
 from rich.panel import Panel
@@ -33,7 +32,7 @@ class LogStream:
     Displays log messages with timestamps, levels, and colored output.
     """
 
-    def __init__(self, console: Optional[Console] = None) -> None:
+    def __init__(self, console: Console | None = None) -> None:
         """
         Initialize LogStream.
 
@@ -47,7 +46,7 @@ class LogStream:
         self,
         message: str,
         level: LogLevel = LogLevel.INFO,
-        timestamp: Optional[datetime] = None,
+        timestamp: datetime | None = None,
     ) -> None:
         """
         Log a message with level and timestamp.
@@ -92,7 +91,7 @@ class LogStream:
 
         self.console.print(panel)
 
-    def info(self, message: str, timestamp: Optional[datetime] = None) -> None:
+    def info(self, message: str, timestamp: datetime | None = None) -> None:
         """
         Log an INFO message.
 
@@ -102,7 +101,7 @@ class LogStream:
         """
         self.log(message, LogLevel.INFO, timestamp)
 
-    def warning(self, message: str, timestamp: Optional[datetime] = None) -> None:
+    def warning(self, message: str, timestamp: datetime | None = None) -> None:
         """
         Log a WARNING message.
 
@@ -112,7 +111,7 @@ class LogStream:
         """
         self.log(message, LogLevel.WARNING, timestamp)
 
-    def error(self, message: str, timestamp: Optional[datetime] = None) -> None:
+    def error(self, message: str, timestamp: datetime | None = None) -> None:
         """
         Log an ERROR message.
 
@@ -122,7 +121,7 @@ class LogStream:
         """
         self.log(message, LogLevel.ERROR, timestamp)
 
-    def debug(self, message: str, timestamp: Optional[datetime] = None) -> None:
+    def debug(self, message: str, timestamp: datetime | None = None) -> None:
         """
         Log a DEBUG message.
 
@@ -132,7 +131,7 @@ class LogStream:
         """
         self.log(message, LogLevel.DEBUG, timestamp)
 
-    def critical(self, message: str, timestamp: Optional[datetime] = None) -> None:
+    def critical(self, message: str, timestamp: datetime | None = None) -> None:
         """
         Log a CRITICAL message.
 
