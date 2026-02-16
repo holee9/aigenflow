@@ -49,7 +49,7 @@ Repository = "https://github.com/holee9/aigenflow.git"
 Issues = "https://github.com/holee9/aigenflow/issues"
 
 [project.scripts]
-aigenflow = "src.aigenflow.cli:main"
+aigenflow = "aigenflow.cli:main"
 
 [dependency-groups]
 dev = [
