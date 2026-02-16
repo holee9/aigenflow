@@ -23,8 +23,8 @@ class PerplexityProvider(BaseProvider):
     provider_name: str = "perplexity"
     base_url: str = "https://www.perplexity.ai"
 
-    # Authentication detection selectors
-    AUTH_SELECTOR = 'textarea[placeholder="Ask anything..."]'
+    # Default authentication selector (fallback if selector_loader not available)
+    DEFAULT_AUTH_SELECTOR = '[role="textbox"], textarea, div[contenteditable="true"]'
     LOGIN_TIMEOUT = 300  # 5 minutes
 
     def __init__(
@@ -71,10 +71,15 @@ class PerplexityProvider(BaseProvider):
                 timeout=30000,
             )
 
+            # Get auth selector (prefer selector_loader, fallback to default)
+            auth_selector = self.get_selector("chat_input", optional=True)
+            if auth_selector is None:
+                auth_selector = self.DEFAULT_AUTH_SELECTOR
+
             # Check for authentication element
             try:
                 await page.wait_for_selector(
-                    self.AUTH_SELECTOR,
+                    auth_selector,
                     timeout=10000,
                 )
                 is_valid = True
@@ -134,9 +139,14 @@ class PerplexityProvider(BaseProvider):
         await page.goto(self.base_url, wait_until="networkidle")
 
         # Wait for user to complete login
+        # Get auth selector (prefer selector_loader, fallback to default)
+        auth_selector = self.get_selector("chat_input", optional=True)
+        if auth_selector is None:
+            auth_selector = self.DEFAULT_AUTH_SELECTOR
+
         try:
             await page.wait_for_selector(
-                self.AUTH_SELECTOR,
+                auth_selector,
                 timeout=self.LOGIN_TIMEOUT * 1000,
             )
 

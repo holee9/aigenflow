@@ -25,8 +25,8 @@ class ChatGPTProvider(BaseProvider):
     provider_name: str = "chatgpt"
     base_url: str = "https://chat.openai.com"
 
-    # Authentication detection selectors
-    AUTH_SELECTOR = 'textarea[data-testid="chat-input"]'
+    # Default authentication selector (fallback if selector_loader not available)
+    DEFAULT_AUTH_SELECTOR = '#prompt-textarea, [contenteditable="true"], textarea'
     LOGIN_TIMEOUT = 300  # 5 minutes
 
     def __init__(
@@ -88,10 +88,15 @@ class ChatGPTProvider(BaseProvider):
                 timeout=30000,
             )
 
+            # Get auth selector (prefer selector_loader, fallback to default)
+            auth_selector = self.get_selector("chat_input", optional=True)
+            if auth_selector is None:
+                auth_selector = self.DEFAULT_AUTH_SELECTOR
+
             # Check for authentication element
             try:
                 await page.wait_for_selector(
-                    self.AUTH_SELECTOR,
+                    auth_selector,
                     timeout=10000,
                 )
                 is_valid = True
@@ -152,9 +157,14 @@ class ChatGPTProvider(BaseProvider):
 
         # Wait for user to complete login
         # Detect successful login by waiting for auth element
+        # Get auth selector (prefer selector_loader, fallback to default)
+        auth_selector = self.get_selector("chat_input", optional=True)
+        if auth_selector is None:
+            auth_selector = self.DEFAULT_AUTH_SELECTOR
+
         try:
             await page.wait_for_selector(
-                self.AUTH_SELECTOR,
+                auth_selector,
                 timeout=self.LOGIN_TIMEOUT * 1000,
             )
 

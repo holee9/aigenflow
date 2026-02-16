@@ -127,11 +127,17 @@ async def _check_sessions(settings: Any, verbose: bool = False) -> dict[str, boo
     profiles_dir = settings.profiles_dir
     headless = settings.gateway_headless
 
+    # Create selector loader for DOM selectors
+    project_root = Path(__file__).parent.parent.parent
+    selector_path = project_root / "src" / "gateway" / "selectors.yaml"
+    selector_loader = SelectorLoader(selector_path)
+
     session_manager.register(
         "chatgpt",
         ChatGPTProvider(
             profile_dir=profiles_dir / "chatgpt",
             headless=headless,
+            selector_loader=selector_loader,
         )
     )
     session_manager.register(
@@ -139,6 +145,7 @@ async def _check_sessions(settings: Any, verbose: bool = False) -> dict[str, boo
         ClaudeProvider(
             profile_dir=profiles_dir / "claude",
             headless=headless,
+            selector_loader=selector_loader,
         )
     )
     session_manager.register(
@@ -146,6 +153,7 @@ async def _check_sessions(settings: Any, verbose: bool = False) -> dict[str, boo
         GeminiProvider(
             profile_dir=profiles_dir / "gemini",
             headless=headless,
+            selector_loader=selector_loader,
         )
     )
     session_manager.register(
@@ -153,6 +161,7 @@ async def _check_sessions(settings: Any, verbose: bool = False) -> dict[str, boo
         PerplexityProvider(
             profile_dir=profiles_dir / "perplexity",
             headless=headless,
+            selector_loader=selector_loader,
         )
     )
 

@@ -101,10 +101,17 @@ def setup(
         from gateway.claude_provider import ClaudeProvider
         from gateway.gemini_provider import GeminiProvider
         from gateway.perplexity_provider import PerplexityProvider
+        from gateway.selector_loader import SelectorLoader
+        from pathlib import Path
 
         # Get profiles directory and headless setting from settings
         profiles_dir = settings.profiles_dir
         headless = settings.gateway_headless
+
+        # Create selector loader for DOM selectors
+        project_root = Path(__file__).parent.parent.parent
+        selector_path = project_root / "src" / "gateway" / "selectors.yaml"
+        selector_loader = SelectorLoader(selector_path)
 
         if provider.lower() == "all":
             session_manager.register(
@@ -112,6 +119,7 @@ def setup(
                 ChatGPTProvider(
                     profile_dir=profiles_dir / "chatgpt",
                     headless=headless,
+                    selector_loader=selector_loader,
                 )
             )
             session_manager.register(
@@ -119,6 +127,7 @@ def setup(
                 ClaudeProvider(
                     profile_dir=profiles_dir / "claude",
                     headless=headless,
+                    selector_loader=selector_loader,
                 )
             )
             session_manager.register(
@@ -126,6 +135,7 @@ def setup(
                 GeminiProvider(
                     profile_dir=profiles_dir / "gemini",
                     headless=headless,
+                    selector_loader=selector_loader,
                 )
             )
             session_manager.register(
@@ -133,6 +143,7 @@ def setup(
                 PerplexityProvider(
                     profile_dir=profiles_dir / "perplexity",
                     headless=headless,
+                    selector_loader=selector_loader,
                 )
             )
             console.print("[bold]Step 2: Launching browser and logging into all providers...[/bold]\n")
@@ -151,6 +162,7 @@ def setup(
                     provider_class(
                         profile_dir=profiles_dir / provider_name,
                         headless=headless,
+                        selector_loader=selector_loader,
                     )
                 )
                 console.print(f"[bold]Step 2: Launching browser and logging into {provider.capitalize()}...[/bold]\n")
