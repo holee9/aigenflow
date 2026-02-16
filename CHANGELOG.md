@@ -7,22 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- CLI utility commands for enhanced user experience
-  - `aigenflow check`: Check Playwright browser and AI session status
-  - `aigenflow setup`: Interactive setup wizard for first-time configuration
-  - `aigenflow relogin [provider]`: Re-authenticate with specific AI provider
-  - `aigenflow status [session_id]`: Display pipeline execution status
-  - `aigenflow resume <session_id>`: Resume interrupted pipeline execution
-  - `aigenflow config show/list/set`: Configuration management
-- Phase module separation for improved maintainability
-  - `BasePhase` abstract class for all pipeline phases
-  - `FramingPhase`, `ResearchPhase`, `StrategyPhase`, `WritingPhase`, `ReviewPhase` as independent modules
-- Rich UI components for real-time progress visualization
-  - `PipelineProgress`: Progress bars for pipeline execution
-  - `LogStream`: Rich panel for real-time log streaming
-  - `PhaseSummary`: Rich table for phase completion summary
-- Comprehensive test suite with 135 tests (85%+ coverage)
+### Added - SPEC-ENHANCE-003 Phase 5: Logging Structure (Complete)
+- Environment-specific logging profiles with structlog
+  - Development: DEBUG level, console + file output
+  - Testing: INFO level, file only
+  - Production: WARNING level, file only with JSON format
+- CLI log control options
+  - `--log-level`: Set logging level (debug, info, warning, error)
+  - `--environment`: Set logging environment (development, testing, production)
+- Log file rotation (10MB max, 5 backup files)
+- Sensitive data redaction in logs (API keys, tokens, passwords)
+- 78 comprehensive tests (95% coverage for logging module)
+
+### Added - SPEC-ENHANCE-003 Phases 1-4
+- DOM selector externalization with `selectors.yaml`
+- Fallback AI chain for automatic error recovery
+- Multiple output formats (DOCX, PDF)
+- Context optimization with automatic summarization
+
+### Changed
+- Refactored `orchestrator.py` to use Phase classes while maintaining 100% backward compatibility
+- Updated `main.py` to integrate all CLI commands with Typer app
+- Fixed import inconsistency in `gateway/base.py`
 
 ### Changed
 - Refactored `orchestrator.py` to use Phase classes while maintaining 100% backward compatibility

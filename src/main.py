@@ -6,7 +6,6 @@ Provides unified CLI interface for all commands.
 
 import sys
 from pathlib import Path
-from typing import Any
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent
@@ -14,9 +13,6 @@ sys.path.insert(0, str(project_root))
 
 import typer
 from rich.console import Console
-from rich.table import Table
-
-from core import get_settings
 
 # Import CLI command apps
 from cli.check import app as check_app
@@ -25,6 +21,7 @@ from cli.relogin import app as relogin_app
 from cli.resume import app as resume_app
 from cli.setup import app as setup_app
 from cli.status import app as status_app
+from config import LogEnvironment, configure_logging
 
 console = Console()
 
@@ -60,6 +57,17 @@ def _preserve_run_command():
 def main(
     ctx: typer.Context,
     version: bool = typer.Option(False, "--version", "-v", help="Show version and exit"),
+    log_level: str = typer.Option(
+        "warning",
+        "--log-level",
+        help="Set logging level (debug, info, warning, error)",
+    ),
+    environment: str = typer.Option(
+        "production",
+        "--environment",
+        "-e",
+        help="Set logging environment (development, testing, production)",
+    ),
 ) -> None:
     """
     AigenFlow CLI main entry point.
@@ -67,6 +75,22 @@ def main(
     if version:
         console.print("[bold green]aigenflow v0.1.0[/bold green]")
         raise typer.Exit()
+
+    # Configure logging based on environment and log level
+    try:
+        env = LogEnvironment(environment.lower())
+    except ValueError:
+        console.print(
+            f"[red]Invalid environment: '{environment}'. "
+            f"Valid options: development, testing, production[/red]"
+        )
+        raise typer.Exit(code=1)
+
+    try:
+        configure_logging(environment=env, log_level=log_level)
+    except ValueError as e:
+        console.print(f"[red]Invalid log level: {e}[/red]")
+        raise typer.Exit(code=1)
 
     # If no subcommand is provided, show help
     if ctx.invoked_subcommand is None:
