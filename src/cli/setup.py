@@ -51,7 +51,7 @@ app = typer.Typer(help="Setup AigenFlow configuration")
 
 
 @app.command()
-def setup_app(
+def setup(
     provider: str = typer.Option("all", "--provider", "-p", help="Specific provider to setup (chatgpt, claude, gemini, perplexity, all)"),
     headed: bool = typer.Option(False, "--headed", "-h", help="Use headed browser mode"),
 ) -> None:

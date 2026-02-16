@@ -7,16 +7,16 @@ Provides unified CLI interface for all commands.
 import typer
 from rich.console import Console
 
-# Import CLI command apps
+# Import CLI command apps and individual commands
 from cli.cache import app as cache_app
 from cli.check import app as check_app
 from cli.config import app as config_app
-from cli.relogin import app as relogin_app
+from cli.relogin import app as relogin_app, relogin as relogin_command
 from cli.resume import app as resume_app
-from cli.run import app as run_app
-from cli.setup import app as setup_app
+from cli.run import run as run_command
+from cli.setup import setup as setup_command
 from cli.stats import app as stats_app
-from cli.status import app as status_app
+from cli.status import status as status_command
 from config import LogEnvironment, configure_logging
 
 console = Console()
@@ -105,10 +105,10 @@ def main(
 # Register all CLI commands as subcommands
 app.add_typer(cache_app, name="cache", help="Manage AI response cache")
 app.add_typer(check_app, name="check", help="Check Playwright browser and AI provider sessions")
-app.add_typer(setup_app, name="setup", help="Interactive setup wizard for first-time configuration")
-app.add_typer(relogin_app, name="relogin", help="Re-authenticate with AI providers")
-app.add_typer(run_app, name="run", help="Execute pipeline and generate document")
-app.add_typer(status_app, name="status", help="Display pipeline execution status")
+app.command()(setup_command)  # Register setup directly
+app.command()(relogin_command)  # Register relogin directly
+app.command()(run_command)  # Register run directly
+app.command()(status_command)  # Register status directly
 app.add_typer(resume_app, name="resume", help="Resume interrupted pipeline execution")
 app.add_typer(config_app, name="config", help="Manage configuration settings")
 app.add_typer(stats_app, name="stats", help="Show token usage and cost statistics")
