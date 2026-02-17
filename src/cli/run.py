@@ -13,7 +13,11 @@ from rich.console import Console
 from rich.panel import Panel
 
 from core import get_settings
-from core.models import DocumentType, PipelineConfig, TemplateType
+from core.models import AgentType, DocumentType, PipelineConfig, TemplateType
+from agents.chatgpt_agent import ChatGPTAgent
+from agents.claude_agent import ClaudeAgent
+from agents.gemini_agent import GeminiAgent
+from agents.perplexity_agent import PerplexityAgent
 from gateway.session import SessionManager
 from pipeline.orchestrator import PipelineOrchestrator
 from templates.manager import TemplateManager
@@ -243,6 +247,10 @@ def run(
         template_manager = TemplateManager()
         session_manager = SessionManager(settings)
 
+        # Get profiles directory and headless setting
+        profiles_dir = settings.profiles_dir
+        headless = settings.gateway_headless
+
         orchestrator = PipelineOrchestrator(
             settings=settings,
             template_manager=template_manager,
@@ -250,6 +258,24 @@ def run(
             enable_ui=True,
             enable_summarization=settings.enable_summarization,
             summarization_threshold=settings.summarization_threshold,
+        )
+
+        # Register agents with the router
+        orchestrator.agent_router.register_agent(
+            AgentType.CHATGPT,
+            ChatGPTAgent(profile_dir=profiles_dir / "chatgpt", headless=headless)
+        )
+        orchestrator.agent_router.register_agent(
+            AgentType.CLAUDE,
+            ClaudeAgent(profile_dir=profiles_dir / "claude", headless=headless)
+        )
+        orchestrator.agent_router.register_agent(
+            AgentType.GEMINI,
+            GeminiAgent(profile_dir=profiles_dir / "gemini", headless=headless)
+        )
+        orchestrator.agent_router.register_agent(
+            AgentType.PERPLEXITY,
+            PerplexityAgent(profile_dir=profiles_dir / "perplexity", headless=headless)
         )
 
         # Run the async pipeline
