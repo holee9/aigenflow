@@ -68,11 +68,38 @@ async def _check_session_availability_async() -> bool:
         from gateway.claude_provider import ClaudeProvider
         from gateway.gemini_provider import GeminiProvider
         from gateway.perplexity_provider import PerplexityProvider
+        from gateway.selector_loader import SelectorLoader
+        from pathlib import Path
 
-        session_manager.register("chatgpt", ChatGPTProvider(settings))
-        session_manager.register("claude", ClaudeProvider(settings))
-        session_manager.register("gemini", GeminiProvider(settings))
-        session_manager.register("perplexity", PerplexityProvider(settings))
+        # Get profiles directory and headless setting from settings
+        profiles_dir = settings.profiles_dir
+        headless = settings.gateway_headless
+
+        # Create selector loader for DOM selectors
+        project_root = Path(__file__).parent.parent.parent
+        selector_path = project_root / "src" / "gateway" / "selectors.yaml"
+        selector_loader = SelectorLoader(selector_path)
+
+        session_manager.register("chatgpt", ChatGPTProvider(
+            profile_dir=profiles_dir / "chatgpt",
+            headless=headless,
+            selector_loader=selector_loader,
+        ))
+        session_manager.register("claude", ClaudeProvider(
+            profile_dir=profiles_dir / "claude",
+            headless=headless,
+            selector_loader=selector_loader,
+        ))
+        session_manager.register("gemini", GeminiProvider(
+            profile_dir=profiles_dir / "gemini",
+            headless=headless,
+            selector_loader=selector_loader,
+        ))
+        session_manager.register("perplexity", PerplexityProvider(
+            profile_dir=profiles_dir / "perplexity",
+            headless=headless,
+            selector_loader=selector_loader,
+        ))
 
         # Load sessions and check status
         session_manager.load_all_sessions()
