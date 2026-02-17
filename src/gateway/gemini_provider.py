@@ -67,7 +67,7 @@ class GeminiProvider(BaseProvider):
             page = await browser_manager.get_page()
             await page.goto(
                 self.base_url,
-                wait_until="domcontentloaded",
+                wait_until="commit",
                 timeout=30000,
             )
 
@@ -136,7 +136,7 @@ class GeminiProvider(BaseProvider):
 
         # Get page and navigate to Gemini
         page = await browser_manager.get_page()
-        await page.goto(self.base_url, wait_until="domcontentloaded", timeout=60000)
+        await page.goto(self.base_url, wait_until="commit", timeout=60000)
 
         # Wait for user to complete login
         # Get auth selector (prefer selector_loader, fallback to default)

@@ -222,11 +222,12 @@ def check_cmd(
         try:
             session_status = loop.run_until_complete(_check_sessions(settings, verbose))
         finally:
-            # Clean up all pending tasks
-            pending = asyncio.all_tasks(loop)
+            # Clean up all pending tasks (filter out done tasks first)
+            pending = [t for t in asyncio.all_tasks(loop) if not t.done()]
             for task in pending:
                 task.cancel()
-            loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+            if pending:
+                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
             loop.close()
             asyncio.set_event_loop(None)
 
