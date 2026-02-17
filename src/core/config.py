@@ -26,7 +26,7 @@ class AigenFlowSettings(BaseSettings):
     enable_auto_save: bool = True
 
     gateway_timeout: int = 120
-    gateway_headless: bool = True
+    gateway_headless: bool = False
     gateway_user_data_dir: Path | None = None
     gateway_ignore_https_errors: bool = False
 

@@ -61,11 +61,11 @@ rm -rf output/
 # 1. 최초 설정 (AI 서비스 로그인)
 aigenflow setup
 
-# 2. 사업계획서 생성
+# 2. 사업계획서 생성 (브라우저 표시됨)
 aigenflow run --topic "AI 기반 스마트홈 서비스" --type bizplan --lang ko
 
-# 3. R&D 제안서 생성
-aigenflow run --topic "양자 컴퓨팅 응용 연구" --type rd --lang ko
+# 3. R&D 제안서 생성 (백그라운드 실행)
+aigenflow run --topic "양자 컴퓨팅 응용 연구" --type rd --lang ko --headless
 
 # 4. 실행 상태 확인
 aigenflow status
@@ -182,8 +182,11 @@ aigenflow run --topic "AI 기반 스마트홈 서비스" --type bizplan --lang k
 ### 기본 명령
 
 ```bash
-# 사업계획서 생성 (기본 모드)
+# 사업계획서 생성 (기본 모드, 브라우저 표시)
 aigenflow run --topic "AI SaaS 플랫폼"
+
+# 백그라운드 실행 (브라우저 숨김)
+aigenflow run --topic "AI SaaS 플랫폼" --headless
 
 # R&D 제안서 생성
 aigenflow run --type rd --topic "양자 컴퓨팅 응용 연구"
@@ -236,6 +239,8 @@ aigenflow config set <key> <value>  # 설정 변경
 | `--from-phase` | 재개 시작 단계 (1-5) | 1 |
 | `--lang` | 출력 언어 | `ko` |
 | `--output-dir` | 출력 디렉토리 | `output/` |
+| `--headed` | 브라우저 창 표시 | `true` |
+| `--headless` | 백그라운드 실행 (브라우저 숨김) | `false` |
 
 ---
 

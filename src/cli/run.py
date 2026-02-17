@@ -56,9 +56,12 @@ def _validate_topic(topic: str) -> str:
     return stripped
 
 
-async def _check_session_availability_async() -> bool:
+async def _check_session_availability_async(headless: bool | None = None) -> bool:
     """
     Check if valid AI sessions are available (async version).
+
+    Args:
+        headless: Override headless setting from settings
 
     Returns:
         True if at least one valid session exists, False otherwise
@@ -75,9 +78,11 @@ async def _check_session_availability_async() -> bool:
         from gateway.selector_loader import SelectorLoader
         from pathlib import Path
 
-        # Get profiles directory and headless setting from settings
+        # Get profiles directory and headless setting
         profiles_dir = settings.profiles_dir
-        headless = settings.gateway_headless
+        # Use override if provided, otherwise use settings
+        if headless is None:
+            headless = settings.gateway_headless
 
         # Create selector loader for DOM selectors
         project_root = Path(__file__).parent.parent.parent
@@ -129,15 +134,18 @@ async def _check_session_availability_async() -> bool:
         return False
 
 
-def _check_session_availability() -> bool:
+def _check_session_availability(headless: bool | None = None) -> bool:
     """
     Check if valid AI sessions are available.
+
+    Args:
+        headless: Override headless setting from settings
 
     Returns:
         True if at least one valid session exists, False otherwise
     """
     try:
-        return asyncio.run(_check_session_availability_async())
+        return asyncio.run(_check_session_availability_async(headless))
     except RuntimeError:
         # Handle case where event loop is already running
         import inspect
@@ -186,6 +194,10 @@ def run(
         str,
         typer.Option("--output", "-o", help="Output directory override", show_default="output/")
     ] = None,
+    headed: Annotated[
+        bool,
+        typer.Option("--headed/--headless", help="Show browser window (default: headed)")
+    ] = True,
 ) -> None:
     """
     Execute pipeline and generate business plan or R&D proposal document.
@@ -203,8 +215,8 @@ def run(
 
     validated_topic = _validate_topic(topic)
 
-    # Check session availability
-    if not _check_session_availability():
+    # Check session availability (pass headless setting from command line flag)
+    if not _check_session_availability(headless=not headed):
         console.print(
             "[red]Error: No valid AI sessions found.[/red]\n"
             "[yellow]Please run 'aigenflow setup' to configure sessions.[/yellow]"
@@ -249,7 +261,8 @@ def run(
 
         # Get profiles directory and headless setting
         profiles_dir = settings.profiles_dir
-        headless = settings.gateway_headless
+        # Command-line flag takes precedence over settings
+        headless = not headed  # headed=True means headless=False
 
         orchestrator = PipelineOrchestrator(
             settings=settings,
