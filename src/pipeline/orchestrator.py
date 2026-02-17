@@ -242,6 +242,8 @@ class PipelineOrchestrator:
         Returns:
             PhaseResult with execution results
         """
+        logger.debug(f"[Phase {phase_number}] Starting phase execution")
+
         # Check token usage and trigger summarization if needed
         if self.enable_summarization and self.context_summary and phase_number > 1:
             await self._check_and_summarize_context(session, phase_number)
@@ -251,6 +253,7 @@ class PipelineOrchestrator:
 
         if phase is None:
             # Phase not configured, return skipped result
+            logger.debug(f"[Phase {phase_number}] Phase not configured, returning SKIPPED")
             result = create_phase_result(phase_number, f"Phase {phase_number}")
             result.status = PhaseStatus.SKIPPED
             result.completed_at = datetime.now()
@@ -261,7 +264,24 @@ class PipelineOrchestrator:
             self.ui_logger.info(f"Starting Phase {phase_number}: {phase.get_phase_number()}")
 
         # Execute the phase
+        logger.debug(f"[Phase {phase_number}] Executing phase {phase.get_phase_number()}")
         result = await phase.execute(session, session.config)
+
+        # Log phase execution result
+        logger.debug(
+            f"[Phase {phase_number}] Execution result: status={result.status.value}, "
+            f"responses={len(result.ai_responses) if result.ai_responses else 0}, "
+            f"error={result.error if result.error else 'None'}"
+        )
+
+        # Log individual agent responses
+        if result.ai_responses:
+            for i, response in enumerate(result.ai_responses):
+                logger.debug(
+                    f"[Phase {phase_number}] Response[{i}]: agent={response.agent_name.value}, "
+                    f"task={response.task_name}, success={response.success}, "
+                    f"tokens={response.tokens_used}, error={response.error if response.error else 'None'}"
+                )
 
         # Update UI progress if enabled
         if self.ui_progress and phase_number <= 5:
@@ -288,10 +308,18 @@ class PipelineOrchestrator:
             if result.status == PhaseStatus.COMPLETED:
                 self.ui_logger.info(f"Phase {phase_number} completed successfully")
             elif result.status == PhaseStatus.FAILED:
-                self.ui_logger.error(f"Phase {phase_number} failed")
+                self.ui_logger.error(f"Phase {phase_number} failed: {result.error or 'Unknown error'}")
+                logger.debug(f"[Phase {phase_number}] Phase failed with error: {result.error}")
+                # Show detailed agent errors
+                if result.ai_responses:
+                    for response in result.ai_responses:
+                        if not response.success and response.error:
+                            self.ui_logger.error(f"  Agent {response.agent_name.value} error: {response.error}")
+                            logger.debug(f"[Phase {phase_number}] Agent {response.agent_name.value} error: {response.error}")
             else:
                 self.ui_logger.warning(f"Phase {phase_number} skipped")
 
+        logger.debug(f"[Phase {phase_number}] Phase execution completed")
         return result
 
     async def run_pipeline(self, config: PipelineConfig) -> PipelineSession:

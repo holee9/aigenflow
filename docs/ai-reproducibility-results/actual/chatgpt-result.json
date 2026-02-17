@@ -3,45 +3,34 @@
   "responses": [
     {
       "iteration": 1,
-      "content": "개인화된 스마트폰 사용 패턴 분석 시스템: AI가 사용자의 스마트폰 사용 패턴을 분석해 효율적인 알림 관리, 앱 사용 시간 추천, 집중 모드 자동화 등 개인 맞춤형 서비스를 제공하여 사용자 경험을 최적화합니다.\n\n스마트폰 상태 예측 및 유지보수 시스템: AI가 스마트폰의 배터리 건강, 저장 공간, 시스템 오류 등을 실시간으로 모니터링하고, 문제 발생 전에 예방적 알림을 보내 사용자에게 최적의 유지보수 타이밍을 알려줍니다.",
-      "length": 237,
-      "hash": "91ea30e6981bd4095f313483c6539f4e"
+      "content": "각 아이디어는 1-2문장으로 설명해주세요.\nAI 챗봇 ChatGPT에 메시지를 보냄으로써, 당사 이용약관에 동의하고 개인정보 보호 정책 및 이의 한국 부록을 읽은 것으로 간주합니다. 쿠키 기본 설정을 참고하세요.",
+      "length": 118,
+      "hash": "34f9d191e7bd0d006d1ba017713ffcd4"
     },
     {
       "iteration": 2,
-      "content": "개인화된 스마트폰 성능 최적화 시스템: 사용자의 앱 사용 패턴과 데이터를 분석하여, 자동으로 불필요한 앱을 정리하고 배터리와 성능을 최적화하는 AI 기반 시스템.\n\n스마트폰 보안 진단 및 자동 조치 시스템: 실시간으로 스마트폰 보안 취약점을 AI가 분석하고, 필요한 보안 업데이트와 설정을 자동으로 적용하여 사용자에게 보안 위협을 미리 예방하는 시스템.",
-      "length": 197,
-      "hash": "9086476d1dc249f547ef9365232d0426"
-    },
-    {
-      "iteration": 3,
-      "content": "스마트폰 맞춤형 건강 관리 시스템: 사용자의 스마트폰 사용 패턴을 분석하여, 건강에 도움이 되는 사용 시간을 제시하고, 운동, 수면, 휴식을 위한 맞춤형 알림을 제공하는 AI 기반 건강 관리 시스템.\n\nAI 기반 자동 정리 및 최적화 도우미: 스마트폰의 앱, 파일, 사진 등을 자동으로 분석하여 불필요한 항목을 정리하고, 성능을 최적화하는 AI 시스템으로, 사용자가 더 원활하게 스마트폰을 사용할 수 있도록 돕는 기능.",
-      "length": 234,
-      "hash": "76c5b4bb57ea3363c6bad4f16fe48941"
+      "content": "감정 인식 기반 사용 패턴 최적화 시스템\n스마트폰 카메라와 음성 톤 분석을 통해 사용자의 감정 상태를 실시간으로 파악하고, 스트레스가 감지되면 알림을 자동으로 줄이거나 명상 앱을 추천하는 등 개인 맞춤형 디지털 환경을 조성합니다.\n\nAI 자원 예측·자율 관리 시스템\n사용자의 앱 사용 습관과 위치·시간 데이터를 학습해 배터리, 저장공간, 네트워크 사용량을 사전에 예측하고, 불필요한 백그라운드 작업을 자동 정리하거나 성능 모드를 상황에 맞게 전환합니다.",
+      "length": 253,
+      "hash": "ddf43caabc1cc0b7c813fb134a9eaf57"
     }
   ],
-  "errors": [],
+  "errors": [
+    "Iteration 3: Page.wait_for_selector: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator(\"#prompt-textarea, textarea\") to be visible\n    34 × locator resolved to 2 elements. Proceeding with the first one: <textarea autofocus=\"\" name=\"prompt-textarea\" placeholder=\"무엇이든 물어보세요\" data-virtualkeyboard=\"true\" class=\"wcDTda_fallbackTextarea\"></textarea>\n"
+  ],
   "similarities": [
     {
-      "length_similarity": 0.8312236286919831,
-      "jaccard_similarity": 0.12658227848101267,
-      "character_match": 0.09644670050761421,
+      "length_similarity": 0.466403162055336,
+      "jaccard_similarity": 0.012345679012345678,
+      "character_match": 0.01694915254237288,
       "hash_match": 0.0,
-      "overall": 0.24581164728308597
-    },
-    {
-      "length_similarity": 0.8418803418803419,
-      "jaccard_similarity": 0.2054794520547945,
-      "character_match": 0.07614213197969544,
-      "hash_match": 0.0,
-      "overall": 0.27341048879189483
+      "overall": 0.10330364977871735
     }
   ],
   "avg_similarity": {
-    "length": 0.8365519852861625,
-    "jaccard": 0.1660308652679036,
-    "character": 0.08629441624365483,
+    "length": 0.466403162055336,
+    "jaccard": 0.012345679012345678,
+    "character": 0.01694915254237288,
     "hash": 0.0,
-    "overall": 0.2596110680374904
+    "overall": 0.10330364977871735
   }
 }

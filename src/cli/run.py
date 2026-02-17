@@ -306,6 +306,22 @@ def run(
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         logger.debug("[run] Event loop created and set")
+
+        # IMPORTANT: Reset BrowserPool singleton when creating new event loop
+        # Playwright contexts are bound to their original event loop and cannot
+        # be used in a different loop. The session check happens in the default
+        # loop, so we need to reset the pool for the pipeline.
+        try:
+            from gateway.browser_pool import BrowserPool
+            if BrowserPool._instance:
+                logger.debug("[run] Resetting BrowserPool for new event loop")
+                loop.run_until_complete(BrowserPool._instance.close_all())
+            BrowserPool._instance = None
+            BrowserPool._lock = asyncio.Lock()
+            logger.debug("[run] BrowserPool reset completed")
+        except Exception as e:
+            logger.warning(f"[run] BrowserPool reset warning: {e}")
+
         try:
             logger.debug("[run] Starting pipeline execution")
             session = loop.run_until_complete(orchestrator.run_pipeline(config))
@@ -382,4 +398,4 @@ def run(
 
 
 if __name__ == "__main__":
-    typer.run(app)
+    app()

@@ -344,6 +344,20 @@ def resume(
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         logger.debug("[resume] Event loop created and set")
+
+        # IMPORTANT: Reset BrowserPool singleton when creating new event loop
+        # Playwright contexts are bound to their original event loop.
+        try:
+            from gateway.browser_pool import BrowserPool
+            if BrowserPool._instance:
+                logger.debug("[resume] Resetting BrowserPool for new event loop")
+                loop.run_until_complete(BrowserPool._instance.close_all())
+            BrowserPool._instance = None
+            BrowserPool._lock = asyncio.Lock()
+            logger.debug("[resume] BrowserPool reset completed")
+        except Exception as e:
+            logger.warning(f"[resume] BrowserPool reset warning: {e}")
+
         try:
             logger.debug("[resume] Starting pipeline execution")
             updated_session = loop.run_until_complete(orchestrator.run_pipeline(config))

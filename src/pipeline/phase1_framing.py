@@ -8,6 +8,7 @@ Tasks: BRAINSTORM_CHATGPT, VALIDATE_CLAUDE
 from datetime import datetime
 
 from agents.router import AgentRouter, PhaseTask
+from core.logger import get_logger
 from core.models import (
     AgentResponse,
     AgentType,
@@ -19,6 +20,8 @@ from core.models import (
 )
 from pipeline.base import BasePhase
 from templates.manager import TemplateManager
+
+logger = get_logger(__name__)
 
 
 class Phase1Framing(BasePhase):
@@ -89,6 +92,8 @@ class Phase1Framing(BasePhase):
         failed = False
 
         for task in tasks:
+            logger.debug(f"[Phase {phase_number}] Executing task: {task.value}")
+
             prompt = self.template_manager.render_prompt(
                 template_name=self._build_template_name(phase_number, task),
                 context={
@@ -98,12 +103,19 @@ class Phase1Framing(BasePhase):
                 },
             )
 
+            logger.debug(f"[Phase {phase_number}] Rendered prompt for {task.value}, length: {len(prompt)} chars")
+
             try:
                 response = await self.agent_router.execute(
                     phase=phase_number,
                     task=task,
                     prompt=prompt,
                     doc_type=session.config.doc_type,
+                )
+                logger.debug(
+                    f"[Phase {phase_number}] Agent response for {task.value}: "
+                    f"agent={response.agent_name.value}, success={response.success}, "
+                    f"tokens={response.tokens_used}, error={response.error if response.error else 'None'}"
                 )
                 normalized_response = AgentResponse(
                     agent_name=AgentType(response.agent_name),
@@ -116,8 +128,10 @@ class Phase1Framing(BasePhase):
                 )
                 responses.append(normalized_response)
                 if not normalized_response.success:
+                    logger.debug(f"[Phase {phase_number}] Task {task.value} failed: {normalized_response.error}")
                     failed = True
             except Exception as exc:  # pragma: no cover - covered through error path assertions
+                logger.debug(f"[Phase {phase_number}] Exception during task {task.value}: {exc}")
                 failed = True
                 responses.append(
                     AgentResponse(
@@ -132,6 +146,12 @@ class Phase1Framing(BasePhase):
         result.ai_responses = responses
         result.status = PhaseStatus.FAILED if failed else PhaseStatus.COMPLETED
         result.completed_at = datetime.now()
+
+        logger.debug(
+            f"[Phase {phase_number}] Phase completed: status={result.status.value}, "
+            f"total_responses={len(responses)}, failed={failed}"
+        )
+
         return result
 
     def validate_result(self, result: PhaseResult) -> bool:
