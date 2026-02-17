@@ -13,6 +13,7 @@ Reference: SPEC-ENHANCE-004 FR-2
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -23,12 +24,22 @@ class CacheEntry(BaseModel):
     """A single cache entry with metadata."""
 
     key: str
-    response: GatewayResponse
+    response: Any  # Store as dict during load, validate when accessed
     created_at: datetime
     expires_at: datetime
     access_count: int = 0
     last_accessed: datetime | None = None
     size_bytes: int = 0
+
+    model_config = {"protected_namespaces": (), "arbitrary_types_allowed": True}
+
+    def get_response(self) -> GatewayResponse:
+        """Get response as GatewayResponse, converting if needed."""
+        if isinstance(self.response, GatewayResponse):
+            return self.response
+        if isinstance(self.response, dict):
+            return GatewayResponse(**self.response)
+        return GatewayResponse(content=str(self.response), success=True)
 
 
 class CacheStats(BaseModel):
@@ -139,7 +150,7 @@ class CacheStorage:
         # Save to file
         entry_path = self._get_entry_path(key)
         with open(entry_path, "w") as f:
-            json.dump(entry.model_dump(), f, default=str)
+            json.dump(entry.model_dump(mode='json'), f)
 
         # Update stats
         self._stats.total_entries += 1
@@ -185,14 +196,14 @@ class CacheStorage:
 
             # Save updated entry
             with open(entry_path, "w") as f:
-                json.dump(entry.model_dump(), f, default=str)
+                json.dump(entry.model_dump(mode='json'), f)
 
             # Update stats
             self._stats.hit_count += 1
             self._update_hit_rate()
             self._save_stats()
 
-            return entry.response
+            return entry.get_response()
 
         except (json.JSONDecodeError, ValueError):
             # Corrupted entry, delete it
