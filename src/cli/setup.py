@@ -4,9 +4,8 @@ Setup command for AigenFlow CLI.
 Interactive wizard for first-time configuration and browser setup.
 """
 
-import atexit
 import sys
-import time
+import warnings
 
 import typer
 from rich.console import Console
@@ -16,6 +15,12 @@ from core import get_settings
 from gateway.session import SessionManager
 
 console = Console()
+
+# Suppress GC warnings from subprocess transport cleanup on Windows
+warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed transport")
+
+
+app = typer.Typer(help="Setup AigenFlow configuration")
 
 
 def _check_browser_installation() -> bool:
@@ -49,60 +54,6 @@ def _validate_provider(provider: str) -> bool:
     return provider.lower() in valid_providers
 
 
-app = typer.Typer(help="Setup AigenFlow configuration")
-
-
-def _kill_playwright_subprocesses() -> None:
-    """
-    Forcefully terminate any remaining Playwright subprocesses.
-
-    This is a safety measure to ensure the process doesn't hang
-    due to orphaned browser processes.
-    """
-    import psutil
-
-    try:
-        current_process = psutil.Process()
-        children = current_process.children(recursive=True)
-
-        for child in children:
-            try:
-                if "chromium" in child.name().lower() or "chrome" in child.name().lower():
-                    child.terminate()
-            except Exception:
-                pass
-
-        # Wait up to 2 seconds for graceful termination
-        gone, alive = psutil.wait_procs(children, timeout=2)
-
-        # Force kill any remaining processes
-        for child in alive:
-            try:
-                child.kill()
-            except Exception:
-                pass
-    except ImportError:
-        # psutil not available, skip this cleanup
-        pass
-    except Exception:
-        # Silently ignore cleanup errors during exit
-        pass
-
-
-def _cleanup_browser_pool() -> None:
-    """
-    Cleanup BrowserPool on process exit (synchronous only).
-
-    This atexit handler is a SAFETY NET for orphaned subprocesses.
-    All async cleanup must happen BEFORE loop.close() in the finally block.
-
-    NOTE: At atexit time, the event loop is often closed/invalid.
-    We only do synchronous subprocess cleanup here.
-    """
-    # At atexit time, event loop is likely closed - only kill subprocesses
-    _kill_playwright_subprocesses()
-
-
 @app.command()
 def setup(
     provider: str = typer.Option("all", "--provider", "-p", help="Specific provider to setup (chatgpt, claude, gemini, perplexity, all)"),
@@ -116,9 +67,6 @@ def setup(
         aigenflow setup --provider claude   # Setup only Claude
         aigenflow setup --headed     # Use headed browser mode
     """
-    # Register atexit handler for graceful cleanup
-    atexit.register(_cleanup_browser_pool)
-
     # Validate provider
     if not _validate_provider(provider):
         console.print(f"[red]✗ Invalid provider: {provider}[/red]")
@@ -270,11 +218,6 @@ def setup(
             # FIX: Set event loop to None BEFORE Python garbage collection
             # This prevents "Event loop is closed" errors from subprocess transports
             asyncio.set_event_loop(None)
-
-            # FIX: Force cleanup any remaining Playwright subprocesses
-            # This prevents the process from hanging after setup completion
-            time.sleep(0.3)  # Give subprocesses a moment to exit gracefully
-            _kill_playwright_subprocesses()
     except Exception:
         sys.exit(1)
 
