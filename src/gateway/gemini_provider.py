@@ -4,6 +4,8 @@ Gemini provider implementation.
 Uses Playwright to interact with gemini.google.com.
 """
 
+import asyncio
+import time
 from pathlib import Path
 
 from core.models import AgentType
@@ -38,12 +40,143 @@ class GeminiProvider(BaseProvider):
         self._storage = CookieStorage(profile_dir)
 
     async def send_message(self, request: GatewayRequest) -> GatewayResponse:
-        """Send message to Gemini."""
-        # TODO: Implement Playwright interaction
-        return GatewayResponse(
-            content=f"Gemini response to: {request.task_name}",
-            success=True,
-        )
+        """
+        Send message to Gemini.
+
+        Args:
+            request: GatewayRequest with task_name and prompt
+
+        Returns:
+            GatewayResponse with AI response content
+        """
+        start_time = time.time()
+        browser_manager = None
+
+        try:
+            # Load stored cookies
+            cookies = self._storage.load_cookies()
+
+            # Get browser manager
+            browser_manager = await self.get_browser_manager()
+
+            # Start browser and create context
+            await browser_manager.start_browser()
+            await browser_manager.create_context()
+
+            # Inject stored cookies
+            await browser_manager.inject_cookies(cookies)
+
+            # Get page and navigate to Gemini
+            page = await browser_manager.get_page()
+            await page.goto(
+                self.base_url,
+                wait_until="domcontentloaded",
+                timeout=60000,
+            )
+
+            # Wait for page to load
+            await asyncio.sleep(2)
+
+            # Get selectors for Gemini
+            chat_input_selector = self.get_selector("chat_input", optional=True)
+            if chat_input_selector is None:
+                chat_input_selector = self.DEFAULT_AUTH_SELECTOR
+
+            send_button_selector = self.get_selector("send_button", optional=True)
+            if send_button_selector is None:
+                send_button_selector = "button[aria-label='Send'], button[aria-label='send']"
+
+            response_container_selector = self.get_selector("response_container", optional=True)
+            if response_container_selector is None:
+                response_container_selector = ".model-response, .response-container, .conversation-turn, [data-testid*='response']"
+
+            # Find and click the chat input
+            try:
+                input_element = await page.wait_for_selector(
+                    chat_input_selector,
+                    timeout=15000,
+                )
+                await input_element.click()
+            except Exception as e:
+                return GatewayResponse(
+                    content="",
+                    success=False,
+                    error=f"Could not find chat input element: {e}",
+                    response_time=time.time() - start_time,
+                )
+
+            # Type the prompt
+            await input_element.fill(request.prompt)
+            await asyncio.sleep(0.5)
+
+            # Click send button or press Enter
+            try:
+                send_button = await page.query_selector(send_button_selector)
+                if send_button:
+                    await send_button.click()
+                else:
+                    await page.keyboard.press("Enter")
+            except Exception:
+                await page.keyboard.press("Enter")
+
+            # Wait for response
+            await asyncio.sleep(1)
+
+            # Wait for response to appear with timeout
+            timeout_ms = request.timeout * 1000
+            response_content = ""
+
+            try:
+                await page.wait_for_selector(
+                    response_container_selector,
+                    timeout=timeout_ms,
+                )
+
+                # Extract response content
+                await asyncio.sleep(2)
+
+                response_elements = await page.query_selector_all(response_container_selector)
+                if response_elements:
+                    # Get the last response element (most recent)
+                    last_response = response_elements[-1]
+                    response_content = await last_response.inner_text()
+                else:
+                    response_content = await page.inner_text("body")
+
+            except Exception as e:
+                return GatewayResponse(
+                    content="",
+                    success=False,
+                    error=f"Timeout waiting for response: {e}",
+                    response_time=time.time() - start_time,
+                )
+
+            response_time = time.time() - start_time
+
+            return GatewayResponse(
+                content=response_content,
+                success=True,
+                response_time=response_time,
+                metadata={"provider": "gemini"},
+            )
+
+        except FileNotFoundError:
+            return GatewayResponse(
+                content="",
+                success=False,
+                error="No session found. Please login first.",
+                response_time=time.time() - start_time,
+            )
+        except Exception as e:
+            return GatewayResponse(
+                content="",
+                success=False,
+                error=f"Failed to send message: {e}",
+                response_time=time.time() - start_time,
+            )
+        finally:
+            if browser_manager:
+                await browser_manager.close()
 
     async def check_session(self) -> bool:
         """

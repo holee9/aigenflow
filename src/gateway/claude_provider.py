@@ -4,7 +4,9 @@ Claude provider implementation.
 Uses Playwright to interact with claude.ai.
 """
 
+import asyncio
 from pathlib import Path
+from time import time
 
 from core.models import AgentType
 from gateway.base import BaseProvider, GatewayRequest, GatewayResponse
@@ -38,12 +40,173 @@ class ClaudeProvider(BaseProvider):
         self._storage = CookieStorage(profile_dir)
 
     async def send_message(self, request: GatewayRequest) -> GatewayResponse:
-        """Send message to Claude."""
-        # TODO: Implement Playwright interaction
-        return GatewayResponse(
-            content=f"Claude response to: {request.task_name}",
-            success=True,
-        )
+        """
+        Send message to Claude using Playwright.
+
+        Process:
+        1. Load stored cookies
+        2. Navigate to claude.ai
+        3. Find and fill chat input
+        4. Send message
+        5. Wait for response
+        6. Extract response content
+
+        Args:
+            request: GatewayRequest with task_name and prompt
+
+        Returns:
+            GatewayResponse with content and metadata
+        """
+        start_time = time()
+
+        try:
+            # Load cookies from storage
+            cookies = self._storage.load_cookies()
+
+            # Get browser manager
+            browser_manager = await self.get_browser_manager()
+
+            # Start browser and create context
+            await browser_manager.start_browser()
+            await browser_manager.create_context()
+
+            # Inject cookies
+            await browser_manager.inject_cookies(cookies)
+
+            # Get page and navigate to Claude
+            page = await browser_manager.get_page()
+            await page.goto(
+                self.base_url,
+                wait_until="domcontentloaded",
+                timeout=60000,
+            )
+
+            # Get selectors from selector_loader
+            chat_input_selector = self.get_selector("chat_input", optional=True)
+            if chat_input_selector is None:
+                chat_input_selector = self.DEFAULT_AUTH_SELECTOR
+
+            send_button_selector = self.get_selector("send_button", optional=True)
+            response_selector = self.get_selector("response_container", optional=True)
+
+            # Wait for chat input to be available
+            await page.wait_for_selector(
+                chat_input_selector,
+                timeout=30000,
+            )
+
+            # Find the chat input element
+            chat_input = await page.query_selector(chat_input_selector)
+            if not chat_input:
+                return GatewayResponse(
+                    content="",
+                    success=False,
+                    error="Chat input element not found",
+                )
+
+            # Click on input to focus
+            await chat_input.click()
+
+            # Type the prompt
+            await page.keyboard.type(request.prompt, delay=10)
+
+            # Small delay to ensure input is registered
+            await asyncio.sleep(0.5)
+
+            # Send the message - try multiple methods
+            message_sent = False
+
+            # Method 1: Click send button if available
+            if send_button_selector:
+                try:
+                    send_button = await page.query_selector(send_button_selector)
+                    if send_button:
+                        await send_button.click()
+                        message_sent = True
+                except Exception:
+                    pass
+
+            # Method 2: Press Enter if button click failed
+            if not message_sent:
+                # Use modifier key combination for Claude (Cmd+Enter on Mac, Ctrl+Enter on Windows)
+                # For web interface, often just Enter works, or Cmd/Ctrl+Enter
+                try:
+                    await page.keyboard.press("Enter")
+                    message_sent = True
+                except Exception:
+                    pass
+
+            if not message_sent:
+                return GatewayResponse(
+                    content="",
+                    success=False,
+                    error="Failed to send message",
+                )
+
+            # Wait for response with timeout
+            timeout_ms = request.timeout * 1000
+            response_content = ""
+
+            # Wait for response container to appear
+            if response_selector:
+                try:
+                    # Wait for any response element to appear
+                    await page.wait_for_selector(
+                        response_selector,
+                        timeout=timeout_ms,
+                    )
+
+                    # Additional wait to ensure content is loaded
+                    await asyncio.sleep(2)
+
+                    # Extract text content from response
+                    response_elements = await page.query_selector_all(response_selector)
+                    if response_elements:
+                        # Get the last response element (most recent)
+                        last_response = response_elements[-1]
+                        response_content = await last_response.inner_text()
+
+                except Exception as exc:
+                    return GatewayResponse(
+                        content="",
+                        success=False,
+                        error=f"Failed to extract response: {exc}",
+                    )
+            else:
+                # Fallback: wait and get all text content
+                await asyncio.sleep(min(10, request.timeout))
+                response_content = await page.inner_text("body")
+
+            # Calculate response time
+            response_time = time() - start_time
+
+            # Clean up
+            await browser_manager.close()
+
+            return GatewayResponse(
+                content=response_content.strip(),
+                success=True,
+                response_time=response_time,
+                metadata={
+                    "provider": self.provider_name,
+                    "task_name": request.task_name,
+                },
+            )
+
+        except Exception as exc:
+            # Clean up on error
+            if self._browser_manager:
+                try:
+                    await self._browser_manager.close()
+                except Exception:
+                    pass
+
+            return GatewayResponse(
+                content="",
+                success=False,
+                error=str(exc),
+                response_time=time() - start_time,
+            )
 
     async def check_session(self) -> bool:
         """

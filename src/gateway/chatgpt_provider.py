@@ -49,18 +49,170 @@ class ChatGPTProvider(BaseProvider):
         Returns:
             GatewayResponse with AI response
         """
-        # TODO: Implement Playwright interaction
-        # 1. Navigate to chat.openai.com
-        # 2. Find prompt textarea
-        # 3. Input prompt
-        # 4. Wait for response
-        # 5. Extract response
+        import time
 
-        # Placeholder response
-        return GatewayResponse(
-            content=f"ChatGPT response to: {request.task_name}",
-            success=True,
-        )
+        start_time = time.time()
+
+        try:
+            # Load cookies from storage
+            cookies = self._storage.load_cookies()
+
+            # Get browser manager
+            browser_manager = await self.get_browser_manager()
+
+            # Start browser and create context with cookies
+            await browser_manager.start_browser()
+            await browser_manager.create_context()
+            await browser_manager.inject_cookies(cookies)
+
+            # Get page and navigate to ChatGPT
+            page = await browser_manager.get_page()
+
+            # Use base URL from selector or fall back to configured URL
+            base_url = self.get_selector("base_url", optional=True) or self.base_url
+            await page.goto(
+                base_url,
+                wait_until="domcontentloaded",
+                timeout=30000,
+            )
+
+            # Get selectors from configuration
+            chat_input_selector = self.get_selector("chat_input", optional=True)
+            if chat_input_selector is None:
+                chat_input_selector = self.DEFAULT_AUTH_SELECTOR
+
+            send_button_selector = self.get_selector("send_button", optional=True)
+            response_container_selector = self.get_selector("response_container", optional=True)
+
+            # Wait for chat input to be available
+            try:
+                await page.wait_for_selector(
+                    chat_input_selector,
+                    timeout=20000,
+                )
+            except Exception as exc:
+                return GatewayResponse(
+                    content="",
+                    success=False,
+                    error=f"Chat input not found. Session may be invalid: {exc}",
+                    response_time=time.time() - start_time,
+                )
+
+            # Find and interact with the chat input
+            chat_input = page.locator(chat_input_selector).first
+            await chat_input.click()
+            await chat_input.fill(request.prompt)
+
+            # Send message - either click send button or press Enter
+            message_sent = False
+            if send_button_selector:
+                try:
+                    send_button = page.locator(send_button_selector).first
+                    if await send_button.is_visible(timeout=2000):
+                        await send_button.click()
+                        message_sent = True
+                except Exception:
+                    pass
+
+            # Fallback to Enter key if button click didn't work
+            if not message_sent:
+                await page.keyboard.press("Enter")
+
+            # Wait for response
+            timeout_ms = request.timeout * 1000
+            response_received = False
+
+            if response_container_selector:
+                try:
+                    # Wait for at least one response element to appear
+                    await page.wait_for_selector(
+                        response_container_selector,
+                        timeout=timeout_ms,
+                        state="visible",
+                    )
+                    response_received = True
+
+                    # Additional wait for streaming to complete
+                    # ChatGPT shows a loading indicator while generating
+                    await page.wait_for_timeout(2000)
+
+                    # Wait for any loading indicators to disappear
+                    # Common patterns for ChatGPT loading states
+                    loading_selectors = [
+                        ".result-streaming",
+                        "[data-testid='loading']",
+                        ".cursor-blink",
+                        "span.animate-pulse",
+                    ]
+
+                    for loading_selector in loading_selectors:
+                        try:
+                            await page.wait_for_selector(
+                                loading_selector,
+                                timeout=3000,
+                                state="hidden",
+                            )
+                        except Exception:
+                            pass
+
+                except Exception as exc:
+                    return GatewayResponse(
+                        content="",
+                        success=False,
+                        error=f"Timeout waiting for response: {exc}",
+                        response_time=time.time() - start_time,
+                    )
+            else:
+                # Fallback: wait a fixed time if no response selector
+                await page.wait_for_timeout(min(timeout_ms, 10000))
+                response_received = True
+
+            # Extract response content
+            response_text = ""
+            if response_received and response_container_selector:
+                try:
+                    # Get all response elements
+                    response_elements = await page.locator(response_container_selector).all()
+
+                    if response_elements:
+                        # Get the last response (most recent)
+                        last_response = response_elements[-1]
+                        response_text = await last_response.inner_text()
+                    else:
+                        response_text = "Response received but content could not be extracted"
+
+                except Exception as exc:
+                    response_text = f"Response received but extraction failed: {exc}"
+
+            # Estimate token count (rough approximation: ~4 chars per token)
+            estimated_tokens = len(response_text) // 4 if response_text else 0
+
+            return GatewayResponse(
+                content=response_text,
+                success=bool(response_text),
+                tokens_used=estimated_tokens,
+                response_time=time.time() - start_time,
+            )
+
+        except FileNotFoundError:
+            return GatewayResponse(
+                content="",
+                success=False,
+                error="No session found. Please run login first.",
+                response_time=time.time() - start_time,
+            )
+        except Exception as exc:
+            return GatewayResponse(
+                content="",
+                success=False,
+                error=f"Failed to send message: {exc}",
+                response_time=time.time() - start_time,
+            )
+        finally:
+            # Clean up browser resources
+            if self._browser_manager:
+                await self._browser_manager.close()
+                self._browser_manager = None
 
     async def check_session(self) -> bool:
         """

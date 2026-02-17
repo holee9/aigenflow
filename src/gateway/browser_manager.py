@@ -48,6 +48,7 @@ class BrowserManager:
         headless: bool = True,
         user_data_dir: Path | None = None,
         user_agent: str | None = None,
+        ignore_https_errors: bool = False,
     ) -> None:
         """
         Initialize browser manager.
@@ -56,10 +57,12 @@ class BrowserManager:
             headless: Whether to run browser in headless mode
             user_data_dir: Optional persistent user data directory for browser
             user_agent: Custom user agent string (uses default if None)
+            ignore_https_errors: Whether to ignore HTTPS errors (default: False for security)
         """
         self.headless = headless
         self.user_data_dir = user_data_dir
         self.user_agent = user_agent or self.DEFAULT_USER_AGENT
+        self.ignore_https_errors = ignore_https_errors
 
         # Browser and context references
         self._browser: Browser | None = None
@@ -122,7 +125,7 @@ class BrowserManager:
                 viewport=viewport_config,
                 user_agent=self.user_agent,
                 locale=locale,
-                ignore_https_errors=True,
+                ignore_https_errors=self.ignore_https_errors,
             )
 
             return self._context

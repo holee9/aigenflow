@@ -154,6 +154,13 @@ secret-*.*
 # Cookie files (contain sensitive session tokens)
 *-cookies.json
 test.json
+cookies.json
+cookies.json.key
+
+# AigenFlow session data
+.aigenflow/
+session_meta.json
+~/.aigenflow/
 
 # Cloud provider credentials
 .aws/config

@@ -156,3 +156,58 @@ class CookieEncryption:
         if self.key_path.exists():
             self.key_path.unlink()
             self._cipher = None
+
+    def encrypt_data(self, data: dict[str, Any] | list[Any]) -> str:
+        """
+        Encrypt arbitrary data (dict or list) to encrypted string.
+
+        Args:
+            data: Data to encrypt (dict or list)
+
+        Returns:
+            Encrypted JSON string
+
+        Raises:
+            ValueError: If data is empty or invalid
+        """
+        if not data:
+            raise ValueError("Cannot encrypt empty data")
+
+        # Serialize data to JSON
+        data_json = json.dumps(data)
+
+        # Encrypt using Fernet
+        encrypted_bytes = self.cipher.encrypt(data_json.encode())
+
+        return encrypted_bytes.decode()
+
+    def decrypt_data(self, encrypted_data: str) -> dict[str, Any] | list[Any]:
+        """
+        Decrypt arbitrary data from encrypted string.
+
+        Args:
+            encrypted_data: Encrypted data string
+
+        Returns:
+            Decrypted data (dict or list)
+
+        Raises:
+            InvalidToken: If decryption fails (wrong key or corrupted data)
+            ValueError: If decrypted data is invalid JSON
+        """
+        try:
+            # Decrypt using Fernet
+            decrypted_bytes = self.cipher.decrypt(encrypted_data.encode())
+
+            # Deserialize from JSON
+            data_json = decrypted_bytes.decode()
+            data = json.loads(data_json)
+
+            return data
+
+        except InvalidToken as exc:
+            raise InvalidToken(
+                "Failed to decrypt data. Key may be incorrect or data corrupted."
+            ) from exc
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"Decrypted data is not valid JSON: {exc}") from exc

@@ -51,7 +51,7 @@ class CookieStorage:
 
     COOKIES_FILE = "cookies.json"
     COOKES_KEY_FILE = "cookies.json.key"
-    METADATA_FILE = "session_meta.json"
+    METADATA_FILE = "session_meta.json.enc"
 
     def __init__(self, profile_dir: Path) -> None:
         """
@@ -115,7 +115,7 @@ class CookieStorage:
         # Write encrypted cookies to file
         self.cookies_path.write_text(encrypted_data)
 
-        # Write metadata
+        # Write encrypted metadata
         self.save_metadata(metadata)
 
     def load_cookies(self) -> list[dict[str, Any]]:
@@ -141,29 +141,49 @@ class CookieStorage:
 
     def save_metadata(self, metadata: SessionMetadata) -> None:
         """
-        Save session metadata to disk.
+        Save encrypted session metadata to disk.
 
         Args:
             metadata: SessionMetadata instance
         """
-        self.metadata_path.write_text(
-            metadata.model_dump_json(indent=2),
-        )
+        # Encrypt metadata
+        encrypted_metadata = self.encryption.encrypt_data(metadata.model_dump())
+
+        # Write encrypted metadata to file
+        self.metadata_path.write_text(encrypted_metadata)
 
     def load_metadata(self) -> SessionMetadata | None:
         """
-        Load session metadata from disk.
+        Load and decrypt session metadata from disk.
 
         Returns:
             SessionMetadata instance, or None if file doesn't exist
+
+        Raises:
+            InvalidToken: If metadata decryption fails
+            ValueError: If decrypted metadata is invalid
         """
         if not self.metadata_path.exists():
             return None
 
         try:
-            data = json.loads(self.metadata_path.read_text())
-            return SessionMetadata(**data)
-        except (json.JSONDecodeError, ValueError):
+            # Decrypt metadata
+            encrypted_data = self.metadata_path.read_text()
+            data = self.encryption.decrypt_data(encrypted_data)
+
+            if isinstance(data, dict):
+                return SessionMetadata(**data)
+            return None
+
+        except (InvalidToken, ValueError, json.JSONDecodeError):
+            # Return None for backward compatibility with unencrypted metadata
+            # Try to read as plaintext for migration
+            try:
+                data = json.loads(self.metadata_path.read_text())
+                if isinstance(data, dict):
+                    return SessionMetadata(**data)
+            except (json.JSONDecodeError, ValueError):
+                pass
             return None
 
     def update_metadata(self, **updates: Any) -> None:

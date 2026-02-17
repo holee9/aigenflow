@@ -57,6 +57,7 @@ class BaseProvider(ABC):
         profile_dir: Path,
         headless: bool = True,
         selector_loader: SelectorLoader | None = None,
+        ignore_https_errors: bool = False,
     ) -> None:
         """
         Initialize provider with profile directory and headless mode.
@@ -65,9 +66,11 @@ class BaseProvider(ABC):
             profile_dir: Directory for provider profile data
             headless: Whether to run browser in headless mode
             selector_loader: Optional SelectorLoader for DOM selectors
+            ignore_https_errors: Whether to ignore HTTPS errors (default: False for security)
         """
         self.profile_dir = profile_dir
         self.headless = headless
+        self.ignore_https_errors = ignore_https_errors
         self._selector_loader = selector_loader
         self._selector_config: SelectorConfig | None = None
         self._browser_manager = None
@@ -163,7 +166,10 @@ class BaseProvider(ABC):
             # Import here to avoid circular dependency
             from gateway.browser_manager import BrowserManager
 
-            self._browser_manager = BrowserManager(headless=self.headless)
+            self._browser_manager = BrowserManager(
+                headless=self.headless,
+                ignore_https_errors=self.ignore_https_errors,
+            )
 
         return self._browser_manager
 

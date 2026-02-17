@@ -4,7 +4,10 @@ Perplexity provider implementation.
 Uses Playwright to interact with perplexity.ai.
 """
 
+import asyncio
+import time
 from pathlib import Path
+from typing import Any
 
 from core.models import AgentType
 from gateway.base import BaseProvider, GatewayRequest, GatewayResponse
@@ -38,12 +41,130 @@ class PerplexityProvider(BaseProvider):
         self._storage = CookieStorage(profile_dir)
 
     async def send_message(self, request: GatewayRequest) -> GatewayResponse:
-        """Send message to Perplexity."""
-        # TODO: Implement Playwright interaction
-        return GatewayResponse(
-            content=f"Perplexity response to: {request.task_name}",
-            success=True,
-        )
+        """
+        Send message to Perplexity.
+
+        Args:
+            request: GatewayRequest with task_name and prompt
+
+        Returns:
+            GatewayResponse with AI response content
+        """
+        start_time = time.time()
+
+        try:
+            # Load cookies from storage
+            cookies = self._storage.load_cookies()
+
+            # Get browser manager
+            browser_manager = await self.get_browser_manager()
+
+            # Start browser and create context
+            await browser_manager.start_browser()
+            await browser_manager.create_context()
+
+            # Inject stored cookies
+            await browser_manager.inject_cookies(cookies)
+
+            # Get page and navigate to Perplexity
+            page = await browser_manager.get_page()
+            await page.goto(
+                self.base_url,
+                wait_until="domcontentloaded",
+                timeout=60000,
+            )
+
+            # Get selectors from selector_loader
+            chat_input_selector = self.get_selector("chat_input")
+            send_button_selector = self.get_selector("send_button", optional=True)
+            response_container_selector = self.get_selector("response_container")
+
+            # Wait for chat input to be available
+            await page.wait_for_selector(
+                chat_input_selector,
+                timeout=30000,
+            )
+
+            # Check if there's a "new thread" or "new chat" button to click first
+            new_chat_selector = self.get_selector("new_chat_button", optional=True)
+            if new_chat_selector:
+                try:
+                    new_chat_button = page.locator(new_chat_selector).first
+                    if await new_chat_button.is_visible():
+                        await new_chat_button.click()
+                        await asyncio.sleep(1)
+                except Exception:
+                    # New chat button may not exist or be clickable, continue
+                    pass
+
+            # Input the query
+            chat_input = page.locator(chat_input_selector)
+            await chat_input.fill(request.prompt)
+            await asyncio.sleep(0.5)
+
+            # Click send button if available, otherwise press Enter
+            if send_button_selector:
+                try:
+                    send_button = page.locator(send_button_selector)
+                    if await send_button.is_visible():
+                        await send_button.click()
+                    else:
+                        await page.keyboard.press("Enter")
+                except Exception:
+                    await page.keyboard.press("Enter")
+            else:
+                await page.keyboard.press("Enter")
+
+            # Wait for response to appear
+            timeout_ms = request.timeout * 1000
+            await page.wait_for_selector(
+                response_container_selector,
+                timeout=timeout_ms,
+            )
+
+            # Extract response content
+            response_element = page.locator(response_container_selector).first
+
+            # Wait a bit for content to fully load
+            await asyncio.sleep(2)
+
+            # Get text content from response
+            content = await response_element.inner_text()
+
+            # Calculate response time
+            response_time = time.time() - start_time
+
+            # Close browser
+            await browser_manager.close()
+
+            return GatewayResponse(
+                content=content,
+                success=True,
+                response_time=response_time,
+                metadata={"provider": "perplexity"},
+            )
+
+        except FileNotFoundError as exc:
+            # No session file exists - need to login first
+            return GatewayResponse(
+                content="",
+                success=False,
+                error="No session found. Please run login_flow first.",
+            )
+
+        except Exception as exc:
+            # Close browser on error
+            try:
+                browser_manager = await self.get_browser_manager()
+                await browser_manager.close()
+            except Exception:
+                pass
+
+            return GatewayResponse(
+                content="",
+                success=False,
+                error=f"Failed to send message: {exc}",
+            )
 
     async def check_session(self) -> bool:
         """

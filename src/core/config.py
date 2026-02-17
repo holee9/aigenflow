@@ -28,6 +28,7 @@ class AigenFlowSettings(BaseSettings):
     gateway_timeout: int = 120
     gateway_headless: bool = True
     gateway_user_data_dir: Path | None = None
+    gateway_ignore_https_errors: bool = False
 
     enable_parallel_phases: bool = True
     enable_event_tracking: bool = True

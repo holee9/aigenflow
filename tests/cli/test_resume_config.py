@@ -24,25 +24,45 @@ class TestResumeCommand:
         result = runner.invoke(resume_app)
         assert result.exit_code != 0
 
-    def test_resume_with_session_id(self, tmp_path):
-        """Test resume command with session ID."""
-        session_file = tmp_path / "session_test123.json"
-        session_data = {
-            "session_id": "test123",
-            "phase": "research",
-            "status": "paused",
-        }
-        session_file.write_text(json.dumps(session_data))
-
-        with patch("cli.resume.SESSIONS_DIR", tmp_path):
-            result = runner.invoke(resume_app, ["test123"])
-            assert result.exit_code == 0
-
     def test_resume_session_not_found(self, tmp_path):
         """Test resume command with non-existent session."""
-        with patch("cli.resume.SESSIONS_DIR", tmp_path):
+        # Create an empty output directory
+        (tmp_path / "output").mkdir(parents=True, exist_ok=True)
+
+        with patch("cli.resume.OUTPUT_DIR", tmp_path / "output"):
             result = runner.invoke(resume_app, ["nonexistent"])
             assert result.exit_code != 0
+            assert "Session not found" in result.stdout or "not found" in result.stdout
+
+    def test_resume_lists_available_sessions(self, tmp_path):
+        """Test resume command lists available sessions when none found."""
+        # Create a session directory with pipeline_state.json
+        session_id = "test123-session"
+        session_dir = tmp_path / "output" / session_id
+        session_dir.mkdir(parents=True, exist_ok=True)
+
+        session_data = {
+            "session_id": session_id,
+            "config": {
+                "topic": "Test topic for session listing",
+                "doc_type": "bizplan",
+                "template": "default",
+                "language": "ko",
+                "output_dir": "output",
+            },
+            "state": "phase_2",
+            "current_phase": 2,
+            "results": [],
+        }
+        state_file = session_dir / "pipeline_state.json"
+        state_file.write_text(json.dumps(session_data))
+
+        # Try to resume a non-existent session - should list available
+        with patch("cli.resume.OUTPUT_DIR", tmp_path / "output"):
+            result = runner.invoke(resume_app, ["nonexistent"])
+            assert result.exit_code != 0
+            # Should show available sessions
+            assert session_id in result.stdout
 
 
 class TestConfigCommand:

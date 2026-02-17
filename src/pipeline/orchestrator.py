@@ -298,22 +298,35 @@ class PipelineOrchestrator:
         """
         Run complete pipeline from start to finish.
 
+        Supports resuming from a specific phase via config.from_phase.
+
         Args:
             config: Pipeline configuration
 
         Returns:
             PipelineSession with all results
         """
-        session = self.create_session(config)
-        self.current_session = session
+        # If resuming, use the existing session from current_session
+        if config.from_phase and self.current_session:
+            session = self.current_session
+            # Update config with new from_phase setting
+            session.config.from_phase = config.from_phase
+        else:
+            session = self.create_session(config)
+            self.current_session = session
+
         output_dir = config.output_dir / session.session_id
         output_dir.mkdir(parents=True, exist_ok=True)
         exporter = FileExporter(output_dir)
 
         # Initialize context optimization tracking
-        if self.enable_summarization and self.context_summary:
+        if self.enable_summarization and self.context_summary and not session.artifacts:
             logger.info("Context optimization enabled for pipeline execution")
             session.artifacts = {"context_summaries": {}}
+
+        # Determine starting phase
+        start_phase = config.from_phase if config.from_phase else 1
+        remaining_phases = TOTAL_PHASES - start_phase + 1
 
         # Start UI progress if enabled
         if self.ui_progress:
@@ -321,10 +334,13 @@ class PipelineOrchestrator:
 
         # Log pipeline start if UI enabled
         if self.ui_logger:
-            self.ui_logger.info(f"Starting pipeline for topic: {config.topic}")
+            if config.from_phase:
+                self.ui_logger.info(f"Resuming pipeline from phase {start_phase} for topic: {config.topic}")
+            else:
+                self.ui_logger.info(f"Starting pipeline for topic: {config.topic}")
 
         try:
-            for phase_num in range(1, TOTAL_PHASES + 1):
+            for phase_num in range(start_phase, TOTAL_PHASES + 1):
                 result = await self.execute_phase(session, phase_num)
                 session.add_result(result)
                 self._save_phase_result(exporter, result)

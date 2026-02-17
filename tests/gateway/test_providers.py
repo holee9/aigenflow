@@ -212,4 +212,4 @@ class TestPerplexityProvider:
     def test_init(self):
         """Test provider initialization."""
         provider = PerplexityProvider(profile_dir="~/.aigenflow/profiles/perplexity")
-        assert provider.base_url == "https://perplexity.ai"
+        assert provider.base_url == "https://www.perplexity.ai"
