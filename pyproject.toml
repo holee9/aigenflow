@@ -44,6 +44,11 @@ packages = [
     "src/batch",
     "src/ui",
 ]
+# Include template files and other data files
+artifacts = [
+    "src/templates/**/*.jinja2",
+    "src/gateway/selectors.yaml",
+]
 
 [project.urls]
 Homepage = "https://github.com/holee9/aigenflow"
