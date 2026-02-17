@@ -4,6 +4,7 @@ Setup command for AigenFlow CLI.
 Interactive wizard for first-time configuration and browser setup.
 """
 
+import atexit
 import sys
 
 import typer
@@ -50,6 +51,27 @@ def _validate_provider(provider: str) -> bool:
 app = typer.Typer(help="Setup AigenFlow configuration")
 
 
+def _cleanup_browser_pool() -> None:
+    """
+    Cleanup BrowserPool on process exit.
+
+    This atexit handler ensures graceful shutdown of browser resources
+    even if the main event loop cleanup fails.
+    """
+    import asyncio
+
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running() or loop.is_closed():
+            return
+        from gateway.browser_pool import BrowserPool
+
+        if BrowserPool._instance:
+            loop.run_until_complete(BrowserPool._instance.close_all())
+    except Exception:
+        pass  # Exit cleanup, silently ignore errors
+
+
 @app.command()
 def setup(
     provider: str = typer.Option("all", "--provider", "-p", help="Specific provider to setup (chatgpt, claude, gemini, perplexity, all)"),
@@ -63,6 +85,9 @@ def setup(
         aigenflow setup --provider claude   # Setup only Claude
         aigenflow setup --headed     # Use headed browser mode
     """
+    # Register atexit handler for graceful cleanup
+    atexit.register(_cleanup_browser_pool)
+
     # Validate provider
     if not _validate_provider(provider):
         console.print(f"[red]✗ Invalid provider: {provider}[/red]")
@@ -198,8 +223,20 @@ def setup(
                 task.cancel()
             if pending:
                 loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+
+            # FIX: Cleanup BrowserPool before closing loop
+            # This prevents "Event loop is closed" errors from Playwright subprocesses
+            try:
+                from gateway.browser_pool import BrowserPool
+
+                if BrowserPool._instance:
+                    loop.run_until_complete(BrowserPool._instance.close_all())
+            except Exception as e:
+                console.print(f"[yellow]BrowserPool cleanup warning: {e}[/yellow]")
+
             loop.close()
-            asyncio.set_event_loop(None)
+            # FIX: Don't set event loop to None - let Python handle natural cleanup
+            # asyncio.set_event_loop(None)  # Removed: causes event loop errors
     except Exception:
         sys.exit(1)
 
