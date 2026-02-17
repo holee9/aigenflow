@@ -39,7 +39,7 @@ class BrowserPool:
         - Per-provider locks for context creation
     """
 
-    _instance: "BrowserPool | None" = None
+    _instance: BrowserPool | None = None
     _lock = asyncio.Lock()
 
     def __init__(self) -> None:
@@ -53,7 +53,7 @@ class BrowserPool:
         self._initialized = False
 
     @classmethod
-    async def get_instance(cls, headless: bool = True) -> "BrowserPool":
+    async def get_instance(cls, headless: bool = True) -> BrowserPool:
         """
         Get or create singleton instance with async lock protection.
 

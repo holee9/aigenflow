@@ -330,8 +330,33 @@ def resume(
         # Load existing session into orchestrator
         orchestrator.current_session = session
 
-        # Run the async pipeline (will resume from from_phase)
-        updated_session = asyncio.run(orchestrator.run_pipeline(config))
+        # Run the async pipeline with explicit cleanup
+        import asyncio
+
+        # Use explicit event loop for proper BrowserPool cleanup
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            updated_session = loop.run_until_complete(orchestrator.run_pipeline(config))
+        finally:
+            # Clean up all pending tasks
+            pending = [t for t in asyncio.all_tasks(loop) if not t.done()]
+            for task in pending:
+                task.cancel()
+            if pending:
+                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+
+            # FIX: Cleanup BrowserPool BEFORE closing loop
+            try:
+                from gateway.browser_pool import BrowserPool
+
+                if BrowserPool._instance:
+                    loop.run_until_complete(BrowserPool._instance.close_all())
+            except Exception:
+                pass  # Ignore cleanup errors during shutdown
+
+            loop.close()
+            asyncio.set_event_loop(None)
 
         # Display completion message
         console.print()

@@ -94,9 +94,32 @@ def relogin(
             console.print(f"\n[red]✗ {provider.capitalize()} login failed: {exc}[/red]")
             raise
 
-    # Run the async relogin
+    # Run the async relogin with proper cleanup
     try:
-        asyncio.run(_run_relogin())
+        # Use explicit event loop for proper BrowserPool cleanup
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(_run_relogin())
+        finally:
+            # Clean up all pending tasks
+            pending = [t for t in asyncio.all_tasks(loop) if not t.done()]
+            for task in pending:
+                task.cancel()
+            if pending:
+                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+
+            # FIX: Cleanup BrowserPool BEFORE closing loop
+            try:
+                from gateway.browser_pool import BrowserPool
+
+                if BrowserPool._instance:
+                    loop.run_until_complete(BrowserPool._instance.close_all())
+            except Exception:
+                pass  # Ignore cleanup errors during shutdown
+
+            loop.close()
+            asyncio.set_event_loop(None)
     except Exception:
         sys.exit(1)
 

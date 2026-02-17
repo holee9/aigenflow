@@ -91,28 +91,16 @@ def _kill_playwright_subprocesses() -> None:
 
 def _cleanup_browser_pool() -> None:
     """
-    Cleanup BrowserPool on process exit.
+    Cleanup BrowserPool on process exit (synchronous only).
 
-    This atexit handler ensures graceful shutdown of browser resources
-    even if the main event loop cleanup fails.
+    This atexit handler is a SAFETY NET for orphaned subprocesses.
+    All async cleanup must happen BEFORE loop.close() in the finally block.
+
+    NOTE: At atexit time, the event loop is often closed/invalid.
+    We only do synchronous subprocess cleanup here.
     """
-    import asyncio
-
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running() or loop.is_closed():
-            _kill_playwright_subprocesses()
-            return
-        from gateway.browser_pool import BrowserPool
-
-        if BrowserPool._instance:
-            loop.run_until_complete(BrowserPool._instance.close_all())
-        # Give subprocesses time to clean up
-        time.sleep(0.5)
-        _kill_playwright_subprocesses()
-    except Exception:
-        # Fallback to force kill subprocesses
-        _kill_playwright_subprocesses()
+    # At atexit time, event loop is likely closed - only kill subprocesses
+    _kill_playwright_subprocesses()
 
 
 @app.command()
@@ -267,8 +255,8 @@ def setup(
             if pending:
                 loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
 
-            # FIX: Cleanup BrowserPool before closing loop
-            # This prevents "Event loop is closed" errors from Playwright subprocesses
+            # FIX: Cleanup BrowserPool BEFORE closing loop (critical!)
+            # This must happen while event loop is still running
             try:
                 from gateway.browser_pool import BrowserPool
 
@@ -278,8 +266,10 @@ def setup(
                 console.print(f"[yellow]BrowserPool cleanup warning: {e}[/yellow]")
 
             loop.close()
-            # FIX: Don't set event loop to None - let Python handle natural cleanup
-            # asyncio.set_event_loop(None)  # Removed: causes event loop errors
+
+            # FIX: Set event loop to None BEFORE Python garbage collection
+            # This prevents "Event loop is closed" errors from subprocess transports
+            asyncio.set_event_loop(None)
 
             # FIX: Force cleanup any remaining Playwright subprocesses
             # This prevents the process from hanging after setup completion
