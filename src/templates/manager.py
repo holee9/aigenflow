@@ -5,7 +5,7 @@ Template management modules.
 from pathlib import Path
 from typing import Any
 
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, FileSystemLoader, PackageLoader, Template
 from pydantic import BaseModel, ConfigDict
 
 from core.logger import get_logger
@@ -13,18 +13,36 @@ from core.logger import get_logger
 logger = get_logger(__name__)
 
 
+def _get_default_template_dir() -> Path:
+    """
+    Get default template directory relative to this module.
+
+    Returns the path to templates/prompts directory within the package,
+    whether running from source or installed via pip.
+    """
+    # Get the directory containing this module
+    module_dir = Path(__file__).parent
+    # Templates are in templates/prompts relative to module_dir
+    return module_dir / "prompts"
+
+
 class TemplateManager(BaseModel):
     """Manages prompt templates using Jinja2."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    template_dir: Path = Path("src/templates/prompts")
+    template_dir: Path | None = None
     env: Environment = None
 
     def __init__(self, **data):
         """Initialize TemplateManager with Jinja2 environment."""
         super().__init__(**data)
-        self.template_dir.mkdir(parents=True, exist_ok=True)
+
+        # Set default template_dir if not provided
+        if self.template_dir is None:
+            self.template_dir = _get_default_template_dir()
+
+        # Initialize Jinja2 environment
         self.env = Environment(
             loader=FileSystemLoader(self.template_dir),
             autoescape=False,
