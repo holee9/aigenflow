@@ -1,5 +1,5 @@
 """
-Browser Pool for AigenFlow - Single browser instance with multiple contexts.
+Browser Pool for Aigenflow - Single browser instance with multiple contexts.
 
 This module implements a singleton pattern for managing a single browser instance
 across all AI provider agents, reducing memory usage and startup time.
@@ -8,6 +8,7 @@ across all AI provider agents, reducing memory usage and startup time.
 from __future__ import annotations
 
 import asyncio
+import signal
 from typing import Any
 
 from playwright.async_api import Browser, BrowserContext
@@ -255,7 +256,7 @@ class BrowserPool:
         """
         Close all contexts and browser.
 
-        Implements graceful cleanup with error handling.
+        Implements graceful cleanup with error handling and subprocess termination.
         """
         cleanup_errors = []
 
@@ -274,6 +275,13 @@ class BrowserPool:
         # Close browser
         if self._browser:
             try:
+                # Close all pages in the browser first (helps with subprocess cleanup)
+                contexts = self._browser.contexts
+                for ctx in contexts:
+                    try:
+                        await ctx.close()
+                    except Exception:
+                        pass
                 await self._browser.close()
             except Exception as e:
                 cleanup_errors.append(f"browser: {e}")
@@ -287,12 +295,92 @@ class BrowserPool:
                 cleanup_errors.append(f"playwright: {e}")
             self._playwright = None
 
+        # Give subprocesses time to exit gracefully
+        # Playwright spawns chromium processes that need time to terminate
+        try:
+            await asyncio.sleep(0.2)
+        except Exception:
+            pass
+
+        # Force terminate any remaining browser subprocesses
+        await self._terminate_browser_subprocesses()
+
         self._initialized = False
 
         if cleanup_errors:
             logger.warning(f"BrowserPool cleanup had errors: {cleanup_errors}")
         else:
             logger.info("BrowserPool closed all resources")
+
+    async def _terminate_browser_subprocesses(self) -> None:
+        """
+        Forcefully terminate any remaining browser subprocesses.
+
+        This is a safety measure for orphaned Chromium processes.
+        Uses psutil if available, otherwise attempts signal-based termination.
+        """
+        try:
+            import psutil
+
+            current_process = psutil.Process()
+            children = current_process.children(recursive=True)
+
+            browser_procs = []
+            for child in children:
+                try:
+                    name = child.name().lower()
+                    if "chromium" in name or "chrome" in name or "chrome.exe" in name:
+                        browser_procs.append(child)
+                except Exception:
+                    pass
+
+            if browser_procs:
+                # Try graceful termination first
+                for proc in browser_procs:
+                    try:
+                        proc.terminate()
+                    except Exception:
+                        pass
+
+                # Wait up to 1 second
+                try:
+                    await asyncio.sleep(0.5)
+                except Exception:
+                    pass
+
+                # Force kill any remaining
+                for proc in browser_procs:
+                    try:
+                        if proc.is_running():
+                            proc.kill()
+                    except Exception:
+                        pass
+
+                logger.debug(f"Terminated {len(browser_procs)} browser subprocess(es)")
+        except ImportError:
+            # psutil not available, try signal-based approach
+            await self._signal_terminate_subprocesses()
+        except Exception as e:
+            logger.debug(f"Subprocess termination warning: {e}")
+
+    async def _signal_terminate_subprocesses(self) -> None:
+        """
+        Fallback subprocess termination using OS signals.
+
+        Used when psutil is not available.
+        """
+        import os
+
+        try:
+            # Send SIGTERM to process group (Unix) or current process (Windows)
+            if hasattr(signal, "SIGTERM"):
+                # Unix-like systems
+                os.killpg(os.getpgid(0), signal.SIGTERM)
+            else:
+                # Windows - can't easily kill process group without psutil
+                pass
+        except Exception:
+            pass
 
     @property
     def is_initialized(self) -> bool:

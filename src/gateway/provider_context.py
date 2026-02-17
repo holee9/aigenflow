@@ -180,11 +180,17 @@ class ProviderContext:
         """
         if self._page and not self._page.is_closed():
             try:
+                # Wait for page to be idle before closing (helps with pending operations)
+                try:
+                    await self._page.wait_for_load_state("domcontentloaded", timeout=1000)
+                except Exception:
+                    pass  # Ignore timeout, proceed with close
                 await self._page.close()
                 self._page = None
                 logger.debug(f"Closed page for {self.provider_name}")
             except Exception as e:
                 logger.warning(f"Failed to close page for {self.provider_name}: {e}")
+                self._page = None  # Clear reference even if close failed
 
     async def get_url(self, url: str, wait_until: str = "domcontentloaded", timeout: int = 60000) -> Page:
         """

@@ -230,7 +230,8 @@ def check_cmd(
             if pending:
                 loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
             loop.close()
-            asyncio.set_event_loop(None)
+            # FIX: Don't set event loop to None - let Python handle natural cleanup
+            # asyncio.set_event_loop(None)  # Removed: causes event loop errors
 
         # Create status table
         table = Table(show_header=True, header_style="bold magenta")

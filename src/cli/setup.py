@@ -6,6 +6,7 @@ Interactive wizard for first-time configuration and browser setup.
 
 import atexit
 import sys
+import time
 
 import typer
 from rich.console import Console
@@ -51,6 +52,43 @@ def _validate_provider(provider: str) -> bool:
 app = typer.Typer(help="Setup AigenFlow configuration")
 
 
+def _kill_playwright_subprocesses() -> None:
+    """
+    Forcefully terminate any remaining Playwright subprocesses.
+
+    This is a safety measure to ensure the process doesn't hang
+    due to orphaned browser processes.
+    """
+    import psutil
+
+    try:
+        current_process = psutil.Process()
+        children = current_process.children(recursive=True)
+
+        for child in children:
+            try:
+                if "chromium" in child.name().lower() or "chrome" in child.name().lower():
+                    child.terminate()
+            except Exception:
+                pass
+
+        # Wait up to 2 seconds for graceful termination
+        gone, alive = psutil.wait_procs(children, timeout=2)
+
+        # Force kill any remaining processes
+        for child in alive:
+            try:
+                child.kill()
+            except Exception:
+                pass
+    except ImportError:
+        # psutil not available, skip this cleanup
+        pass
+    except Exception:
+        # Silently ignore cleanup errors during exit
+        pass
+
+
 def _cleanup_browser_pool() -> None:
     """
     Cleanup BrowserPool on process exit.
@@ -63,13 +101,18 @@ def _cleanup_browser_pool() -> None:
     try:
         loop = asyncio.get_event_loop()
         if loop.is_running() or loop.is_closed():
+            _kill_playwright_subprocesses()
             return
         from gateway.browser_pool import BrowserPool
 
         if BrowserPool._instance:
             loop.run_until_complete(BrowserPool._instance.close_all())
+        # Give subprocesses time to clean up
+        time.sleep(0.5)
+        _kill_playwright_subprocesses()
     except Exception:
-        pass  # Exit cleanup, silently ignore errors
+        # Fallback to force kill subprocesses
+        _kill_playwright_subprocesses()
 
 
 @app.command()
@@ -237,6 +280,11 @@ def setup(
             loop.close()
             # FIX: Don't set event loop to None - let Python handle natural cleanup
             # asyncio.set_event_loop(None)  # Removed: causes event loop errors
+
+            # FIX: Force cleanup any remaining Playwright subprocesses
+            # This prevents the process from hanging after setup completion
+            time.sleep(0.3)  # Give subprocesses a moment to exit gracefully
+            _kill_playwright_subprocesses()
     except Exception:
         sys.exit(1)
 
