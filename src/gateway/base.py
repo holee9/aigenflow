@@ -178,6 +178,7 @@ class BaseProvider(ABC):
 
                 self._browser_manager = ProviderContext(
                     provider_name=self.provider_name,
+                    headless=self.headless,
                 )
                 logger.info(f"Using BrowserPool for {self.provider_name}")
             else:

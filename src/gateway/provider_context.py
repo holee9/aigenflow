@@ -37,6 +37,7 @@ class ProviderContext:
         self,
         provider_name: str,
         pool: BrowserPool | None = None,
+        headless: bool = True,
     ) -> None:
         """
         Initialize provider context.
@@ -44,11 +45,13 @@ class ProviderContext:
         Args:
             provider_name: Provider identifier (e.g., "chatgpt", "claude")
             pool: BrowserPool instance (lazy loaded via get_instance)
+            headless: Whether to run browser in headless mode
         """
         self.provider_name = provider_name
         self._pool: BrowserPool | None = pool
         self._context: BrowserContext | None = None
         self._page: Page | None = None
+        self._headless: bool = headless
 
         # NOTE: Pool is lazy-loaded in get_context() to avoid async __init__
         # Direct instantiation is prevented - must use BrowserPool.get_instance()
@@ -64,7 +67,7 @@ class ProviderContext:
         if self._pool is None:
             from gateway.browser_pool import BrowserPool
 
-            self._pool = await BrowserPool.get_instance()
+            self._pool = await BrowserPool.get_instance(headless=self._headless)
 
         # Refresh context if None or if pool has a newer version (after reset)
         if self._context is None:
@@ -92,7 +95,7 @@ class ProviderContext:
         if self._pool is None:
             from gateway.browser_pool import BrowserPool
 
-            self._pool = await BrowserPool.get_instance()
+            self._pool = await BrowserPool.get_instance(headless=self._headless)
 
         # Ensure context is initialized (which also ensures browser is initialized)
         await self.get_context()
