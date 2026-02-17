@@ -10,8 +10,11 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from core.logger import get_logger
 from core.models import AgentType
 from gateway.selector_loader import SelectorConfig, SelectorLoader
+
+logger = get_logger(__name__)
 
 
 class GatewayRequest(BaseModel):

@@ -4,9 +4,7 @@ ChatGPT provider implementation.
 Uses Playwright to interact with chat.openai.com.
 """
 
-import asyncio
 from pathlib import Path
-from typing import Any
 
 from core.models import AgentType
 from gateway.base import BaseProvider, GatewayRequest, GatewayResponse

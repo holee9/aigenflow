@@ -4,9 +4,10 @@ Tests for CLI setup command.
 Uses TDD approach: tests written before implementation.
 """
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 from typer.testing import CliRunner
-from unittest.mock import MagicMock, AsyncMock, patch
 
 from cli.setup import app as setup_app
 

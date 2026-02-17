@@ -6,9 +6,9 @@ Refactored to use single context pattern - opens browser ONCE per AI.
 
 import asyncio
 import hashlib
-import sys
 from datetime import datetime
 from pathlib import Path
+
 from playwright.async_api import async_playwright
 
 PROFILE_DIR = Path.home() / ".aigenflow" / "profiles"
@@ -88,7 +88,7 @@ async def test_claude():
 
             # Check login
             if "login" in page.url.lower():
-                print(f"Claude: Not logged in")
+                print("Claude: Not logged in")
                 await context.close()
                 return None
 
@@ -123,9 +123,9 @@ async def test_claude():
                             else:
                                 print(f"  ✗ Too short: {len(text)} chars")
                         else:
-                            print(f"  ✗ No response found")
+                            print("  ✗ No response found")
                     else:
-                        print(f"  ✗ No input field found")
+                        print("  ✗ No input field found")
 
                     # Clear for next iteration
                     if editable:
@@ -192,7 +192,7 @@ async def test_gemini():
 
             # Check login
             if "login" in page.url.lower():
-                print(f"Gemini: Not logged in")
+                print("Gemini: Not logged in")
                 await context.close()
                 return None
 
@@ -227,9 +227,9 @@ async def test_gemini():
                             else:
                                 print(f"  ✗ Too short: {len(text)} chars")
                         else:
-                            print(f"  ✗ No response found")
+                            print("  ✗ No response found")
                     else:
-                        print(f"  ✗ No input field found")
+                        print("  ✗ No input field found")
 
                     # Clear for next iteration
                     if editable:
@@ -296,7 +296,7 @@ async def test_perplexity():
 
             # Check login
             if "login" in page.url.lower():
-                print(f"Perplexity: Not logged in")
+                print("Perplexity: Not logged in")
                 await context.close()
                 return None
 
@@ -331,9 +331,9 @@ async def test_perplexity():
                             else:
                                 print(f"  ✗ Too short: {len(text)} chars")
                         else:
-                            print(f"  ✗ No response found")
+                            print("  ✗ No response found")
                     else:
-                        print(f"  ✗ No input field found")
+                        print("  ✗ No input field found")
 
                     # Clear for next iteration
                     if editable:
@@ -382,8 +382,8 @@ def generate_report(results: list) -> str:
     lines.append("# 실제 AI 응답 재현성 평가 보고서 (단일 AI)")
     lines.append("")
     lines.append(f"**평가 일시**: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    lines.append(f"**평가 방식**: Playwright 직접 접속 (단일 AI별 실행, 단일 컨텍스트 패턴)")
-    lines.append(f"**반복 횟수**: 3회")
+    lines.append("**평가 방식**: Playwright 직접 접속 (단일 AI별 실행, 단일 컨텍스트 패턴)")
+    lines.append("**반복 횟수**: 3회")
     lines.append("")
 
     lines.append("## 1. 평가 개요")

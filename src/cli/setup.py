@@ -96,12 +96,13 @@ def setup(
         session_manager = SessionManager(settings)
 
         # Register all providers
+        from pathlib import Path
+
         from gateway.chatgpt_provider import ChatGPTProvider
         from gateway.claude_provider import ClaudeProvider
         from gateway.gemini_provider import GeminiProvider
         from gateway.perplexity_provider import PerplexityProvider
         from gateway.selector_loader import SelectorLoader
-        from pathlib import Path
 
         # Get profiles directory and headless setting from settings
         profiles_dir = settings.profiles_dir
@@ -204,4 +205,4 @@ def setup(
 
 
 if __name__ == "__main__":
-    typer.run(setup_app)
+    app()

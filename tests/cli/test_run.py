@@ -7,7 +7,6 @@ Test-Driven Development Approach:
 - REFACTOR: Clean up code
 """
 
-import asyncio
 import sys
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch

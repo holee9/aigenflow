@@ -6,16 +6,11 @@ without requiring actual API calls or browser automation.
 """
 
 import asyncio
-from datetime import datetime
 from typing import Any
 
 from src.agents.base import AgentRequest, AgentResponse
-from src.agents.chatgpt_agent import ChatGPTAgent
-from src.agents.claude_agent import ClaudeAgent
-from src.agents.gemini_agent import GeminiAgent
-from src.agents.perplexity_agent import PerplexityAgent
-from src.core.models import AgentType
 from src.agents.router import AgentRouter
+from src.core.models import AgentType
 
 
 class _DummyGateway:

@@ -8,9 +8,9 @@ import statistics
 from pathlib import Path
 from typing import Any
 
-from src.templates.manager import TemplateManager
 from src.agents.router import PhaseTask
 from src.pipeline.orchestrator import PipelineOrchestrator
+from src.templates.manager import TemplateManager
 
 
 class ReproducibilityEvaluator:
@@ -119,7 +119,7 @@ class ReproducibilityEvaluator:
         lines = []
         lines.append("# 템플릿 재현성 평가 보고서")
         lines.append("")
-        lines.append(f"**평가 일시**: 2026-02-15")
+        lines.append("**평가 일시**: 2026-02-15")
         lines.append(f"**평가 반복 횟수**: {self.iterations}회")
         lines.append(f"**대상 템플릿 수**: {len(results)}개")
         lines.append("")
@@ -197,8 +197,8 @@ class ReproducibilityEvaluator:
 def main():
     """Main evaluation function."""
     print("🔍 템플릿 재현성 평가 시작...")
-    print(f"   반복 횟수: 10회")
-    print(f"   대상 템플릿: 12개")
+    print("   반복 횟수: 10회")
+    print("   대상 템플릿: 12개")
     print("")
 
     evaluator = ReproducibilityEvaluator()
@@ -221,7 +221,7 @@ def main():
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(report, encoding="utf-8")
 
-    print(f"")
+    print("")
     print(f"📄 상세 보고서 저장됨: {report_path}")
 
     return results

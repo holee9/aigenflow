@@ -5,9 +5,9 @@ Direct Playwright approach without provider abstraction.
 
 import asyncio
 import hashlib
-import sys
 from datetime import datetime
 from pathlib import Path
+
 from playwright.async_api import async_playwright
 
 PROFILE_DIR = Path.home() / ".aigenflow" / "profiles"
@@ -95,7 +95,7 @@ class SimpleAIReproducibilityTest:
                     await context.close()
                     return result
 
-                print(f"  Session validated ✓")
+                print("  Session validated ✓")
 
                 # Send messages
                 for i in range(self.iterations):
@@ -114,7 +114,7 @@ class SimpleAIReproducibilityTest:
                         print(" sent", end="", flush=True)
 
                         # Wait for response - longer wait for AI generation
-                        print(f" waiting...", end="", flush=True)
+                        print(" waiting...", end="", flush=True)
                         await asyncio.sleep(15)  # Wait 15 seconds for AI response
 
                         # Capture response with multiple fallback selectors
@@ -196,7 +196,7 @@ class SimpleAIReproducibilityTest:
 
         # Calculate similarities
         if len(result["responses"]) >= 2:
-            print(f"\n  Calculating similarities...")
+            print("\n  Calculating similarities...")
             similarities = []
             hashes = [r["hash"] for r in result["responses"]]
 
@@ -228,7 +228,7 @@ class SimpleAIReproducibilityTest:
         prompt = self.get_test_prompt()
 
         print(f"\n{'='*60}")
-        print(f"SIMPLE AI REPRODUCIBILITY TEST")
+        print("SIMPLE AI REPRODUCIBILITY TEST")
         print(f"{'='*60}")
         print(f"Iterations: {self.iterations}")
         print(f"Prompt: {len(prompt)} chars")
@@ -255,7 +255,7 @@ class SimpleAIReproducibilityTest:
         lines.append("# 실제 AI 응답 재현성 평가 보고서")
         lines.append("")
         lines.append(f"**평가 일시**: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-        lines.append(f"**평가 방식**: Playwright 직접 접속 (PoC 방식)")
+        lines.append("**평가 방식**: Playwright 직접 접속 (PoC 방식)")
         lines.append(f"**반복 횟수**: {self.iterations}회")
         lines.append("")
 

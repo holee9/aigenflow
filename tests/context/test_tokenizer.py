@@ -4,7 +4,6 @@ Tests for TokenCounter.
 Tests follow TDD principles: written before implementation.
 """
 
-import pytest
 
 from src.context.tokenizer import (
     ModelLimits,

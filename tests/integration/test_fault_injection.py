@@ -12,10 +12,9 @@ Test Categories:
 5. Recovery Scenarios
 """
 
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from pathlib import Path
-from unittest.mock import AsyncMock, patch, MagicMock
-from typing import Any
 
 from src.core.models import AgentType
 from src.gateway.base import GatewayRequest, GatewayResponse

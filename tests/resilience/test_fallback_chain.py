@@ -4,8 +4,7 @@ Tests for FallbackChain.
 Tests follow TDD principles: written before implementation.
 """
 
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 

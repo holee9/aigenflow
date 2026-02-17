@@ -7,9 +7,9 @@ token counting, and summary generation.
 
 import pytest
 
-from src.agents.router import AgentRouter, PhaseTask
+from src.agents.router import AgentRouter
 from src.context.summarizer import ContextSummary, SummaryConfig, SummaryResult
-from src.core.models import AgentType, DocumentType, PhaseResult, PhaseStatus, AgentResponse
+from src.core.models import AgentResponse, AgentType, PhaseResult, PhaseStatus
 
 
 class TestSummaryConfig:

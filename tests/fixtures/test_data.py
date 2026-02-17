@@ -13,7 +13,6 @@ from src.core.models import (
     TemplateType,
 )
 
-
 # Test topics with minimum 10 characters
 TEST_TOPICS = {
     "minimal": "AI SaaS Platform",  # Exactly 16 chars - meets minimum

@@ -4,9 +4,9 @@ Tests for gateway session management.
 
 import pytest
 
-from gateway.session import SessionManager
 from gateway.chatgpt_provider import ChatGPTProvider
 from gateway.claude_provider import ClaudeProvider
+from gateway.session import SessionManager
 
 
 class TestSessionManager:

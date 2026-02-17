@@ -5,7 +5,7 @@ This module provides a wrapper for provider-specific browser contexts,
 handling cookie injection/extraction and page management with anti-detection measures.
 """
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from playwright.async_api import BrowserContext, Page
 
@@ -16,6 +16,9 @@ except ImportError:
     STEALTH_AVAILABLE = False
 
 from core.logger import get_logger
+
+if TYPE_CHECKING:
+    from gateway.browser_pool import BrowserPool
 
 logger = get_logger(__name__)
 
@@ -31,7 +34,7 @@ class ProviderContext:
     def __init__(
         self,
         provider_name: str,
-        pool: "BrowserPool | None" = None,
+        pool: BrowserPool | None = None,
     ) -> None:
         """
         Initialize provider context.
@@ -41,7 +44,7 @@ class ProviderContext:
             pool: BrowserPool instance (lazy loaded via get_instance)
         """
         self.provider_name = provider_name
-        self._pool: "BrowserPool | None" = pool
+        self._pool: BrowserPool | None = pool
         self._context: BrowserContext | None = None
         self._page: Page | None = None
 
@@ -73,6 +76,49 @@ class ProviderContext:
                 self._context = await self._pool.get_context(self.provider_name)
 
         return self._context
+
+    async def start_browser(self) -> Any:
+        """
+        Start browser and return browser instance for compatibility.
+
+        This method provides compatibility with BrowserManager interface.
+        The actual browser is managed by BrowserPool singleton.
+
+        Returns:
+            Browser instance from BrowserPool
+        """
+        if self._pool is None:
+            from gateway.browser_pool import BrowserPool
+
+            self._pool = await BrowserPool.get_instance()
+
+        # Ensure context is initialized (which also ensures browser is initialized)
+        await self.get_context()
+
+        # Return the browser instance from pool for compatibility
+        # Note: Direct browser access should be avoided in favor of context-based methods
+        return self._pool._browser
+
+    async def create_context(
+        self,
+        viewport: dict[str, int] | None = None,
+        locale: str = "en-US",
+    ) -> BrowserContext:
+        """
+        Get or create browser context for compatibility.
+
+        This method provides compatibility with BrowserManager interface.
+        In BrowserPool, contexts are managed per-provider and created lazily.
+
+        Args:
+            viewport: Viewport dimensions (ignored, uses pool defaults)
+            locale: Browser locale (passed to pool)
+
+        Returns:
+            BrowserContext instance for this provider
+        """
+        # Simply delegate to get_context which handles lazy loading
+        return await self.get_context()
 
     async def get_page(self) -> Page:
         """

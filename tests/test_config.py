@@ -2,11 +2,9 @@
 Test configuration for all modules.
 """
 
-import pytest
 from pathlib import Path
 
 from core.config import AigenFlowSettings
-from gateway.base import BaseProvider
 
 
 def test_settings_loading():

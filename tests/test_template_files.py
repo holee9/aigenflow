@@ -12,9 +12,8 @@ src_dir = root_dir / "src"
 # src 폴더를 Python 경로에 추가
 sys.path.insert(0, str(src_dir))
 
-from templates.manager import TemplateManager
-from pipeline.orchestrator import PipelineOrchestrator
-from agents.router import PhaseTask
+from agents.router import PhaseTask  # noqa: E402
+from templates.manager import TemplateManager  # noqa: E402
 
 
 def test_all_template_files_exist():
@@ -59,7 +58,6 @@ def test_jinja2_environment_lists_all_templates():
 def test_all_templates_loadable():
     """All 12 templates should be loadable without errors."""
     tm = TemplateManager()
-    orch = PipelineOrchestrator(template_manager=tm)
 
     test_cases = [
         (1, PhaseTask.BRAINSTORM_CHATGPT, "Phase 1 Brainstorm"),

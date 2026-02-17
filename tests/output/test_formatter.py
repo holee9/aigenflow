@@ -5,7 +5,6 @@ Tests follow TDD principles: written before implementation.
 """
 
 from pathlib import Path
-from typing import Any
 
 import pytest
 

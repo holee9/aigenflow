@@ -9,7 +9,6 @@ from typing import Any
 
 import pytest
 import yaml
-from pydantic import ValidationError
 
 from src.gateway.selector_loader import (
     SelectorConfig,

@@ -8,14 +8,13 @@ This module tests:
 - US-4: Budget alerts
 """
 
-from datetime import datetime
 
 import pytest
 
 from src.core.models import AgentType
 from src.monitoring.calculator import CostCalculator, PricingConfig
 from src.monitoring.stats import Period, StatsCollector, UsageSummary
-from src.monitoring.tracker import BudgetAlert, BudgetConfig, TokenTracker, TokenUsage
+from src.monitoring.tracker import BudgetConfig, TokenTracker, TokenUsage
 
 
 class TestPricingConfig:

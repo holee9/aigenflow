@@ -2,7 +2,6 @@
 Tests for output modules.
 """
 
-import pytest
 
 from output.formatter import FileExporter, MarkdownFormatter
 

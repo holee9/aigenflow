@@ -3,8 +3,6 @@ Tests for gateway modules.
 """
 
 from pathlib import Path
-from textwrap import dedent
-from typing import Any
 
 import pytest
 import yaml

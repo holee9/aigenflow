@@ -2,7 +2,6 @@
 Tests for template manager.
 """
 
-import pytest
 
 from templates.manager import TemplateManager
 

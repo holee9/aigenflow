@@ -4,9 +4,8 @@ Tests for BasePhase abstract class.
 Uses TDD approach: tests written before implementation.
 """
 
+
 import pytest
-from abc import ABC
-from typing import Any
 
 from src.core.models import PhaseResult, PipelineConfig, PipelineSession
 
@@ -23,8 +22,8 @@ class TestBasePhase:
 
     def test_base_phase_has_abstract_methods(self):
         """Test that BasePhase defines required abstract methods."""
+
         from src.pipeline.base import BasePhase
-        import inspect
 
         # Check that BasePhase has the required abstract methods
         assert hasattr(BasePhase, '__abstractmethods__')
@@ -70,8 +69,8 @@ class TestBasePhase:
 
     def test_base_phase_get_tasks_returns_list(self):
         """Test that get_tasks returns a list."""
+        from src.core.models import PhaseStatus, PipelineSession
         from src.pipeline.base import BasePhase
-        from src.core.models import PipelineSession, PhaseStatus
 
         class TestPhase(BasePhase):
             def get_tasks(self, session: PipelineSession) -> list:
@@ -98,8 +97,8 @@ class TestBasePhase:
 
     def test_base_phase_execute_returns_phase_result(self):
         """Test that execute returns PhaseResult."""
+        from src.core.models import PhaseStatus, PipelineConfig, PipelineSession
         from src.pipeline.base import BasePhase
-        from src.core.models import PipelineConfig, PipelineSession, PhaseStatus
 
         class ExecutePhase(BasePhase):
             def get_tasks(self, session: PipelineSession) -> list:
@@ -128,8 +127,8 @@ class TestBasePhase:
 
     def test_base_phase_validate_result_returns_bool(self):
         """Test that validate_result returns boolean."""
-        from src.pipeline.base import BasePhase
         from src.core.models import PhaseResult, PhaseStatus, create_phase_result
+        from src.pipeline.base import BasePhase
 
         class ValidatePhase(BasePhase):
             def get_tasks(self, session: PipelineSession) -> list:

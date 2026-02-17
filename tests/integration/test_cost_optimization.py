@@ -11,17 +11,15 @@ Tests the complete integration of:
 Reference: SPEC-ENHANCE-004 Phase 4
 """
 
-import asyncio
 from datetime import datetime
-from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
 
-from src.cache import CacheManager
 from src.batch import BatchQueue
-from src.monitoring import TokenTracker, TokenUsage, CostCalculator, StatsCollector
+from src.cache import CacheManager
 from src.gateway.models import GatewayResponse
+from src.monitoring import CostCalculator, StatsCollector, TokenTracker, TokenUsage
 
 
 class TestCacheIntegration:
@@ -181,8 +179,8 @@ class TestStatsCollectorIntegration:
 
     def test_get_summary_with_data(self, collector):
         """Test getting summary with tracked data."""
-        from src.monitoring.tracker import AgentType
         from src.monitoring.stats import Period
+        from src.monitoring.tracker import AgentType
 
         # Track some usage
         usage = TokenUsage(

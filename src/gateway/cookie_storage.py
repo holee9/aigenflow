@@ -5,7 +5,7 @@ Handles saving, loading, and validation of encrypted cookies with metadata.
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -20,8 +20,8 @@ class SessionMetadata(BaseModel):
     model_config = {"frozen": False}
 
     provider_name: str
-    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    last_validated: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
+    last_validated: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
     is_valid: bool = True
     login_method: str = "manual"
     browser_version: str = "chromium-121.0"
@@ -31,7 +31,7 @@ class SessionMetadata(BaseModel):
 
     def mark_validated(self) -> None:
         """Update last_validated timestamp to now."""
-        self.last_validated = datetime.now(timezone.utc).isoformat()
+        self.last_validated = datetime.now(UTC).isoformat()
 
     def mark_invalid(self) -> None:
         """Mark session as invalid."""

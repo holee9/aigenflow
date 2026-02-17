@@ -172,16 +172,8 @@ class BrowserPool:
                 locale=locale,
             )
 
-            # Apply anti-detection to new context
-            if STEALTH_AVAILABLE:
-                try:
-                    page = await context.new_page()
-                    await stealth_async(page)
-                    await page.close()
-                    logger.debug(f"Applied stealth to {provider_name} context")
-                except Exception as e:
-                    logger.warning(f"Stealth application failed for {provider_name}: {e}")
-                    # Continue without stealth if it fails
+            # NOTE: Stealth is applied per-page, not per-context
+            # This avoids page crashes from creating/closing pages during context init
 
             self._contexts[provider_name] = context
             self._valid_contexts.add(provider_name)  # Mark as valid

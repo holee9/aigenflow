@@ -13,13 +13,16 @@ Tests cover:
 
 import logging
 import logging.handlers
-import sys
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 import structlog
 
+from src.config.logging_profiles import (
+    LogEnvironment,
+    LoggingProfile,
+    get_logging_profile,
+)
 from src.core.logger import (
     LogContext,
     _get_log_level_int,
@@ -31,11 +34,6 @@ from src.core.logger import (
     redact_secrets,
     set_log_level,
     setup_logging,
-)
-from src.config.logging_profiles import (
-    LogEnvironment,
-    LoggingProfile,
-    get_logging_profile,
 )
 
 
@@ -442,7 +440,6 @@ class TestGetLogger:
         """Test that get_logger returns a BoundLogger-compatible object."""
         logger = get_logger()
         # Can be BoundLogger or BoundLoggerLazyProxy
-        from structlog.stdlib import BoundLogger
         # Just check it has the expected interface
         assert hasattr(logger, 'info')
         assert hasattr(logger, 'error')

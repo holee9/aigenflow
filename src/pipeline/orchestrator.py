@@ -326,7 +326,6 @@ class PipelineOrchestrator:
 
         # Determine starting phase
         start_phase = config.from_phase if config.from_phase else 1
-        remaining_phases = TOTAL_PHASES - start_phase + 1
 
         # Start UI progress if enabled
         if self.ui_progress:

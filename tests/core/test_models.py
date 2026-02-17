@@ -2,21 +2,19 @@
 Tests for core data models.
 """
 
+
 import pytest
-from pathlib import Path
-from uuid import uuid4
 
 from core.models import (
     AgentResponse,
     AgentType,
     DocumentType,
-    create_phase_result,
     PhaseResult,
     PhaseStatus,
     PipelineConfig,
     PipelineSession,
     PipelineState,
-    TemplateType,
+    create_phase_result,
 )
 
 

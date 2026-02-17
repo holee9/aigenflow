@@ -2,16 +2,10 @@
 Tests for core exceptions.
 """
 
-import pytest
 
 from core.exceptions import (
     AigenFlowException,
-    AgentException,
-    ConfigurationException,
     ErrorCode,
-    GatewayException,
-    PipelineException,
-    TemplateException,
 )
 
 

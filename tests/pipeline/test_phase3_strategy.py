@@ -4,7 +4,6 @@ Tests for Phase3Strategy class.
 Uses TDD approach: tests written before implementation.
 """
 
-from datetime import datetime
 
 import pytest
 

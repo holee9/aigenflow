@@ -6,8 +6,6 @@ Uses TDD approach: tests written before implementation.
 
 from datetime import datetime
 
-import pytest
-
 from src.ui.logger import LogLevel, LogStream
 
 

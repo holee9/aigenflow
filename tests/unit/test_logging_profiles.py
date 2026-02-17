@@ -7,10 +7,8 @@ Phase 5: Logging Structure testing for SPEC-ENHANCE-003.
 
 import logging
 from pathlib import Path
-from unittest.mock import Mock, patch
 
 import pytest
-import structlog
 
 from config import LogEnvironment, configure_logging, get_logging_profile, parse_log_level
 

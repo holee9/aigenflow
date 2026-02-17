@@ -59,7 +59,6 @@ class CookieEncryption:
         # Set file permissions to 600 (owner read/write only)
         # This works on Unix systems
         try:
-            import stat
 
             self.key_path.chmod(0o600)
         except (OSError, AttributeError):

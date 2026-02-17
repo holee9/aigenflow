@@ -55,7 +55,6 @@ class TestBasePhaseAbstractMethodPassStatements:
 
     def test_abstract_methods_cannot_be_called_directly(self):
         """Test that abstract methods raise TypeError when called without implementation."""
-        import inspect
 
         # Verify methods are abstract
         assert 'get_tasks' in BasePhase.__abstractmethods__
@@ -205,8 +204,8 @@ class TestBasePhaseConcreteImplementation:
     @pytest.mark.anyio
     async def test_concrete_implementation_full_workflow(self):
         """Test full workflow with concrete implementation."""
+
         from src.pipeline.base import BasePhase
-        import asyncio
 
         class CompletePhase(BasePhase):
             """Complete implementation for testing."""
@@ -262,6 +261,7 @@ class TestBasePhaseInheritance:
     def test_base_phase_is_abc(self):
         """Test that BasePhase inherits from ABC."""
         from abc import ABC
+
         from src.pipeline.base import BasePhase
 
         assert issubclass(BasePhase, ABC)

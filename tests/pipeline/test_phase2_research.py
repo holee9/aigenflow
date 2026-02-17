@@ -4,7 +4,6 @@ Tests for Phase2Research class.
 Uses TDD approach: tests written before implementation.
 """
 
-from datetime import datetime
 
 import pytest
 

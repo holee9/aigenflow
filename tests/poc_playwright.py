@@ -6,7 +6,9 @@ Playwright Gateway PoC Test
 import asyncio
 import sys
 from pathlib import Path
-from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeout
+
+from playwright.async_api import TimeoutError as PlaywrightTimeout
+from playwright.async_api import async_playwright
 
 PROFILE_DIR = Path.home() / ".aigenflow" / "profiles"
 TIMEOUT_MS = 60_000
@@ -39,8 +41,8 @@ async def setup_profile(provider: str, url: str):
 
         print()
         print(f"  >>> {provider} 에 로그인하세요.")
-        print(f"  >>> 로그인 완료 후 브라우저 창을 닫으면 프로필이 저장됩니다.")
-        print(f"  >>> (최대 5분 대기)")
+        print("  >>> 로그인 완료 후 브라우저 창을 닫으면 프로필이 저장됩니다.")
+        print("  >>> (최대 5분 대기)")
         print()
 
         # Wait for user to close the browser page

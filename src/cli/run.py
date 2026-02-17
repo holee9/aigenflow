@@ -12,12 +12,12 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 
-from core import get_settings
-from core.models import AgentType, DocumentType, PipelineConfig, TemplateType
 from agents.chatgpt_agent import ChatGPTAgent
 from agents.claude_agent import ClaudeAgent
 from agents.gemini_agent import GeminiAgent
 from agents.perplexity_agent import PerplexityAgent
+from core import get_settings
+from core.models import AgentType, DocumentType, PipelineConfig, TemplateType
 from gateway.session import SessionManager
 from pipeline.orchestrator import PipelineOrchestrator
 from templates.manager import TemplateManager
@@ -71,12 +71,13 @@ async def _check_session_availability_async(headless: bool | None = None) -> boo
         session_manager = SessionManager(settings)
 
         # Register all providers
+        from pathlib import Path
+
         from gateway.chatgpt_provider import ChatGPTProvider
         from gateway.claude_provider import ClaudeProvider
         from gateway.gemini_provider import GeminiProvider
         from gateway.perplexity_provider import PerplexityProvider
         from gateway.selector_loader import SelectorLoader
-        from pathlib import Path
 
         # Get profiles directory and headless setting
         profiles_dir = settings.profiles_dir

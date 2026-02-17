@@ -5,7 +5,7 @@ Template management modules.
 from pathlib import Path
 from typing import Any
 
-from jinja2 import Environment, FileSystemLoader, PackageLoader, Template
+from jinja2 import Environment, FileSystemLoader, Template
 from pydantic import BaseModel, ConfigDict
 
 from core.logger import get_logger

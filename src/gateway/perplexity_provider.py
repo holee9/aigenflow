@@ -7,7 +7,6 @@ Uses Playwright to interact with perplexity.ai.
 import asyncio
 import time
 from pathlib import Path
-from typing import Any
 
 from core.models import AgentType
 from gateway.base import BaseProvider, GatewayRequest, GatewayResponse
@@ -144,7 +143,7 @@ class PerplexityProvider(BaseProvider):
                 metadata={"provider": "perplexity"},
             )
 
-        except FileNotFoundError as exc:
+        except FileNotFoundError:
             # No session file exists - need to login first
             return GatewayResponse(
                 content="",

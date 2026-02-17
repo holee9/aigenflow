@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from pydantic import ValidationError
 
 from src.output.formatter import FileExporter, MarkdownFormatter
 

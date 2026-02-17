@@ -6,12 +6,9 @@ Uses TDD approach: tests written before implementation.
 
 from datetime import datetime, timedelta
 
-import pytest
-
 from src.core.models import (
     AgentResponse,
     AgentType,
-    PhaseResult,
     PhaseStatus,
     PipelineConfig,
     PipelineSession,

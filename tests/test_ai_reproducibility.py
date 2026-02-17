@@ -9,8 +9,6 @@ Three Evaluation Dimensions:
 """
 
 import hashlib
-import json
-import statistics
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -58,7 +56,7 @@ class AIReproducibilityEvaluator:
         Same prompt → 10 AI responses → Compare similarity
         """
         print(f"\n{'='*60}")
-        print(f"Dimension 1: AI Response Reproducibility")
+        print("Dimension 1: AI Response Reproducibility")
         print(f"AI Model: {ai_model}")
         print(f"Prompt: {prompt[:100]}...")
         print(f"{'='*60}")
@@ -94,7 +92,7 @@ class AIReproducibilityEvaluator:
         Full 5-phase pipeline → 10 runs → Compare final documents
         """
         print(f"\n{'='*60}")
-        print(f"Dimension 2: End-to-End Pipeline Reproducibility")
+        print("Dimension 2: End-to-End Pipeline Reproducibility")
         print(f"Topic: {topic}")
         print(f"Document Type: {doc_type}")
         print(f"{'='*60}")
@@ -131,7 +129,7 @@ class AIReproducibilityEvaluator:
         Same input + same seed → Run at different times → Compare results
         """
         print(f"\n{'='*60}")
-        print(f"Dimension 3: Temporal Traceability")
+        print("Dimension 3: Temporal Traceability")
         print(f"Topic: {topic}")
         print(f"Seed: {seed}")
         print(f"Time Gap: {time_gap_hours} hours")
@@ -177,7 +175,7 @@ class AIReproducibilityEvaluator:
         lines.append("# AI 재현성 평가 프레임워크")
         lines.append("")
         lines.append(f"**생성 일시**: {datetime.now().strftime('%Y-%m-%d')}")
-        lines.append(f"**평가 차원**: 3가지")
+        lines.append("**평가 차원**: 3가지")
         lines.append("")
 
         lines.append("## 1. 평가 차원 개요")

@@ -8,8 +8,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.context.summarizer import ContextSummary, SummaryConfig
-from src.context.tokenizer import TokenCounter
+# Import from same paths as orchestrator
+from context.summarizer import ContextSummary
+from context.tokenizer import TokenCounter
 from src.core.models import AgentType, DocumentType, PhaseResult, PhaseStatus, PipelineConfig
 from src.pipeline.orchestrator import PipelineOrchestrator
 

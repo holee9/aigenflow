@@ -4,14 +4,14 @@ Tests for CLI resume and config commands.
 Uses TDD approach: tests written before implementation.
 """
 
+import json
+from unittest.mock import MagicMock, patch
+
 import pytest
 from typer.testing import CliRunner
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-import json
 
-from cli.resume import app as resume_app
 from cli.config import app as config_app
+from cli.resume import app as resume_app
 
 runner = CliRunner()
 

@@ -2,8 +2,8 @@
 Tests for CLI layer.
 """
 
-import pytest
 from unittest.mock import MagicMock
+
 from typer import Context as TyperContext
 
 

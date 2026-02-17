@@ -4,9 +4,7 @@ Comprehensive tests for src/output/formatters.py to improve coverage from 45% to
 Focus on edge cases, error handling, and integration scenarios.
 """
 
-import io
 from typing import Any
-from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 

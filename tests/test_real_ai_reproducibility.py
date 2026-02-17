@@ -7,21 +7,15 @@ Note: This requires valid Playwright sessions with all AI providers.
 
 import asyncio
 import hashlib
-import json
 import statistics
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import sys
 sys.path.insert(0, '.')
 
 from src.templates.manager import TemplateManager
-from src.gateway.session import SessionManager
-from src.gateway.chatgpt_provider import ChatGPTProvider
-from src.gateway.claude_provider import ClaudeProvider
-from src.gateway.gemini_provider import GeminiProvider
-from src.gateway.perplexity_provider import PerplexityProvider
 
 
 class RealAIReproducibilityEvaluator:
@@ -158,7 +152,7 @@ class RealAIReproducibilityEvaluator:
         lines.append("# 실제 AI 응답 재현성 평가 보고서")
         lines.append("")
         lines.append(f"**평가 일시**: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-        lines.append(f"**평가 방식**: Playwright 웹 브라우저 게이트웨이")
+        lines.append("**평가 방식**: Playwright 웹 브라우저 게이트웨이")
         lines.append(f"**반복 횟수**: {self.iterations}회")
         lines.append("")
 
@@ -275,7 +269,7 @@ async def main():
     prompt = evaluator.get_test_prompt()
 
     print(f"\n📝 테스트 프롬프트 길이: {len(prompt)}자")
-    print(f"   (템플릿: phase_1/brainstorm_chatgpt)")
+    print("   (템플릿: phase_1/brainstorm_chatgpt)")
     print()
 
     # Check if we should run actual evaluation

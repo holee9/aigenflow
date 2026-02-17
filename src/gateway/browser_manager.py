@@ -4,7 +4,6 @@ Browser Manager for Playwright automation.
 Manages browser lifecycle with anti-detection measures for AI provider authentication.
 """
 
-from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
@@ -17,8 +16,6 @@ try:
 except ImportError:
     STEALTH_AVAILABLE = False
 
-from core.models import AgentType
-from gateway.selector_loader import SelectorLoader
 
 
 class BrowserManager:

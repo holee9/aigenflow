@@ -7,11 +7,10 @@ Phase 5: Logging Structure testing for SPEC-ENHANCE-003.
 
 import logging
 from pathlib import Path
-from unittest.mock import Mock, patch
 
 import pytest
 
-from config import LogEnvironment, configure_logging, get_logging_profile, parse_log_level
+from config import LogEnvironment, configure_logging, get_logging_profile
 
 
 @pytest.fixture
@@ -142,7 +141,6 @@ class TestLogFormatConsistency:
 
     def test_json_log_format_has_required_fields(self, temp_log_dir: Path) -> None:
         """Test that JSON logs include timestamp, level, and message."""
-        import json
 
         logger = configure_logging(
             LogEnvironment.DEVELOPMENT,

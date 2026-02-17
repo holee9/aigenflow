@@ -2,7 +2,6 @@
 Tests for cookie encryption functionality.
 """
 
-import json
 from pathlib import Path
 
 import pytest

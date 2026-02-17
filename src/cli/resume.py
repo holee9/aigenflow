@@ -14,6 +14,10 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 
+from agents.chatgpt_agent import ChatGPTAgent
+from agents.claude_agent import ClaudeAgent
+from agents.gemini_agent import GeminiAgent
+from agents.perplexity_agent import PerplexityAgent
 from core import get_settings
 from core.models import (
     AgentType,
@@ -23,12 +27,8 @@ from core.models import (
     PipelineState,
     TemplateType,
 )
-from agents.chatgpt_agent import ChatGPTAgent
-from agents.claude_agent import ClaudeAgent
-from agents.gemini_agent import GeminiAgent
-from agents.perplexity_agent import PerplexityAgent
 from gateway.session import SessionManager
-from pipeline.orchestrator import PipelineOrchestrator, TOTAL_PHASES
+from pipeline.orchestrator import TOTAL_PHASES, PipelineOrchestrator
 from templates.manager import TemplateManager
 
 console = Console()
@@ -80,7 +80,7 @@ def _list_available_sessions() -> list[dict[str, any]]:
                         "state": state_data.get("state", "unknown"),
                         "current_phase": state_data.get("current_phase", 0),
                     })
-            except (json.JSONDecodeError, IOError):
+            except (OSError, json.JSONDecodeError):
                 continue
 
     # Sort by updated_at (most recent first)
@@ -256,8 +256,8 @@ def resume(
     # Check if already completed
     if resume_phase == -1:
         console.print(Panel.fit(
-            f"[bold green]✓ This pipeline is already completed[/bold green]\n"
-            f"[dim]All 5 phases have been successfully executed.[/dim]",
+            "[bold green]✓ This pipeline is already completed[/bold green]\n"
+            "[dim]All 5 phases have been successfully executed.[/dim]",
             title="[bold]Info[/bold]",
             border_style="green"
         ))
@@ -267,8 +267,8 @@ def resume(
     # Check if resume phase is beyond total phases
     if resume_phase > TOTAL_PHASES:
         console.print(Panel.fit(
-            f"[bold green]✓ All phases completed[/bold green]\n"
-            f"[dim]No more phases to execute.[/dim]",
+            "[bold green]✓ All phases completed[/bold green]\n"
+            "[dim]No more phases to execute.[/dim]",
             title="[bold]Info[/bold]",
             border_style="green"
         ))

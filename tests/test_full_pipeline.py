@@ -12,9 +12,9 @@ sys.path.insert(0, str(project_root / "src"))
 
 async def test_full_pipeline():
     """Test full pipeline with mocked agents."""
+    from agents.router import AgentType
+    from core.models import PhaseStatus, PipelineConfig
     from pipeline.orchestrator import PipelineOrchestrator
-    from core.models import PipelineConfig, PipelineSession, PhaseResult, PhaseStatus
-    from agents.router import PhaseTask, AgentType
 
     print("=" * 60)
     print("AigenFlow 통합 파이프라인 테스트")
@@ -72,11 +72,10 @@ async def test_full_pipeline():
             print(f"   [{i+1}] {icon} {resp.agent_name}: {len(resp.content)} chars")
 
         if result.status == PhaseStatus.FAILED:
-            print(f"   Phase 실패로 중단")
+            print("   Phase 실패로 중단")
             break
 
     # Final state
-    from core.models import PipelineState
     print(f"\n{'='*60}")
     print(f"최종 상태: {session.state}")
     print(f"총 결과 수: {len(session.results)}")

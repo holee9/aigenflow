@@ -5,7 +5,6 @@ Tests actual AI response collection using Playwright gateway.
 
 import asyncio
 import hashlib
-import json
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -13,12 +12,12 @@ from typing import Any
 
 sys.path.insert(0, '.')
 
+from src.core.config import get_settings
 from src.gateway.base import GatewayRequest
 from src.gateway.chatgpt_provider import ChatGPTProvider
 from src.gateway.claude_provider import ClaudeProvider
 from src.gateway.gemini_provider import GeminiProvider
 from src.gateway.perplexity_provider import PerplexityProvider
-from src.core.config import get_settings
 
 
 class QuickAIConnectionTest:
@@ -89,7 +88,7 @@ Respond in Korean."""
             provider = provider_class(profile_dir=self.profile_dir, headless=False)
 
             # Check session
-            print(f"  Checking session...")
+            print("  Checking session...")
             is_logged_in = await provider.check_session()
             print(f"  Session status: {'✅ Logged in' if is_logged_in else '❌ Not logged in'}")
 
@@ -141,7 +140,7 @@ Respond in Korean."""
 
         # Calculate similarities if we have multiple responses
         if len(result["responses"]) >= 2:
-            print(f"\n  Calculating similarities...")
+            print("\n  Calculating similarities...")
             similarities = []
             hashes = [r["hash"] for r in result["responses"]]
 
@@ -175,7 +174,7 @@ Respond in Korean."""
         prompt = self.get_test_prompt()
 
         print(f"\n{'='*60}")
-        print(f"QUICK AI CONNECTION TEST")
+        print("QUICK AI CONNECTION TEST")
         print(f"{'='*60}")
         print(f"Iterations per AI: {self.iterations}")
         print(f"Profile directory: {self.profile_dir}")
@@ -204,7 +203,7 @@ Respond in Korean."""
         lines.append("# 빠른 AI 연결 테스트 결과")
         lines.append("")
         lines.append(f"**테스트 일시**: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-        lines.append(f"**테스트 방식**: Playwright 웹 브라우저 게이트웨이")
+        lines.append("**테스트 방식**: Playwright 웹 브라우저 게이트웨이")
         lines.append(f"**반복 횟수**: {self.iterations}회")
         lines.append("")
 

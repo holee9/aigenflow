@@ -4,11 +4,13 @@ Comprehensive coverage tests for gateway session management.
 Tests focus on edge cases, error handling, and exception paths to achieve 85%+ coverage.
 """
 
-import pytest
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
-from src.gateway.session import SessionManager, SessionInfo
+from unittest.mock import patch
+
+import pytest
+
 from src.gateway.base import BaseProvider
+from src.gateway.session import SessionInfo, SessionManager
 
 
 class MockProvider(BaseProvider):

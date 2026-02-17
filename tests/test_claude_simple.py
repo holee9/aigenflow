@@ -6,8 +6,8 @@ This prevents the repeated browser opening issue.
 
 import asyncio
 import hashlib
-from datetime import datetime
 from pathlib import Path
+
 from playwright.async_api import async_playwright
 
 PROFILE_DIR = Path.home() / ".aigenflow" / "profiles"

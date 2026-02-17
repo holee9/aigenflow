@@ -11,9 +11,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+from core.models import PhaseStatus, PipelineConfig
 from pipeline.orchestrator import PipelineOrchestrator
-from core.models import PipelineConfig, PipelineSession, PhaseResult, PhaseStatus
-from agents.router import PhaseTask
 
 
 class MockAgent:
@@ -36,7 +35,7 @@ class MockAgent:
 
         # Generate simulated responses
         if "brainstorm" in self.task_name:
-            self.content = f"""
+            self.content = """
 ## 브레인스토밍 결과
 
 ### 1. AI 개인 비서스 매칭 추천 시스템
@@ -53,7 +52,7 @@ class MockAgent:
             """.strip()
             self.success = True
         elif "validate" in self.task_name:
-            self.content = f"""
+            self.content = """
 ## 평가 결과
 
 ### 검토된 아이디어
@@ -69,7 +68,7 @@ class MockAgent:
             """.strip()
             self.success = True
         elif "deep_search" in self.task_name:
-            self.content = f"""
+            self.content = """
 # 시장 조사 보고서
 
 ## 1. 시장 동향
@@ -97,7 +96,7 @@ class MockAgent:
             """.strip()
             self.success = True
         elif "swot" in self.task_name:
-            self.content = f"""
+            self.content = """
 ## SWOT 분석 결과
 
 ### Strengths (강점)
@@ -466,7 +465,6 @@ async def run_full_pipeline_test():
         print(f"[Phase {phase_num}] {phase_names[phase_num]} 시작")
 
         # Create mock agent responses dictionary
-        from core.models import AgentResponse
 
         # Run phase
         result = await orchestrator.execute_phase(session, phase_num)
@@ -501,7 +499,6 @@ async def run_full_pipeline_test():
             print("테스트 완료!")
 
             # Show final state
-            from core.models import PipelineState
 
             print(f"Final State: {session.state}")
             print(f"Total Results: {len(session.results)}")

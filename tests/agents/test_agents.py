@@ -5,11 +5,9 @@ Tests for agent layer.
 import pytest
 
 from agents.base import AsyncAgent
-from agents.router import AgentRouter, AgentMapping, PhaseTask
 from agents.chatgpt_agent import ChatGPTAgent
 from agents.claude_agent import ClaudeAgent
-from agents.gemini_agent import GeminiAgent
-from agents.perplexity_agent import PerplexityAgent
+from agents.router import AgentMapping, AgentRouter
 
 
 class TestAsyncAgent:
@@ -31,7 +29,6 @@ class TestAgentRouter:
 
     def test_get_default_mapping(self):
         """Test default agent mapping."""
-        from agents.router import AgentMapping
 
         mapping = AgentMapping.get_default_mapping()
 

@@ -7,9 +7,8 @@ from pathlib import Path
 import pytest
 
 from agents.base import AgentRequest, AgentResponse, AsyncAgent
-from core.models import AgentType, PipelineState
+from core.models import AgentType, PipelineConfig, PipelineState
 from pipeline.orchestrator import PipelineOrchestrator
-from core.models import PipelineConfig
 
 
 class _DummyGateway:

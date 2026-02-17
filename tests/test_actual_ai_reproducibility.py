@@ -5,8 +5,6 @@ Tests Claude, Gemini, Perplexity (already logged in).
 
 import asyncio
 import hashlib
-import json
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -82,7 +80,7 @@ Respond in Korean. Keep it brief (3-5 sentences total)."""
 
         if not profile_path.exists():
             result["status"] = "no_profile"
-            result["error"] = f"No profile directory found"
+            result["error"] = "No profile directory found"
             return result
 
         try:
@@ -184,7 +182,7 @@ Respond in Korean. Keep it brief (3-5 sentences total)."""
                             print(f"✅ {len(content)} chars, {response_time:.1f}s")
                         else:
                             result["errors"].append(f"Iteration {i+1}: No content received")
-                            print(f"❌ No content received")
+                            print("❌ No content received")
 
                     except Exception as e:
                         result["errors"].append(f"Iteration {i+1}: {str(e)}")
@@ -200,7 +198,7 @@ Respond in Korean. Keep it brief (3-5 sentences total)."""
 
         # Calculate similarities
         if len(result["responses"]) >= 2:
-            print(f"\n  Calculating similarities...")
+            print("\n  Calculating similarities...")
             similarities = []
             hashes = [r["hash"] for r in result["responses"]]
 
@@ -233,7 +231,7 @@ Respond in Korean. Keep it brief (3-5 sentences total)."""
         prompt = self.get_test_prompt()
 
         print(f"\n{'='*60}")
-        print(f"ACTUAL AI REPRODUCIBILITY TEST")
+        print("ACTUAL AI REPRODUCIBILITY TEST")
         print(f"{'='*60}")
         print(f"Iterations: {self.iterations}")
         print(f"Test prompt: {len(prompt)} chars")
@@ -260,7 +258,7 @@ Respond in Korean. Keep it brief (3-5 sentences total)."""
         lines.append("# 실제 AI 응답 재현성 평가 보고서")
         lines.append("")
         lines.append(f"**평가 일시**: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-        lines.append(f"**평가 방식**: Playwright 웹 브라우저 실제 접속")
+        lines.append("**평가 방식**: Playwright 웹 브라우저 실제 접속")
         lines.append(f"**반복 횟수**: {self.iterations}회")
         lines.append("")
 
@@ -367,7 +365,7 @@ Respond in Korean. Keep it brief (3-5 sentences total)."""
 
         if not_logged_in:
             lines.append("")
-            lines.append(f"- **로그인 필요**: ChatGPT")
+            lines.append("- **로그인 필요**: ChatGPT")
 
         lines.append("")
         lines.append("## 4. 결론")

@@ -5,10 +5,8 @@ Note: These tests require Playwright browsers to be installed.
 Run with: playwright install chromium
 """
 
-from pathlib import Path
 
 import pytest
-from playwright.async_api import async_playwright
 
 from gateway.browser_manager import BrowserManager
 

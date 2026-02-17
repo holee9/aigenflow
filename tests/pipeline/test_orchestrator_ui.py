@@ -7,7 +7,6 @@ Tests that UI components integrate correctly with orchestrator.
 import pytest
 
 from agents.base import AgentRequest, AsyncAgent
-from src.agents.router import AgentRouter
 from src.core.models import (
     AgentResponse,
     AgentType,

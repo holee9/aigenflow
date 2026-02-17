@@ -8,6 +8,7 @@ import hashlib
 import json
 from datetime import datetime
 from pathlib import Path
+
 from playwright.async_api import async_playwright
 
 PROFILE_DIR = Path.home() / ".aigenflow" / "profiles"
@@ -313,7 +314,7 @@ def generate_report(results: list) -> str:
     lines.append("# Gemini & Perplexity 재현성 평가 보고서")
     lines.append("")
     lines.append(f"**평가 일시**: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    lines.append(f"**반복 횟수**: 3회")
+    lines.append("**반복 횟수**: 3회")
     lines.append("")
 
     lines.append("## 1. 평가 개요")
@@ -387,7 +388,7 @@ async def main():
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(report, encoding="utf-8")
 
-        print(f"\n" + "="*60)
+        print("\n" + "="*60)
         print(f"Report saved: {report_path}")
         print("="*60)
 

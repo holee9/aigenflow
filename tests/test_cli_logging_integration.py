@@ -2,11 +2,11 @@
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch, call
-import importlib
+from unittest.mock import MagicMock, patch
 
 import pytest
-from typer import Context as TyperContext, Exit as TyperExit
+from typer import Context as TyperContext
+from typer import Exit as TyperExit
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))

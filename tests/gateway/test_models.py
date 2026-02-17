@@ -2,7 +2,6 @@
 Tests for gateway models.
 """
 
-import pytest
 
 from gateway.models import GatewayRequest, GatewayResponse
 

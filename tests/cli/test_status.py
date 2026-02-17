@@ -4,11 +4,11 @@ Tests for CLI status command.
 Uses TDD approach: tests written before implementation.
 """
 
+import json
+from unittest.mock import patch
+
 import pytest
 from typer.testing import CliRunner
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-import json
 
 from cli.status import app as status_app
 

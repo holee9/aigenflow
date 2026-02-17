@@ -2,11 +2,12 @@
 Unit tests for all template files (API key not required).
 """
 
+
 import pytest
-from pathlib import Path
-from src.templates.manager import TemplateManager
+
 from src.agents.router import PhaseTask
 from src.pipeline.orchestrator import PipelineOrchestrator
+from src.templates.manager import TemplateManager
 
 
 class TestAllTemplates:

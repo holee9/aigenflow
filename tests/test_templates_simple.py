@@ -2,10 +2,12 @@
 Simple test to verify all 12 template files exist and load correctly.
 """
 
-import pytest
 from pathlib import Path
-from src.templates.manager import TemplateManager
+
+import pytest
+
 from src.pipeline.orchestrator import PipelineOrchestrator
+from src.templates.manager import TemplateManager
 
 
 @pytest.fixture

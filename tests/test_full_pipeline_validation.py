@@ -10,19 +10,18 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.pipeline.orchestrator import PipelineOrchestrator
-from src.core.models import PipelineConfig, DocumentType
-from src.output.formatter import FileExporter
-from src.core.config import get_settings
 from src.agents.chatgpt_agent import ChatGPTAgent
 from src.agents.claude_agent import ClaudeAgent
 from src.agents.gemini_agent import GeminiAgent
 from src.agents.perplexity_agent import PerplexityAgent
+from src.core.config import get_settings
+from src.core.models import DocumentType, PipelineConfig
+from src.pipeline.orchestrator import PipelineOrchestrator
 
 # Test topic
 TEST_TOPIC = "AI 기반 스마트폰 건강관리 어플리케이션"
@@ -34,7 +33,7 @@ class PipelineValidator:
     def __init__(self, iterations: int = 10):
         self.iterations = iterations
         self.settings = get_settings()
-        self.results: List[Dict[str, Any]] = []
+        self.results: list[dict[str, Any]] = []
         self.orchestrator: PipelineOrchestrator | None = None
 
     def _setup_agents(self) -> bool:
@@ -77,7 +76,7 @@ class PipelineValidator:
         print(f"  ✅ Registered {registered}/4 agents")
         return registered >= 2  # Need at least 2 agents for meaningful test
 
-    def calculate_similarity(self, text1: str, text2: str) -> Dict[str, float]:
+    def calculate_similarity(self, text1: str, text2: str) -> dict[str, float]:
         """Calculate similarity between two texts."""
         len1, len2 = len(text1), len(text2)
         len_sim = min(len1, len2) / max(len1, len2) if max(len1, len2) > 0 else 1.0
@@ -100,7 +99,7 @@ class PipelineValidator:
             "overall": (len_sim * 0.2 + jaccard * 0.4 + char_match * 0.3 + hash_match * 0.1),
         }
 
-    async def run_single_iteration(self, iteration: int) -> Dict[str, Any]:
+    async def run_single_iteration(self, iteration: int) -> dict[str, Any]:
         """Run a single pipeline iteration."""
         print(f"\n{'='*60}")
         print(f"Iteration {iteration}/{self.iterations}")
@@ -130,7 +129,7 @@ class PipelineValidator:
                     return result
 
             # Run complete pipeline
-            print(f"  Running pipeline...")
+            print("  Running pipeline...")
             session = await self.orchestrator.run_pipeline(config)
 
             # Extract phase results from session.results list
@@ -170,7 +169,7 @@ class PipelineValidator:
 
         return result
 
-    async def run_all_iterations(self) -> List[Dict[str, Any]]:
+    async def run_all_iterations(self) -> list[dict[str, Any]]:
         """Run all iterations."""
         print("\n" + "="*60)
         print("FULL PIPELINE VALIDATION TEST")
@@ -192,7 +191,7 @@ class PipelineValidator:
 
         return results
 
-    def analyze_results(self, results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def analyze_results(self, results: list[dict[str, Any]]) -> dict[str, Any]:
         """Analyze all results."""
         print("\n" + "="*60)
         print("ANALYZING RESULTS")
@@ -274,13 +273,13 @@ class PipelineValidator:
 
         return analysis
 
-    def generate_report(self, results: List[Dict[str, Any]], analysis: Dict[str, Any]) -> str:
+    def generate_report(self, results: list[dict[str, Any]], analysis: dict[str, Any]) -> str:
         """Generate comprehensive evaluation report."""
         lines = []
         lines.append("# 전체 파이프라인 종합 검증 보고서")
         lines.append("")
         lines.append(f"**평가 일시**: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-        lines.append(f"**평가 방식**: AigenFlow 전체 파이프라인 실행")
+        lines.append("**평가 방식**: AigenFlow 전체 파이프라인 실행")
         lines.append(f"**반복 횟수**: {self.iterations}회")
         lines.append(f"**테스트 주제**: {TEST_TOPIC}")
         lines.append(f"**문서 유형**: {DocumentType.BIZPLAN.value}")
@@ -289,7 +288,7 @@ class PipelineValidator:
         # Executive Summary
         lines.append("## 1. 요약")
         lines.append("")
-        lines.append(f"| 항목 | 결과 |")
+        lines.append("| 항목 | 결과 |")
         lines.append("|------|------|")
         lines.append(f"| 총 반복 횟수 | {self.iterations}회 |")
         lines.append(f"| 성공한 실행 | {analysis['successful_iterations']}회 |")
@@ -455,7 +454,7 @@ class PipelineValidator:
         }, indent=2, ensure_ascii=False), encoding="utf-8")
 
         print(f"\n{'='*60}")
-        print(f"VALIDATION COMPLETE")
+        print("VALIDATION COMPLETE")
         print(f"{'='*60}")
         print(f"Report: {report_path}")
         print(f"Results: {results_path}")

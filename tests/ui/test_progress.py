@@ -4,7 +4,6 @@ Tests for PipelineProgress class.
 Uses TDD approach: tests written before implementation.
 """
 
-import pytest
 from rich.console import Console
 
 from src.core.models import PipelineConfig, PipelineSession, PipelineState

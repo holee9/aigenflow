@@ -7,21 +7,18 @@ Tests for uncovered lines:
 - Lines 200-247: _execute_with_batching method
 """
 
-from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, Mock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 
 from agents.base import AgentRequest, AsyncAgent
 from src.agents.router import AgentRouter, PhaseTask
-from src.batch.processor import BatchProcessor
 from src.core.models import (
     AgentResponse,
     AgentType,
     PhaseStatus,
     PipelineConfig,
     PipelineSession,
-    create_phase_result,
 )
 from src.pipeline.phase2_research import Phase2Research
 

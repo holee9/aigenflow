@@ -4,21 +4,13 @@ Tests for core event system.
 
 from datetime import datetime
 
-import pytest
-
 from core.events import (
     AgentCalledEvent,
-    AgentRespondedEvent,
     BaseEvent,
-    EventBus,
     EventHandler,
     EventType,
-    PhaseCompletedEvent,
     PhaseStartedEvent,
-    PipelineCompletedEvent,
-    PipelineFailedEvent,
     PipelineStartedEvent,
-    StateSavedEvent,
     get_event_bus,
 )
 

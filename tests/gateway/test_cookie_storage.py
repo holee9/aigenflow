@@ -4,10 +4,8 @@ Tests for cookie storage functionality.
 
 import json
 from pathlib import Path
-from datetime import datetime, timezone
 
 import pytest
-from cryptography.fernet import InvalidToken
 
 from gateway.cookie_storage import CookieStorage, SessionMetadata
 
