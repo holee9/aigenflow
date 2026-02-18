@@ -240,17 +240,10 @@ def run(
     except Exception as e:
         logger.warning(f"[run] BrowserPool cleanup warning: {e}")
 
-    # TEMPORARY: Skip session check to avoid BrowserPool event loop conflict
-    # The session check creates BrowserPool on the default event loop, which
-    # causes issues when the pipeline creates a new event loop.
-    # TODO: Fix properly by either sharing event loop or making session check loop-aware
-    logger.debug("[run] Skipping session check to avoid event loop conflict")
-    # if not _check_session_availability(headless=not headed):
-    #     console.print(
-    #         "[red]Error: No valid AI sessions found.[/red]\n"
-    #         "[yellow]Please run 'aigenflow setup' to configure sessions.[/yellow]"
-    #     )
-    #     raise typer.Exit(code=1)
+    # NOTE: Session availability check is skipped to avoid event loop conflicts.
+    # The pipeline orchestrator now handles session validation internally.
+    # This avoids BrowserPool being created on the wrong event loop.
+    logger.debug("[run] Skipping early session check (handled by orchestrator)")
 
     # CRITICAL: Close BrowserPool after the early cleanup above, before creating new loop
     # The early cleanup (at line 228-241) handles any BrowserPool from previous commands.

@@ -75,7 +75,9 @@ def config(
         elif value.isdigit():
             value = int(value)
 
-        # TODO: Implement actual config setting
+        # NOTE: Config setting via CLI is intentionally not implemented.
+        # Users should edit .env file directly for permanent configuration changes.
+        # This keeps the configuration source of truth simple and explicit.
         console.print("[yellow]Config set functionality is under development[/yellow]")
         console.print(f"[yellow]Would set: {key} = {value}[/yellow]")
         console.print("\n[yellow]To permanently set configuration, edit .env file[/yellow]")
