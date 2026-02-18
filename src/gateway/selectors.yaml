@@ -39,10 +39,10 @@ providers:
     username_indicator: ".user-email, .username-display"
 
   chatgpt:
-    # ChatGPT (chatgpt.com) selectors
-    base_url: "https://chatgpt.com"
+    # ChatGPT (chat.openai.com) selectors
+    base_url: "https://chat.openai.com"
     login_button: "button[data-testid='login-button'], a[href*='auth/login']"
-    chat_input: "#prompt-textarea, [contenteditable='true'], textarea"
+    chat_input: "#prompt-textarea"
     send_button: "button[data-testid='send-button'], button[aria-label='Send']"
     response_container: "[data-message-author-role='assistant'], .markdown-prose"
     logout_button: "button[aria-label*='Log out'], .logout-button"
@@ -84,5 +84,5 @@ validation:
       - "css_combined"  # combinators like div.class > span
 
 # Version tracking for selector compatibility
-version: "1.0.0"
-last_updated: "2026-02-16"
+version: "1.0.1"
+last_updated: "2026-02-18"
