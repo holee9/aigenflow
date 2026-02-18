@@ -66,6 +66,7 @@ class PhaseResult(BaseModel):
     status: PhaseStatus
     ai_responses: list[AgentResponse] = Field(default_factory=list)
     summary: str = ""
+    error: str | None = None
     artifacts: dict[str, Any] = Field(default_factory=dict)
     started_at: datetime = Field(default_factory=datetime.now)
     completed_at: datetime | None = None

@@ -12,16 +12,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add src directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from src.agents.chatgpt_agent import ChatGPTAgent
-from src.agents.claude_agent import ClaudeAgent
-from src.agents.gemini_agent import GeminiAgent
-from src.agents.perplexity_agent import PerplexityAgent
-from src.core.config import get_settings
-from src.core.models import DocumentType, PipelineConfig
-from src.pipeline.orchestrator import PipelineOrchestrator
+from agents.chatgpt_agent import ChatGPTAgent
+from agents.claude_agent import ClaudeAgent
+from agents.gemini_agent import GeminiAgent
+from agents.perplexity_agent import PerplexityAgent
+from core.config import get_settings
+from core.models import DocumentType, PipelineConfig
+from pipeline.orchestrator import PipelineOrchestrator
 
 # Test topic
 TEST_TOPIC = "AI 기반 스마트폰 건강관리 어플리케이션"

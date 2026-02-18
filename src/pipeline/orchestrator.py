@@ -1,6 +1,7 @@
 """Pipeline orchestration modules."""
 
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from agents.router import AgentRouter, PhaseTask
@@ -16,7 +17,7 @@ from core.models import (
     create_phase_result,
 )
 from gateway.session import SessionManager
-from output.formatter import FileExporter
+from output.formatter import FileExporter, MarkdownFormatter
 from pipeline.base import BasePhase
 from pipeline.phase1_framing import Phase1Framing
 from pipeline.phase2_research import Phase2Research
@@ -138,6 +139,96 @@ class PipelineOrchestrator:
         if exporter is None:
             return
         exporter.save_json("pipeline_state", session.model_dump(mode="json"))
+
+    def _generate_final_document(
+        self,
+        exporter: FileExporter | None,
+        session: PipelineSession,
+    ) -> Path | None:
+        """
+        Generate final Markdown document from pipeline results.
+
+        Compiles Phase 4 (Writing) content with Phase 5 (Review) refinements.
+
+        Args:
+            exporter: File exporter instance
+            session: Pipeline session with all phase results
+
+        Returns:
+            Path to generated document, or None if generation failed
+        """
+        if exporter is None:
+            return None
+
+        # Get Phase 4 (Writing) and Phase 5 (Review) results
+        phase4_result = session.get_phase_result(4)
+        phase5_result = session.get_phase_result(5)
+
+        if not phase4_result or phase4_result.status != PhaseStatus.COMPLETED:
+            logger.warning("Phase 4 not completed, skipping final document generation")
+            return None
+
+        # Extract main content from Phase 4
+        # Priority: business_plan_claude > outline_chatgpt > first successful response
+        main_content = None
+        for response in phase4_result.ai_responses:
+            if response.success and response.content:
+                if "business_plan" in response.task_name.lower():
+                    main_content = response.content
+                    break
+                if main_content is None:
+                    main_content = response.content
+
+        if not main_content:
+            logger.warning("No content found in Phase 4 responses")
+            return None
+
+        # Apply Phase 5 refinements if available
+        review_notes = []
+        if phase5_result and phase5_result.status == PhaseStatus.COMPLETED:
+            for response in phase5_result.ai_responses:
+                if response.success and response.content:
+                    if "polish" in response.task_name.lower() or "review" in response.task_name.lower():
+                        review_notes.append(f"## {response.task_name}\n\n{response.content}")
+
+        # Build final document
+        formatter = MarkdownFormatter()
+        doc_type = session.config.doc_type.value
+        topic = session.config.topic
+
+        # Document header
+        final_doc = f"# {topic}\n\n"
+        final_doc += f"**문서 유형**: {doc_type.upper()}\n"
+        final_doc += f"**생성일**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        final_doc += f"**언어**: {session.config.language}\n\n"
+        final_doc += "---\n\n"
+
+        # Main content from Phase 4
+        final_doc += main_content
+
+        # Append review notes if available
+        if review_notes:
+            final_doc += "\n\n---\n\n"
+            final_doc += "# 검토 및 수정 사항\n\n"
+            final_doc += "\n\n".join(review_notes)
+
+        # Create final directory and save document
+        final_dir = exporter.output_dir / "final"
+        final_dir.mkdir(parents=True, exist_ok=True)
+
+        # Generate filename based on doc type and timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        if doc_type == "bizplan":
+            filename = f"business_plan_{timestamp}"
+        else:  # rd
+            filename = f"rd_proposal_{timestamp}"
+
+        # Use FileExporter to save the markdown
+        final_exporter = FileExporter(final_dir)
+        doc_path = final_exporter.save_markdown(filename, final_doc)
+
+        logger.info(f"Generated final document: {doc_path}")
+        return doc_path
 
     async def _check_and_summarize_context(
         self,
@@ -415,6 +506,14 @@ class PipelineOrchestrator:
                     break
 
             self._finalize_session_state(session)
+
+            # Generate final document if pipeline completed successfully
+            if session.state == PipelineState.COMPLETED:
+                final_doc_path = self._generate_final_document(exporter, session)
+                if final_doc_path and self.ui_logger:
+                    self.ui_logger.info(f"Final document generated: {final_doc_path.name}")
+                if final_doc_path and self.ui_progress:
+                    self.ui_progress.show_session_summary(session)
 
             # Save context summaries to artifacts
             if self.enable_summarization and self.context_summary:

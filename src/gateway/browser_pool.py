@@ -290,6 +290,8 @@ class BrowserPool:
                         pass
                 logger.debug("[BrowserPool] Closing browser")
                 await self._browser.close()
+                # Allow subprocess transports to close gracefully
+                await asyncio.sleep(0.1)
                 logger.debug("[BrowserPool] Browser closed")
             except Exception as e:
                 cleanup_errors.append(f"browser: {e}")
@@ -301,6 +303,8 @@ class BrowserPool:
             try:
                 logger.debug("[BrowserPool] Stopping playwright")
                 await self._playwright.stop()
+                # Allow subprocess transports to fully close before event loop cleanup
+                await asyncio.sleep(0.1)
                 logger.debug("[BrowserPool] Playwright stopped")
             except Exception as e:
                 cleanup_errors.append(f"playwright: {e}")

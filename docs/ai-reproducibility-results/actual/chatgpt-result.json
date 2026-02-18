@@ -3,34 +3,45 @@
   "responses": [
     {
       "iteration": 1,
-      "content": "각 아이디어는 1-2문장으로 설명해주세요.\nAI 챗봇 ChatGPT에 메시지를 보냄으로써, 당사 이용약관에 동의하고 개인정보 보호 정책 및 이의 한국 부록을 읽은 것으로 간주합니다. 쿠키 기본 설정을 참고하세요.",
-      "length": 118,
-      "hash": "34f9d191e7bd0d006d1ba017713ffcd4"
+      "content": "감정 인식 기반 디지털 웰빙 매니저: 스마트폰의 카메라·마이크·사용 패턴을 분석해 사용자의 감정 상태를 실시간으로 추정하고, 스트레스가 높을 경우 알림을 자동으로 제한하거나 명상 앱(예: Calm)과 같은 힐링 콘텐츠를 추천해주는 AI 관리 시스템입니다.\n\n배터리 수명 예측 및 자원 최적화 AI 엔진: 사용자의 충전 습관, 앱 사용 빈도, 위치 이동 패턴을 학습해 배터리 노화를 예측하고, 필요 시 특정 앱(예: Google 서비스)의 백그라운드 활동을 자동 조정하여 장기적으로 배터리 수명을 최적화하는 스마트 관리 시스템입니다.",
+      "length": 297,
+      "hash": "c08ea955115f19d9141a2daa32f996cf"
     },
     {
       "iteration": 2,
-      "content": "감정 인식 기반 사용 패턴 최적화 시스템\n스마트폰 카메라와 음성 톤 분석을 통해 사용자의 감정 상태를 실시간으로 파악하고, 스트레스가 감지되면 알림을 자동으로 줄이거나 명상 앱을 추천하는 등 개인 맞춤형 디지털 환경을 조성합니다.\n\nAI 자원 예측·자율 관리 시스템\n사용자의 앱 사용 습관과 위치·시간 데이터를 학습해 배터리, 저장공간, 네트워크 사용량을 사전에 예측하고, 불필요한 백그라운드 작업을 자동 정리하거나 성능 모드를 상황에 맞게 전환합니다.",
-      "length": 253,
-      "hash": "ddf43caabc1cc0b7c813fb134a9eaf57"
+      "content": "감정 인식 기반 사용 패턴 최적화 시스템: 스마트폰이 사용자의 음성 톤, 타이핑 속도, 사용 앱 패턴을 분석해 스트레스나 피로도를 감지하고, 자동으로 알림을 줄이거나 휴식 모드를 활성화해 디지털 웰빙을 관리해주는 AI 시스템입니다.\n\n예측형 배터리·성능 자율 관리 AI: 사용자의 하루 일정, 위치 이동 패턴, 앱 사용 빈도를 학습해 배터리 소모를 사전에 예측하고 CPU·메모리 자원을 실시간으로 최적화하여 충전 없이도 최대 효율을 유지하도록 관리하는 스마트 운영 시스템입니다.",
+      "length": 267,
+      "hash": "5c944982f6a0b480f4bbe63428c10ec1"
+    },
+    {
+      "iteration": 3,
+      "content": "감정 인식 기반 사용 패턴 코치\n스마트폰이 사용자의 표정, 음성 톤, 타이핑 속도를 분석해 감정 상태를 추정하고, 스트레스가 높을 때는 알림을 줄이거나 휴식 콘텐츠를 추천해 주는 AI 관리 시스템입니다.\n\n미래 예측형 배터리·성능 최적화 매니저\nAI가 사용자의 일별 앱 사용 습관과 이동 경로를 학습해 하루 일정에 맞춰 배터리 사용량과 CPU 성능을 자동 조절하고, 필요한 시점에만 고성능 모드를 활성화하는 스마트 관리 시스템입니다.",
+      "length": 242,
+      "hash": "b712b7cb996c81cd55a7e91713541fa8"
     }
   ],
-  "errors": [
-    "Iteration 3: Page.wait_for_selector: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator(\"#prompt-textarea, textarea\") to be visible\n    34 × locator resolved to 2 elements. Proceeding with the first one: <textarea autofocus=\"\" name=\"prompt-textarea\" placeholder=\"무엇이든 물어보세요\" data-virtualkeyboard=\"true\" class=\"wcDTda_fallbackTextarea\"></textarea>\n"
-  ],
+  "errors": [],
   "similarities": [
     {
-      "length_similarity": 0.466403162055336,
-      "jaccard_similarity": 0.012345679012345678,
-      "character_match": 0.01694915254237288,
+      "length_similarity": 0.898989898989899,
+      "jaccard_similarity": 0.22916666666666666,
+      "character_match": 0.08239700374531835,
       "hash_match": 0.0,
-      "overall": 0.10330364977871735
+      "overall": 0.296183747588242
+    },
+    {
+      "length_similarity": 0.9063670411985019,
+      "jaccard_similarity": 0.313953488372093,
+      "character_match": 0.14049586776859505,
+      "hash_match": 0.0,
+      "overall": 0.34900356391911613
     }
   ],
   "avg_similarity": {
-    "length": 0.466403162055336,
-    "jaccard": 0.012345679012345678,
-    "character": 0.01694915254237288,
+    "length": 0.9026784700942004,
+    "jaccard": 0.2715600775193798,
+    "character": 0.1114464357569567,
     "hash": 0.0,
-    "overall": 0.10330364977871735
+    "overall": 0.32259365575367904
   }
 }
